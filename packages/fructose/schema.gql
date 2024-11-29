@@ -1,0 +1,179 @@
+schema {
+	query: Query
+}
+
+"""
+A globally unique identifier.
+"""
+scalar GlobalID
+
+"""
+A URL.
+"""
+scalar URL
+
+"""
+An email address.
+"""
+scalar EmailAddress
+
+interface Address {
+	avatarURL: URL
+	address: EmailAddress!
+	name: String!
+
+	"""
+	Name <address>
+	"""
+	subjectLine: String!
+}
+
+type Sender implements Address {
+	avatarURL: URL
+	address: EmailAddress!
+	name: String!
+	verified: Boolean!
+
+	"""
+	Name <address>
+	"""
+	subjectLine: String!
+}
+
+type Recipient implements Address {
+	avatarURL: URL
+	address: EmailAddress!
+	name: String!
+	known: Boolean!
+
+	"""
+	Name <address>
+	"""
+	subjectLine: String!
+}
+
+interface Node {
+	id: GlobalID!
+}
+
+type PageInfo {
+	endCursor: String
+	startCursor: String
+	hasNextPage: Boolean!
+	hasPreviousPage: Boolean!
+}
+
+type Email implements Node {
+	id: GlobalID!
+	sender: Sender!
+	recipient: Recipient!
+	cc: [Recipient!]!
+	subject: String!
+	body: String!
+	headers: [Header!]!
+	labels: [Label!]!
+	inbox: Inbox!
+
+	"""
+	Not spam
+	"""
+	trusted: Boolean!
+}
+
+type Label {
+	key: String!
+	text: String!
+	color: String!
+}
+
+type Header {
+	key: String!
+	value: String!
+}
+
+interface Mailbox {
+	account: Account!
+	mails: InboxEmailConnection!
+}
+
+type Inbox implements Mailbox {
+	account: Account!
+	name: String!
+	mails: InboxEmailConnection!
+	main: Boolean!
+}
+
+type Trashbox implements Mailbox {
+	account: Account!
+	mails: InboxEmailConnection!
+}
+
+type Sentbox implements Mailbox {
+	account: Account!
+	mails: InboxEmailConnection!
+}
+
+type Account {
+	address: EmailAddress!
+	name: String!
+	inboxes: [Inbox!]!
+	mainbox: Inbox!
+	trash: Trashbox!
+	sent: Sentbox!
+}
+
+enum SenderServerType {
+	SMTP
+}
+
+type SenderServer {
+	host: String!
+	port: Int!
+	secure: Boolean!
+	auth: Auth!
+	type: SenderServerType!
+}
+
+enum ReceiverServerType {
+	IMAP
+	Google
+}
+
+type ReceiverServer {
+	host: String!
+	port: Int!
+	secure: Boolean!
+	auth: Auth!
+	type: ReceiverServerType!
+}
+
+interface Auth {
+	username: String!
+}
+
+type PasswordAuth implements Auth {
+	username: String!
+	password: String!
+}
+
+type OAuth2Auth implements Auth {
+	username: String!
+	token: String!
+}
+
+type InboxEmailConnection {
+	edges: [InboxEmailEdge!]!
+	nodes: [Email!]!
+	pageInfo: PageInfo!
+}
+
+type InboxEmailEdge {
+	cursor: String!
+	node: Email!
+}
+
+type Query {
+	account(address: EmailAddress!): Account
+	accounts: [Account!]!
+	node(id: GlobalID!): Node
+}

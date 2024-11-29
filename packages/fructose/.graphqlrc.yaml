@@ -1,0 +1,9 @@
+projects:
+  default:
+    schema:
+      - ../invertase/schema.gql
+      - ./$houdini/graphql/schema.graphql
+    documents:
+      - '**/*.gql'
+      - '**/*.svelte'
+      - ./$houdini/graphql/documents.gql

@@ -1,0 +1,252 @@
+generator invertase_prisma {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "postgresqlExtensions", "deno"]
+  engineType = "library"
+  output = "../invertase/prisma"
+}
+
+generator invertase_pothos {
+  provider = "prisma-pothos-types"
+  output = "../invertase/pothos-types.d.ts"
+}
+
+generator nectar {
+  provider = "go run github.com/steebchen/prisma-client-go"
+  output = "../nectar/db"
+}
+
+datasource db {
+  provider = "postgresql" // Use your preferred database provider
+  url      = env("DATABASE_URL")
+}
+
+/// Represents a user account with associated mailboxes and server configurations.
+model Account {
+  /// Unique identifier for the account.
+  id String @id @default(cuid())
+
+  /// The email address of the account.
+  address String @unique
+
+  /// The display name of the account holder.
+  name String
+
+  /// List of mailboxes associated with the account.
+  inboxes Mailbox[] @relation("AccountInboxes")
+
+  /// The primary inbox for the account.
+  mainbox   Mailbox @relation("AccountMainBox", fields: [mainboxId], references: [id])
+  mainboxId String
+
+  /// The trash mailbox for the account.
+  trashbox   Mailbox @relation("AccountTrashBox", fields: [trashboxId], references: [id])
+  trashboxId String
+
+  /// The sent mailbox for the account.
+  sentbox   Mailbox @relation("AccountSentBox", fields: [sentboxId], references: [id])
+  sentboxId String
+
+  /// Server used for sending emails.
+  senderServer   Server @relation("SenderServer", fields: [senderServerId], references: [id])
+  senderServerId String
+
+  /// Server used for receiving emails.
+  receiverServer   Server @relation("ReceiverServer", fields: [receiverServerId], references: [id])
+  receiverServerId String
+}
+
+/// Represents a mailbox, such as an inbox, trash, or sent folder.
+model Mailbox {
+  /// Unique identifier for the mailbox.
+  id String @id @default(cuid())
+
+  /// The account this mailbox belongs to.
+  account   Account @relation("AccountInboxes", fields: [accountId], references: [id])
+  accountId String
+
+  /// The type of mailbox (e.g., Inbox, Trashbox, Sentbox).
+  type MailboxType
+
+  /// Optional name for the mailbox.
+  name String?
+
+  /// Indicates whether this is the main mailbox.
+  main Boolean?
+
+  /// List of emails stored in this mailbox.
+  emails Email[]
+
+  /// Accounts that use this mailbox as the main mailbox.
+  mainbox  Account[] @relation("AccountMainBox")
+  /// Accounts that use this mailbox as the trash mailbox.
+  trashbox Account[] @relation("AccountTrashBox")
+  /// Accounts that use this mailbox as the sent mailbox.
+  sentbox  Account[] @relation("AccountSentBox")
+}
+
+/// Defines the types of mailboxes available.
+enum MailboxType {
+  /// The primary mailbox for incoming emails.
+  INBOX
+
+  /// The mailbox for deleted emails.
+  TRASHBOX
+
+  /// The mailbox for sent emails.
+  SENTBOX
+}
+
+/// Represents an email message.
+model Email {
+  /// Unique identifier for the email.
+  id String @id @default(cuid())
+
+  /// The sender of the email.
+  sender   Address @relation("EmailSender", fields: [senderId], references: [id])
+  senderId String
+
+  /// The primary recipient of the email.
+  recipient   Address @relation("EmailRecipient", fields: [recipientId], references: [id])
+  recipientId String
+
+  /// List of carbon copy (CC) recipients.
+  cc Address[] @relation("EmailCc")
+
+  /// The subject of the email.
+  subject String
+
+  /// The body content of the email.
+  body String
+
+  /// List of headers in the email.
+  headers Header[]
+
+  /// Labels applied to the email.
+  labels Label[]
+
+  /// The mailbox that contains the email.
+  inbox Mailbox @relation(fields: [inboxId], references: [id])
+
+  inboxId String
+
+  /// Indicates whether the email is trusted (not spam).
+  trusted Boolean
+}
+
+/// Represents an email address with optional metadata.
+model Address {
+  /// Unique identifier for the address.
+  id String @id @default(cuid())
+
+  /// Optional URL of the avatar associated with the address.
+  avatarURL String?
+
+  /// The email address.
+  address String
+
+  /// The name associated with the email address.
+  name String
+
+  /// Indicates whether the address is known (for recipients).
+  known Boolean?
+
+  /// Indicates whether the address is verified (for senders).
+  verified Boolean?
+
+  /// The type of address (sender or recipient).
+  type AddressType
+
+  /// Emails sent by this address.
+  sentEmails Email[] @relation("EmailSender")
+
+  /// Emails received by this address.
+  receivedEmails Email[] @relation("EmailRecipient")
+
+  /// Emails where this address is in the CC field.
+  ccEmails Email[] @relation("EmailCc")
+}
+
+/// Defines the types of addresses.
+enum AddressType {
+  /// Represents a sender address.
+  SENDER
+
+  /// Represents a recipient address.
+  RECIPIENT
+}
+
+/// Represents a label applied to an email.
+model Label {
+  /// Unique identifier for the label.
+  id String @id @default(cuid())
+
+  /// Key for the label (used internally).
+  key String
+
+  /// Display text for the label.
+  text String
+
+  /// Color code for the label.
+  color   String
+  Email   Email?  @relation(fields: [emailId], references: [id])
+  emailId String?
+}
+
+/// Represents a key-value header in an email.
+model Header {
+  /// Unique identifier for the header.
+  id String @id @default(cuid())
+
+  /// The header key (e.g., "Subject", "Date").
+  key String
+
+  /// The header value.
+  value   String
+  Email   Email?  @relation(fields: [emailId], references: [id])
+  emailId String?
+}
+
+/// Represents an email server used for sending or receiving emails.
+model Server {
+  /// Unique identifier for the server.
+  id String @id @default(cuid())
+
+  /// Hostname of the server.
+  host String
+
+  /// Port number for the server.
+  port Int
+
+  /// Indicates whether the connection to the server is secure.
+  secure Boolean
+
+  /// The username used to authenticate with the server.
+  username String
+
+  /// Password for authentication (optional for OAuth2).
+  password String?
+
+  /// OAuth2 token for authentication (optional for password-based auth).
+  token String?
+
+  /// The type of server (SMTP, IMAP, etc.).
+  type ServerType
+
+  /// Accounts that use this server for sending emails.
+  senderAccounts Account[] @relation("SenderServer")
+
+  /// Accounts that use this server for receiving emails.
+  receiverAccounts Account[] @relation("ReceiverServer")
+}
+
+/// Defines the types of email servers.
+enum ServerType {
+  /// Represents an SMTP server for sending emails.
+  SMTP
+
+  /// Represents an IMAP server for receiving emails.
+  IMAP
+
+  /// Represents a Google server (IMAP or custom).
+  Google
+}
