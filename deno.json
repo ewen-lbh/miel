@@ -1,4 +1,0 @@
-{
-  "nodeModulesDir": "auto",
-  "workspace": ["./packages/fructose", "./packages/invertase", "./packages/ruche"]
-}

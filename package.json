@@ -1,0 +1,17 @@
+{
+  "name": "miel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fructose": "link:packages/fructose",
+    "invertase": "link:packages/invertase",
+    "ruche": "link:packages/ruche"
+  }
+}

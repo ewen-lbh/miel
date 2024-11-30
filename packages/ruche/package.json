@@ -1,4 +1,7 @@
 {
+  "name": "ruche",
+  "version": "0.1.0",
+  "type": "module",
   "scripts": {
     "dev": "deno run --watch main.ts",
     "prisma": "prisma"

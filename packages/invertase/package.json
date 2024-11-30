@@ -1,0 +1,31 @@
+{
+  "name": "invertase",
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "dependencies": {
+    "@graphql-tools/utils": "^10.6.1",
+    "@pothos/core": "^4.3.0",
+    "@pothos/plugin-prisma": "^4.4.0",
+    "@pothos/plugin-relay": "^4.3.0",
+    "@types/lodash-es": "^4.17.12",
+    "express": "^4.21.1",
+    "graphql": "^16.9.0",
+    "graphql-scalars": "^1.24.0",
+    "graphql-yoga": "^5.10.4",
+    "lodash-es": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "graphinx": "^0.12.2",
+    "nodemon": "^3.1.7",
+    "tsx": "^4.19.2"
+  },
+  "scripts": {
+    "dev": "tsx main.ts",
+    "schema": "tsx barrel-to-schema.ts && tsx write-schema.ts",
+    "watch:schema": "nodemon -q -w types -w resolvers -e ts,tsx -x 'pnpm run schema'"
+  }
+}

@@ -1,179 +1,205 @@
 schema {
-	query: Query
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+directive @graphinx(module: String) on OBJECT | FIELD_DEFINITION | SCALAR | ENUM | UNION | INTERFACE | INPUT_OBJECT
+
+"""
+Represents a user account with associated mailboxes and server configurations.
+"""
+type Account implements Node {
+  """The email address of the account."""
+  address: String
+  id: ID!
+  """The display name of the account holder."""
+  name: String
+}
+
+"""Represents an email address with optional metadata."""
+type Address implements Node {
+  """The email address."""
+  address: String
+  """Optional URL of the avatar associated with the address."""
+  avatarURL: URL
+  """Emails where this address is in the CC field."""
+  ccEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  id: ID!
+  """Indicates whether the address is known (for recipients)."""
+  known: Boolean
+  """The name associated with the email address."""
+  name: String
+  """Emails received by this address."""
+  receivedEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  """Emails sent by this address."""
+  sentEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  """Indicates whether the address is verified (for senders)."""
+  verified: Boolean
+}
+
+enum AddressType {
+  RECIPIENT
+  SENDER
 }
 
 """
-A globally unique identifier.
+A field whose value is a hex color code: https://en.wikipedia.org/wiki/Web_colors.
 """
-scalar GlobalID
+scalar Color
+
+"""Represents an email message."""
+type Email implements Node {
+  """The HTML body content of the email."""
+  html: HTML
+  id: ID!
+  """The mailbox that contains the email."""
+  inbox: Mailbox
+  """The raw, entire body of the email (all parts)."""
+  raw: String
+  """The subject of the email."""
+  subject: String
+  """The text body content of the email."""
+  text: String
+  """Indicates whether the email is trusted (not spam)."""
+  trusted: Boolean
+}
 
 """
-A URL.
-"""
-scalar URL
-
-"""
-An email address.
+A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
 """
 scalar EmailAddress
 
-interface Address {
-	avatarURL: URL
-	address: EmailAddress!
-	name: String!
-
-	"""
-	Name <address>
-	"""
-	subjectLine: String!
+type EmailConnection {
+  edges: [EmailEdge!]!
+  nodes: [Email!]!
+  pageInfo: PageInfo!
 }
 
-type Sender implements Address {
-	avatarURL: URL
-	address: EmailAddress!
-	name: String!
-	verified: Boolean!
-
-	"""
-	Name <address>
-	"""
-	subjectLine: String!
+type EmailEdge {
+  cursor: String!
+  node: Email!
 }
 
-type Recipient implements Address {
-	avatarURL: URL
-	address: EmailAddress!
-	name: String!
-	known: Boolean!
+scalar HTML
 
-	"""
-	Name <address>
-	"""
-	subjectLine: String!
+"""Represents a key-value header in an email."""
+type Header implements Node {
+  """The email that contains this header."""
+  email: Email
+  id: ID!
+  """The header key (e.g., "Subject", "Date")."""
+  key: String
+  """The header value."""
+  value: String
 }
+
+"""Represents a label applied to an email."""
+type Label implements Node {
+  """Color code for the label."""
+  color: Color
+  """Emails with this label."""
+  emails(after: String, before: String, first: Int, last: Int): EmailConnection
+  id: ID!
+  """Key for the label (not displayed)."""
+  key: String
+  """Display text for the label."""
+  text: String
+}
+
+"""Represents a mailbox, such as an inbox, trash, or sent folder."""
+type Mailbox implements Node {
+  """The account this mailbox belongs to."""
+  account: Account
+  """List of emails stored in this mailbox."""
+  emails(after: String, before: String, first: Int, last: Int): EmailConnection
+  id: ID!
+  """Indicates whether this is the main mailbox."""
+  main: Boolean
+  """Optional name for the mailbox."""
+  name: String
+  """The type of mailbox (e.g., Inbox, Trashbox, Sentbox)."""
+  type: MailboxType
+  """Accounts that use this mailbox as the drafts mailbox."""
+  usedAsDraftsboxOn: [Account!]
+  """Accounts that use this mailbox as the main mailbox."""
+  usedAsMainboxOn: [Account!]
+  """Accounts that use this mailbox as the sent mailbox."""
+  usedAsSentboxOn: [Account!]
+  """Accounts that use this mailbox as the trash mailbox."""
+  usedAsTrashboxOn: [Account!]
+}
+
+type MailboxConnection {
+  edges: [MailboxEdge!]!
+  nodes: [MailboxType!]!
+  pageInfo: PageInfo!
+}
+
+type MailboxEdge {
+  cursor: String!
+  node: MailboxType!
+}
+
+enum MailboxType {
+  DRAFTS
+  INBOX
+  SENTBOX
+  TRASHBOX
+}
+
+type Mutation
 
 interface Node {
-	id: GlobalID!
+  id: ID!
 }
 
 type PageInfo {
-	endCursor: String
-	startCursor: String
-	hasNextPage: Boolean!
-	hasPreviousPage: Boolean!
-}
-
-type Email implements Node {
-	id: GlobalID!
-	sender: Sender!
-	recipient: Recipient!
-	cc: [Recipient!]!
-	subject: String!
-	body: String!
-	headers: [Header!]!
-	labels: [Label!]!
-	inbox: Inbox!
-
-	"""
-	Not spam
-	"""
-	trusted: Boolean!
-}
-
-type Label {
-	key: String!
-	text: String!
-	color: String!
-}
-
-type Header {
-	key: String!
-	value: String!
-}
-
-interface Mailbox {
-	account: Account!
-	mails: InboxEmailConnection!
-}
-
-type Inbox implements Mailbox {
-	account: Account!
-	name: String!
-	mails: InboxEmailConnection!
-	main: Boolean!
-}
-
-type Trashbox implements Mailbox {
-	account: Account!
-	mails: InboxEmailConnection!
-}
-
-type Sentbox implements Mailbox {
-	account: Account!
-	mails: InboxEmailConnection!
-}
-
-type Account {
-	address: EmailAddress!
-	name: String!
-	inboxes: [Inbox!]!
-	mainbox: Inbox!
-	trash: Trashbox!
-	sent: Sentbox!
-}
-
-enum SenderServerType {
-	SMTP
-}
-
-type SenderServer {
-	host: String!
-	port: Int!
-	secure: Boolean!
-	auth: Auth!
-	type: SenderServerType!
-}
-
-enum ReceiverServerType {
-	IMAP
-	Google
-}
-
-type ReceiverServer {
-	host: String!
-	port: Int!
-	secure: Boolean!
-	auth: Auth!
-	type: ReceiverServerType!
-}
-
-interface Auth {
-	username: String!
-}
-
-type PasswordAuth implements Auth {
-	username: String!
-	password: String!
-}
-
-type OAuth2Auth implements Auth {
-	username: String!
-	token: String!
-}
-
-type InboxEmailConnection {
-	edges: [InboxEmailEdge!]!
-	nodes: [Email!]!
-	pageInfo: PageInfo!
-}
-
-type InboxEmailEdge {
-	cursor: String!
-	node: Email!
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
 }
 
 type Query {
-	account(address: EmailAddress!): Account
-	accounts: [Account!]!
-	node(id: GlobalID!): Node
+  """Find a mail by id"""
+  email(id: ID!): Email
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node]!
 }
+
+"""Represents an email server used for sending or receiving emails."""
+type Server implements Node {
+  """Hostname of the server."""
+  host: String
+  id: ID!
+  """Password for authentication (optional for OAuth2)."""
+  password: String
+  """Port number for the server."""
+  port: Int
+  """Accounts that use this server for receiving emails."""
+  receiverAccounts: [Account!]
+  """Indicates whether the connection to the server is secure."""
+  secure: Boolean
+  """Accounts that use this server for sending emails."""
+  senderAccounts: [Account!]
+  """OAuth2 token for authentication (optional for password-based auth)."""
+  token: String
+  """The type of server (SMTP, IMAP, etc.)."""
+  type: ServerType
+  """The username used to authenticate with the server."""
+  username: String
+}
+
+enum ServerType {
+  Google
+  IMAP
+  SMTP
+}
+
+type Subscription
+
+"""
+Une adresse internet (URL). Les protocoles autorisés sont: http:, https:, mailto:, tel:
+"""
+scalar URL

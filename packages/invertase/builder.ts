@@ -1,14 +1,39 @@
-import SchemaBuilder from "npm:@pothos/core"
-import { PrismaClient } from "./prisma/deno/edge.ts"
-import PrismaPlugin from "npm:@pothos/plugin-prisma"
+import SchemaBuilder from "@pothos/core"
+import { PrismaClient } from "./prisma/index.js"
+import PrismaPlugin from "@pothos/plugin-prisma"
+import RelayPlugin from "@pothos/plugin-relay"
 import type PrismaTypes from "./pothos-types.d.ts"
+import { GraphinxDirective } from "./utils.ts"
 
 export const prisma = new PrismaClient({})
 
 export const builder = new SchemaBuilder<{
   PrismaTypes: PrismaTypes
+  DefaultNodeNullability: false
+  DefaultEdgesNullability: false
+  Scalars: {
+    EmailAddress: {
+      Input: string
+      Output: string
+    }
+    HTML: {
+      Input: string
+      Output: string
+    }
+    URL: {
+      Input: string
+      Output: string
+    }
+    Color: {
+      Input: string
+      Output: string
+    }
+  }
+  Directives: {
+    graphinx: GraphinxDirective
+  }
 }>({
-  plugins: [PrismaPlugin],
+  plugins: [PrismaPlugin, RelayPlugin],
   prisma: {
     client: prisma,
     // defaults to false, uses /// comments from prisma schema as descriptions
@@ -20,5 +45,15 @@ export const builder = new SchemaBuilder<{
     // warn when not using a query parameter correctly
     // onUnusedQuery: env.NODE_ENV === 'production' ? null : 'warn',
     onUnusedQuery: "warn",
+  },
+  relay: {
+    nodesOnConnection: true,
+    brandLoadedObjects: true,
+    edgesFieldOptions: {
+      nullable: false,
+    },
+    nodeFieldOptions: {
+      nullable: false,
+    },
   },
 })

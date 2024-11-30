@@ -1,18 +1,17 @@
 generator invertase_prisma {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "postgresqlExtensions", "deno"]
-  engineType = "library"
-  output = "../invertase/prisma"
+  output          = "../invertase/prisma"
 }
 
 generator invertase_pothos {
   provider = "prisma-pothos-types"
-  output = "../invertase/pothos-types.d.ts"
+  output   = "../invertase/pothos-types.d.ts"
 }
 
 generator nectar {
   provider = "go run github.com/steebchen/prisma-client-go"
-  output = "../nectar/db"
+  output   = "../nectar/db"
 }
 
 datasource db {
@@ -46,6 +45,10 @@ model Account {
   sentbox   Mailbox @relation("AccountSentBox", fields: [sentboxId], references: [id])
   sentboxId String
 
+  /// The drafts mailbox for the account.
+  draftsbox   Mailbox @relation("AccountDraftsBox", fields: [draftsboxId], references: [id])
+  draftsboxId String
+
   /// Server used for sending emails.
   senderServer   Server @relation("SenderServer", fields: [senderServerId], references: [id])
   senderServerId String
@@ -77,11 +80,13 @@ model Mailbox {
   emails Email[]
 
   /// Accounts that use this mailbox as the main mailbox.
-  mainbox  Account[] @relation("AccountMainBox")
+  mainbox   Account[] @relation("AccountMainBox")
   /// Accounts that use this mailbox as the trash mailbox.
-  trashbox Account[] @relation("AccountTrashBox")
+  trashbox  Account[] @relation("AccountTrashBox")
   /// Accounts that use this mailbox as the sent mailbox.
-  sentbox  Account[] @relation("AccountSentBox")
+  sentbox   Account[] @relation("AccountSentBox")
+  /// Accounts that use this mailbox as the drafts mailbox.
+  draftsbox Account[] @relation("AccountDraftsBox")
 }
 
 /// Defines the types of mailboxes available.
@@ -94,6 +99,9 @@ enum MailboxType {
 
   /// The mailbox for sent emails.
   SENTBOX
+
+  /// The mailbox for drafts.
+  DRAFTS
 }
 
 /// Represents an email message.
@@ -115,8 +123,14 @@ model Email {
   /// The subject of the email.
   subject String
 
-  /// The body content of the email.
-  body String
+  /// The text body content of the email.
+  textBody String
+
+  /// The HTML body content of the email.
+  htmlBody String
+
+  /// The raw, entire body of the email (all parts).
+  rawBody String
 
   /// List of headers in the email.
   headers Header[]
@@ -180,16 +194,17 @@ model Label {
   /// Unique identifier for the label.
   id String @id @default(cuid())
 
-  /// Key for the label (used internally).
+  /// Key for the label (not displayed).
   key String
 
   /// Display text for the label.
   text String
 
   /// Color code for the label.
-  color   String
-  Email   Email?  @relation(fields: [emailId], references: [id])
-  emailId String?
+  color String
+
+  /// Emails with this label.
+  emails Email[]
 }
 
 /// Represents a key-value header in an email.
@@ -201,9 +216,11 @@ model Header {
   key String
 
   /// The header value.
-  value   String
-  Email   Email?  @relation(fields: [emailId], references: [id])
-  emailId String?
+  value String
+
+  /// The email that contains this header.
+  email   Email  @relation(fields: [emailId], references: [id])
+  emailId String
 }
 
 /// Represents an email server used for sending or receiving emails.

@@ -1,0 +1,33 @@
+{
+  "New Pothos type definition": {
+    "prefix": "pothostype",
+    "body": [
+      "import { builder } from \"../builder\"",
+      "import { typeName, graphinx } from \"../utils\"",
+      "",
+      "export const $1Type = builder.prismaNode(\"$1\", {",
+      "\t...graphinx(\"$2\"),",
+      "\tid: { field: \"id\" },",
+      "\tname: typeName(),",
+      "\t$0",
+      "})",
+      ""
+    ],
+    "description": "Create a new Pothos type"
+  },
+  "New Pothos enum definition": {
+    "prefix": "pothosenum",
+    "body": [
+      "import { builder } from \"../builder\"",
+      "import { typeName, graphinx } from \"../utils\"",
+      "import * as Prisma from \"../prisma\"",
+      "",
+      "export const $1Type = builder.enumType(Prisma.$1, {",
+      "\t...graphinx(\"$0\"),",
+      "\tname: typeName(),",
+      "})",
+      ""
+    ],
+    "description": "Create a new Pothos enum"
+  }
+}

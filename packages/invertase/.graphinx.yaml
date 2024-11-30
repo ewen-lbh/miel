@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/graphinx/graphinx/v0.12.2/config.schema.json
+template: graphinx/templates/default#v0.12.2
+
+schema:
+  static: ../fructose/schema.gql
+
+branding:
+  name: Miel API
+
+description: ./README.md
+
+modules:
+  docs: docs/[module].md
+  icons: docs/[module].svg
+  fallback: global
+  filesystem: []
+  mapping:
+    ID: global
+    Node: global
+    PageInfo: global
+    Error: global
+    ErrorInterface: global
+    "*Error": global
+    Mailbox*: mailboxes
+    Address*: addresses
+    EmailAddress: addresses
+    Account*: accounts
+    Server*: accounts
+    Email: emails
+    EmailConnection: emails
+    Header: emails
+    Label: emails
+  order:
+    - emails
+    - accounts
+    - mailboxes
+    - addresses
+    - global
