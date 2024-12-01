@@ -6,8 +6,8 @@ github.com/emersion/go-message v0.18.1 h1:tfTxIoXFSFRwWaZsgnqS1DSZuGpYGzSmCZD8SK
 github.com/emersion/go-message v0.18.1/go.mod h1:XpJyL70LwRvq2a8rVbHXikPgKj8+aI0kGdHlg16ibYA=
 github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43 h1:hH4PQfOndHDlpzYfLAAfl63E8Le6F2+EL/cdhlkyRJY=
 github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43/go.mod h1:iL2twTeMvZnrg54ZoPDNfJaJaqy0xIQFuBdrLsmspwQ=
-github.com/ewen-lbh/label-logger-go v0.1.1 h1:jHTjmhD1OBP7xqdG+xs6NvO96JJ3+5mhskTKVJxLDm4=
-github.com/ewen-lbh/label-logger-go v0.1.1/go.mod h1:ORVakjovWm+MfrGXmHBZAJvxNqYwAxdG3Sev8CXXChM=
+github.com/ewen-lbh/label-logger-go v0.1.2 h1:sUD/X5RKahsa8ZW9XSg4v1ekSsyDB3iScT+zCpnPvXc=
+github.com/ewen-lbh/label-logger-go v0.1.2/go.mod h1:ORVakjovWm+MfrGXmHBZAJvxNqYwAxdG3Sev8CXXChM=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/gosuri/uilive v0.0.4 h1:hUEBpQDj8D8jXgtCdBu7sWsy5sbW/5GhuO8KBwJ2jyY=

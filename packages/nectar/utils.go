@@ -20,3 +20,9 @@ func noop() {
 
 }
 
+func ellipsis(s string, max int) string {
+	if len(s) > max {
+		return s[:max-1] + "…"
+	}
+	return s
+}

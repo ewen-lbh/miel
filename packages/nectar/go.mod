@@ -5,7 +5,7 @@ go 1.23.3
 require (
 	github.com/emersion/go-imap/v2 v2.0.0-beta.4
 	github.com/emersion/go-message v0.18.1
-	github.com/ewen-lbh/label-logger-go v0.1.1
+	github.com/ewen-lbh/label-logger-go v0.1.2
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.44.0
