@@ -34,24 +34,24 @@ model Account {
   inboxes Mailbox[] @relation("AccountInboxes")
 
   /// The primary inbox for the account.
-  mainbox   Mailbox @relation("AccountMainBox", fields: [mainboxId], references: [id])
-  mainboxId String
+  mainbox   Mailbox? @relation("AccountMainBox", fields: [mainboxId], references: [id])
+  mainboxId String?
 
   /// The trash mailbox for the account.
-  trashbox   Mailbox @relation("AccountTrashBox", fields: [trashboxId], references: [id])
-  trashboxId String
+  trashbox   Mailbox? @relation("AccountTrashBox", fields: [trashboxId], references: [id])
+  trashboxId String?
 
   /// The sent mailbox for the account.
-  sentbox   Mailbox @relation("AccountSentBox", fields: [sentboxId], references: [id])
-  sentboxId String
+  sentbox   Mailbox? @relation("AccountSentBox", fields: [sentboxId], references: [id])
+  sentboxId String?
 
   /// The drafts mailbox for the account.
-  draftsbox   Mailbox @relation("AccountDraftsBox", fields: [draftsboxId], references: [id])
-  draftsboxId String
+  draftsbox   Mailbox? @relation("AccountDraftsBox", fields: [draftsboxId], references: [id])
+  draftsboxId String?
 
   /// Server used for sending emails.
-  senderServer   Server @relation("SenderServer", fields: [senderServerId], references: [id])
-  senderServerId String
+  senderServer   Server? @relation("SenderServer", fields: [senderServerId], references: [id])
+  senderServerId String?
 
   /// Server used for receiving emails.
   receiverServer   Server @relation("ReceiverServer", fields: [receiverServerId], references: [id])
@@ -63,6 +63,9 @@ model Mailbox {
   /// Unique identifier for the mailbox.
   id String @id @default(cuid())
 
+  /// UIDVALIDITY of the mailbox. Only available to @miel/nectar
+  internalUidValidity Int
+
   /// The account this mailbox belongs to.
   account   Account @relation("AccountInboxes", fields: [accountId], references: [id])
   accountId String
@@ -71,7 +74,7 @@ model Mailbox {
   type MailboxType
 
   /// Optional name for the mailbox.
-  name String?
+  name String
 
   /// Indicates whether this is the main mailbox.
   main Boolean?
@@ -87,6 +90,8 @@ model Mailbox {
   sentbox   Account[] @relation("AccountSentBox")
   /// Accounts that use this mailbox as the drafts mailbox.
   draftsbox Account[] @relation("AccountDraftsBox")
+
+  @@unique([accountId, name, internalUidValidity])
 }
 
 /// Defines the types of mailboxes available.
@@ -108,6 +113,9 @@ enum MailboxType {
 model Email {
   /// Unique identifier for the email.
   id String @id @default(cuid())
+
+  /// UID of the email in the mailbox. Only available to @miel/nectar
+  internalUid Int
 
   /// The sender of the email.
   sender   Address @relation("EmailSender", fields: [senderId], references: [id])
@@ -145,6 +153,8 @@ model Email {
 
   /// Indicates whether the email is trusted (not spam).
   trusted Boolean
+
+  @@unique([inboxId, internalUid])
 }
 
 /// Represents an email address with optional metadata.
@@ -156,7 +166,7 @@ model Address {
   avatarURL String?
 
   /// The email address.
-  address String
+  address String @unique
 
   /// The name associated with the email address.
   name String
