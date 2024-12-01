@@ -117,6 +117,9 @@ model Email {
   /// UID of the email in the mailbox. Only available to @miel/nectar
   internalUid Int
 
+  /// Message-ID of the email.
+  messageId String? @unique
+
   /// The sender of the email.
   sender   Address @relation("EmailSender", fields: [senderId], references: [id])
   senderId String
@@ -153,6 +156,12 @@ model Email {
 
   /// Indicates whether the email is trusted (not spam).
   trusted Boolean
+
+  /// Emails contained in this email's thread.
+  threadReferences Email[] @relation("ThreadEmails")
+
+  /// Emaisl that reference this email as part of their thread.
+  threadReplies Email[] @relation("ThreadEmails")
 
   @@unique([inboxId, internalUid])
 }

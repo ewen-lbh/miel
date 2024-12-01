@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"mime"
+	"mime/quotedprintable"
 	"strings"
 
 	// "os"
@@ -248,12 +250,12 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 	mails := c.imap.Fetch(seqset, &imap.FetchOptions{
 		Envelope: true,
 		Flags:    true,
-		// BodyStructure: &imap.FetchItemBodyStructure{
-		// 	Extended: true,
-		// },
+		BodyStructure: &imap.FetchItemBodyStructure{
+			Extended: true,
+		},
 		InternalDate: true,
 		UID:          true,
-		BodySection:  []*imap.FetchItemBodySection{},
+		BodySection:  []*imap.FetchItemBodySection{{}},
 	})
 
 	defer mails.Close()
@@ -274,6 +276,11 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 		}
 
 		envelope := mail.Envelope
+
+		// TODO remove (its for testing)
+		if envelope.MessageID != "2fd860f05783dc425d4134b7aa06910a@ewen.works" {
+			continue
+		}
 
 		// ll.UpdateProgressBar("Saving", "cyan", "email", "")
 
@@ -358,23 +365,73 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 			return fmt.Errorf("while upserting db-address for recipient %s: %w", envelope.To, err)
 		}
 
+		bodyTextPath := []int{}
+		bodyHTMLPath := []int{}
+		mailReferences := []string{}
+
+		mail.BodyStructure.Walk(func(path []int, bs imap.BodyStructure) bool {
+			ll.Debug("%q / %v bdpart %#v", envelope.Subject, path, bs)
+			switch bs := bs.(type) {
+			case *imap.BodyStructureSinglePart:
+				switch bs.MediaType() {
+				case "text", "text/plain":
+					bodyTextPath = path
+				case "text/html":
+					bodyHTMLPath = path
+				case "message/rfc822":
+					mailReferences = append(mailReferences, bs.MessageRFC822.Envelope.MessageID)
+				}
+			case *imap.BodyStructureMultiPart:
+			}
+			return true
+		})
+
+		bodyText := ""
+		bodyHTML := ""
+
+		for fetchitem, content := range mail.BodySection {
+			ll.Debug("fetchitem: %#v", fetchitem)
+			if same(fetchitem.Part, bodyTextPath) {
+				bodyText = string(content)
+			}
+
+			if same(fetchitem.Part, bodyHTMLPath) {
+				ll.Debug("bodyHTMLPath: %v, fechi %#v", bodyHTMLPath, fetchitem)
+				decoded, _ := io.ReadAll(quotedprintable.NewReader(strings.NewReader(string(content))))
+				bodyHTML = string(decoded)
+			}
+
+		}
+
+		messageidOrNull := &envelope.MessageID
+		if envelope.MessageID == "" {
+			messageidOrNull = nil
+		}
+
+		ll.Debug("messageidOrNull: %v", messageidOrNull)
+
 		_, err = prisma.Email.UpsertOne(
 			db.Email.InboxIDInternalUID(
 				db.Email.InboxID.Equals(inboxId),
 				db.Email.InternalUID.Equals(int(mail.UID)),
 			),
 		).
-			Update().
+			Update(
+				db.Email.MessageID.SetIfPresent(messageidOrNull),
+				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
+			).
 			Create(
 				db.Email.InternalUID.Set(int(mail.UID)),
 				db.Email.Sender.Link(db.Address.ID.Equals(sender.ID)),
 				db.Email.Recipient.Link(db.Address.ID.Equals(recipient.ID)),
 				db.Email.Subject.Set(envelope.Subject),
-				db.Email.TextBody.Set(""),
-				db.Email.HTMLBody.Set(""),
+				db.Email.TextBody.Set(bodyText),
+				db.Email.HTMLBody.Set(bodyHTML),
 				db.Email.RawBody.Set(""),
 				db.Email.Inbox.Link(db.Mailbox.ID.Equals(inboxId)),
 				db.Email.Trusted.Set(contains(mail.Flags, imap.FlagNotJunk)),
+				db.Email.MessageID.SetOptional(messageidOrNull),
+				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
 			).Exec(context.Background())
 
 		if err != nil {
