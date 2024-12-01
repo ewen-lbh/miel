@@ -2,6 +2,8 @@ import express from "express"
 import { createYoga } from "graphql-yoga"
 import { builder } from "./builder.ts"
 
+await import("./schema.js")
+
 const yoga = createYoga({
   schema: builder.toSchema(),
 })

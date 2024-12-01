@@ -1,7 +1,7 @@
 projects:
   default:
     schema:
-      - ../invertase/schema.gql
+      - ./schema.gql
       - ./$houdini/graphql/schema.graphql
     documents:
       - '**/*.gql'

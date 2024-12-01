@@ -1,5 +1,7 @@
-query PageHome {
-  account {
-
-  }
+query PageHome @loading {
+	accounts @loading(count: 3) {
+		id
+		address
+		name
+	}
 }

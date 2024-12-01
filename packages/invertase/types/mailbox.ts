@@ -17,6 +17,7 @@ export const MailboxType = builder.prismaNode("Mailbox", {
       {
         type: EmailType,
         cursor: "id",
+        query: { orderBy: { internalUid: "desc" } },
       },
       EmailConnectionType
     ),

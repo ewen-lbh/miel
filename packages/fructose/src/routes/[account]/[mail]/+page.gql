@@ -1,0 +1,10 @@
+query PageEmail($mail: ID!) @loading(cascade: true) {
+    email(id: $mail) {
+        from {
+            address
+        }
+        subject
+        html
+        text
+    }
+}

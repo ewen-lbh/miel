@@ -1,0 +1,18 @@
+query PageAccount($account: EmailAddress!) @loading(cascade: true) {
+	account(address: $account) {
+		name
+		inboxes @loading(count: 5) {
+			name
+			emails(first: 5) {
+				nodes {
+                    id
+					from {
+						address
+					}
+					subject
+					html
+				}
+			}
+		}
+	}
+}

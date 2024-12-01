@@ -1,9 +1,7 @@
 import { dev } from '$app/environment';
 import { PendingValue } from '$houdini';
 
-export { default as LoadingChurros } from '$lib/components/LoadingChurros.svelte';
-export { default as LoadingSpinner } from '$lib/components/LoadingSpinner.svelte';
-export { default as LoadingText } from '$lib/components/LoadingText.svelte';
+export { default as LoadingText } from '$lib/LoadingText.svelte';
 
 /**
  * To develop a loading state, set this to true
@@ -13,8 +11,8 @@ export { default as LoadingText } from '$lib/components/LoadingText.svelte';
 const SIMULATE_LOADING_STATE = false;
 
 function simulatingLoadingState(): boolean {
-  // Safeguard to prevent simulating loading states on production
-  return dev && SIMULATE_LOADING_STATE;
+	// Safeguard to prevent simulating loading states on production
+	return dev && SIMULATE_LOADING_STATE;
 }
 
 export type MaybeLoading<T> = T | null | undefined | typeof PendingValue;
@@ -26,69 +24,69 @@ export type MaybeLoading<T> = T | null | undefined | typeof PendingValue;
  * @returns the value or the fallback
  */
 export function loading<T>(value: MaybeLoading<T>, fallback: T): T {
-  if (simulatingLoadingState()) return fallback;
-  return value === PendingValue || value === null || value === undefined ? fallback : value;
+	if (simulatingLoadingState()) return fallback;
+	return value === PendingValue || value === null || value === undefined ? fallback : value;
 }
 
 export type AllLoaded<T> = T extends object
-  ? { [K in keyof T]: AllLoaded<T[K]> }
-  : T extends unknown[]
-    ? AllLoaded<T[number]>[]
-    : T extends typeof PendingValue
-      ? never
-      : T;
+	? { [K in keyof T]: AllLoaded<T[K]> }
+	: T extends unknown[]
+		? AllLoaded<T[number]>[]
+		: T extends typeof PendingValue
+			? never
+			: T;
 
 export type DeepMaybeLoading<T> = T extends object
-  ? { [K in keyof T]: DeepMaybeLoading<T[K]> }
-  : T extends unknown[]
-    ? DeepMaybeLoading<T[number]>[]
-    : MaybeLoading<T>;
+	? { [K in keyof T]: DeepMaybeLoading<T[K]> }
+	: T extends unknown[]
+		? DeepMaybeLoading<T[number]>[]
+		: MaybeLoading<T>;
 
 export function loaded<T>(value: MaybeLoading<T>): value is T {
-  if (simulatingLoadingState()) return false;
-  return value !== PendingValue;
+	if (simulatingLoadingState()) return false;
+	return value !== PendingValue;
 }
 
 export function onceLoaded<I, O>(
-  value: MaybeLoading<I>,
-  compute: (loadedValue: I) => O,
-  fallback: O,
+	value: MaybeLoading<I>,
+	compute: (loadedValue: I) => O,
+	fallback: O
 ): O {
-  return loaded(value) ? compute(value) : fallback;
+	return loaded(value) ? compute(value) : fallback;
 }
 
 export function onceAllLoaded<T extends unknown[], O, FO>(
-  values: { [K in keyof T]: MaybeLoading<T[K]> },
-  compute: (...loadedValues: T) => O,
-  fallback: FO,
+	values: { [K in keyof T]: MaybeLoading<T[K]> },
+	compute: (...loadedValues: T) => O,
+	fallback: FO
 ): O | FO {
-  if (values.every(loaded)) return compute(...(values as T));
-  return fallback;
+	if (values.every(loaded)) return compute(...(values as T));
+	return fallback;
 }
 
 // @ts-expect-error don't know how to fix the 'T could be instanciated with a type that is unrelated to AllLoaded' error
 export function allLoaded<T>(value: T): value is AllLoaded<T> {
-  if (simulatingLoadingState()) return false;
-  if (Array.isArray(value)) return value.every((item) => allLoaded(item));
-  else if (typeof value === 'object' && value !== null)
-    return Object.values(value).every((item) => allLoaded(item));
+	if (simulatingLoadingState()) return false;
+	if (Array.isArray(value)) return value.every((item) => allLoaded(item));
+	else if (typeof value === 'object' && value !== null)
+		return Object.values(value).every((item) => allLoaded(item));
 
-  return loaded(value);
+	return loaded(value);
 }
 
 export function mapLoading<T, O>(
-  value: MaybeLoading<T>,
-  mapping: (value: T) => O,
+	value: MaybeLoading<T>,
+	mapping: (value: T) => O
 ): MaybeLoading<O> {
-  if (loaded(value)) return mapping(value);
-  return PendingValue;
+	if (loaded(value)) return mapping(value);
+	return PendingValue;
 }
 
 export function mapAllLoading<T extends unknown[], O>(
-  values: { [K in keyof T]: MaybeLoading<T[K]> },
-  mapping: (...values: T) => O,
+	values: { [K in keyof T]: MaybeLoading<T[K]> },
+	mapping: (...values: T) => O
 ): MaybeLoading<O> {
-  return onceAllLoaded(values, mapping, PendingValue);
+	return onceAllLoaded(values, mapping, PendingValue);
 }
 
 export const LOREM_IPSUM = `Lorem ipsum dolor sit amet. A impedit beatae sed nostrum voluptatem

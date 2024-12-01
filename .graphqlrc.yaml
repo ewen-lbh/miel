@@ -1,0 +1,9 @@
+projects:
+  default:
+    schema:
+      - ./packages/fructose/schema.gql
+      - ./packages/fructose/$houdini/graphql/schema.graphql
+    documents:
+      - './packages/fructose**/*.gql'
+      - './packages/fructose**/*.svelte'
+      - ./packages/fructose/$houdini/graphql/documents.gql

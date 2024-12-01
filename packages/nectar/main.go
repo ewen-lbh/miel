@@ -1,13 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"mime"
-	"mime/quotedprintable"
 	"strings"
+	"time"
 
 	// "os"
 
@@ -15,6 +15,7 @@ import (
 
 	"gwen.works/miel/db"
 
+	"github.com/DusanKasan/parsemail"
 	"github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/emersion/go-message/charset"
@@ -170,17 +171,22 @@ func (c LoggedInAccount) Trash(mailseq imap.NumSet) error {
 		return fmt.Errorf("no trashbox for this account")
 	}
 
-	_, err := c.imap.Move(mailseq, c.trashbox.Name).Wait()
+	_, err, timedout := timeout(3*time.Second, func() (*imapclient.MoveData, error) {
+		return c.imap.Move(mailseq, c.trashbox.Name).Wait()
+	})
+	if timedout {
+		return fmt.Errorf("timed out while moving email to trash")
+	}
 	return err
 }
 
 func (c LoggedInAccount) SyncMails(inboxId string) error {
 	// TODO remove (its for testing)
-	prisma.Email.FindMany(db.Email.InboxID.Equals(inboxId)).
-		// OrderBy(db.Email.InternalUID.Order(db.SortOrderDesc)).
-		// Take(30).
-		Delete().
-		Exec(context.Background())
+	// prisma.Email.FindMany(db.Email.InboxID.Equals(inboxId)).
+	// 	// OrderBy(db.Email.InternalUID.Order(db.SortOrderDesc)).
+	// 	// Take(30).
+	// 	Delete().
+	// 	Exec(context.Background())
 
 	box, err := prisma.Mailbox.FindUnique(db.Mailbox.ID.Equals(inboxId)).Exec(context.Background())
 
@@ -261,7 +267,9 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 	defer mails.Close()
 
 	ll.StartProgressBar(seqsetSize(seqset), "Saving", "cyan")
+	i := 0
 	for {
+		i++
 		mailbuf := mails.Next()
 		if mailbuf == nil {
 			break
@@ -276,11 +284,14 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 		}
 
 		envelope := mail.Envelope
-
-		// TODO remove (its for testing)
-		if envelope.MessageID != "2fd860f05783dc425d4134b7aa06910a@ewen.works" {
-			continue
+		if i == 1813 {
+			ll.Log("Blocked on", "red", "%+v", envelope)
 		}
+
+		// // TODO remove (its for testing)
+		// if envelope.MessageID != "2fd860f05783dc425d4134b7aa06910a@ewen.works" {
+		// 	continue
+		// }
 
 		// ll.UpdateProgressBar("Saving", "cyan", "email", "")
 
@@ -365,62 +376,45 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 			return fmt.Errorf("while upserting db-address for recipient %s: %w", envelope.To, err)
 		}
 
-		bodyTextPath := []int{}
-		bodyHTMLPath := []int{}
-		mailReferences := []string{}
-
-		mail.BodyStructure.Walk(func(path []int, bs imap.BodyStructure) bool {
-			ll.Debug("%q / %v bdpart %#v", envelope.Subject, path, bs)
-			switch bs := bs.(type) {
-			case *imap.BodyStructureSinglePart:
-				switch bs.MediaType() {
-				case "text", "text/plain":
-					bodyTextPath = path
-				case "text/html":
-					bodyHTMLPath = path
-				case "message/rfc822":
-					mailReferences = append(mailReferences, bs.MessageRFC822.Envelope.MessageID)
-				}
-			case *imap.BodyStructureMultiPart:
-			}
-			return true
-		})
-
 		bodyText := ""
 		bodyHTML := ""
-
-		for fetchitem, content := range mail.BodySection {
-			ll.Debug("fetchitem: %#v", fetchitem)
-			if same(fetchitem.Part, bodyTextPath) {
-				bodyText = string(content)
-			}
-
-			if same(fetchitem.Part, bodyHTMLPath) {
-				ll.Debug("bodyHTMLPath: %v, fechi %#v", bodyHTMLPath, fetchitem)
-				decoded, _ := io.ReadAll(quotedprintable.NewReader(strings.NewReader(string(content))))
-				bodyHTML = string(decoded)
-			}
-
-		}
 
 		messageidOrNull := &envelope.MessageID
 		if envelope.MessageID == "" {
 			messageidOrNull = nil
 		}
 
-		ll.Debug("messageidOrNull: %v", messageidOrNull)
-
-		_, err = prisma.Email.UpsertOne(
-			db.Email.InboxIDInternalUID(
-				db.Email.InboxID.Equals(inboxId),
-				db.Email.InternalUID.Equals(int(mail.UID)),
+		dbEmail, err := prisma.Email.FindFirst(
+			db.Email.Or(
+				db.Email.And(
+					db.Email.InboxID.Equals(inboxId),
+					db.Email.InternalUID.Equals(int(mail.UID)),
+				),
+				db.Email.MessageID.EqualsIfPresent(messageidOrNull),
 			),
-		).
-			Update(
-				db.Email.MessageID.SetIfPresent(messageidOrNull),
-				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
-			).
-			Create(
+		).Exec(context.Background())
+
+		if err != nil && !errors.Is(err, db.ErrNotFound) {
+			return fmt.Errorf("while checking if email exists: %w", err)
+		}
+
+		if dbEmail == nil {
+			if len(mail.BodySection) > 1 {
+				return fmt.Errorf("mail has more than one body section: %v", mail.BinarySection)
+			}
+
+			if len(mail.BodySection) == 1 {
+				_, body := firstmapEntry(mail.BodySection)
+				parsed, err := parsemail.Parse(bytes.NewReader(body))
+				if err != nil {
+					ll.WarnDisplay("could not parse email body for %q: %w", err, envelope.Subject)
+				}
+
+				bodyText = parsed.TextBody
+				bodyHTML = parsed.HTMLBody
+			}
+
+			_, err = prisma.Email.CreateOne(
 				db.Email.InternalUID.Set(int(mail.UID)),
 				db.Email.Sender.Link(db.Address.ID.Equals(sender.ID)),
 				db.Email.Recipient.Link(db.Address.ID.Equals(recipient.ID)),
@@ -434,8 +428,18 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
 			).Exec(context.Background())
 
-		if err != nil {
-			ll.WarnDisplay("could not save email %q: %w", err, envelope.Subject)
+			if err != nil {
+				ll.WarnDisplay("could not save new email %q: %w", err, envelope.Subject)
+			}
+		} else {
+			_, err = prisma.Email.UpsertOne(db.Email.ID.Equals(dbEmail.ID)).Update(
+				db.Email.MessageID.SetIfPresent(messageidOrNull),
+				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
+			).Exec(context.Background())
+			if err != nil {
+				ll.WarnDisplay("could not update email %q: %w", err, envelope.Subject)
+			}
+
 		}
 
 		if !ll.ProgressBarFinished() {

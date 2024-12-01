@@ -12,5 +12,8 @@ export const EmailType = builder.prismaNode("Email", {
     raw: t.exposeString("rawBody"),
     inbox: t.relation("inbox"),
     trusted: t.exposeBoolean("trusted"),
+    from: t.relation("sender"),
+    to: t.relation("recipient"),
+    cc: t.relation("cc"),
   }),
 })

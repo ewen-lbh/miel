@@ -5,13 +5,14 @@ go 1.23.3
 require (
 	github.com/emersion/go-imap/v2 v2.0.0-beta.4
 	github.com/emersion/go-message v0.18.1
-	github.com/ewen-lbh/label-logger-go v0.1.2
+	github.com/ewen-lbh/label-logger-go v0.1.3
 	github.com/joho/godotenv v1.5.1
 	github.com/shopspring/decimal v1.4.0
 	github.com/steebchen/prisma-client-go v0.44.0
 )
 
 require (
+	github.com/DusanKasan/parsemail v1.2.0
 	github.com/emersion/go-sasl v0.0.0-20231106173351-e73c9f7bad43 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/gosuri/uiprogress v0.0.1 // indirect

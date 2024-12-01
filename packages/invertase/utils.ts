@@ -11,7 +11,7 @@ export function fieldName(): string {
   return camelCase(
     path
       .basename(util.getCallSite()[1].scriptName)
-      .replace(/\w+\.(\w+)\.ts$/, "$1")
+      .replace(/\w+\.([\w-]+)\.ts$/, "$1")
   )
 }
 

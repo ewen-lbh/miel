@@ -1,6 +1,5 @@
 import { builder, prisma } from "../builder"
 import { EmailType } from "../schema"
-import path from "node:path"
 import { fieldName } from "../utils"
 
 builder.queryField(fieldName(), (t) =>
@@ -9,12 +8,12 @@ builder.queryField(fieldName(), (t) =>
     nullable: true,
     description: "Find a mail by id",
     args: {
-      id: t.arg.id({ required: true }),
+      id: t.arg.globalID({ for: EmailType, required: true }),
     },
-    async resolve(query, _, { id }) {
+    async resolve(query, _, { id: gid }) {
       return prisma.email.findUnique({
         ...query,
-        where: { id },
+        where: { id: gid.id },
       })
     },
   })

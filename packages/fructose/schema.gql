@@ -11,29 +11,46 @@ Represents a user account with associated mailboxes and server configurations.
 """
 type Account implements Node {
   """The email address of the account."""
-  address: String
+  address: String!
+  """The drafts mailbox for the account."""
+  draftsbox: Mailbox
   id: ID!
+  """List of mailboxes associated with the account."""
+  inboxes(
+    """Include empty inboxes"""
+    empty: Boolean = false
+  ): [Mailbox!]!
+  """The primary inbox for the account."""
+  mainbox: Mailbox
   """The display name of the account holder."""
-  name: String
+  name: String!
+  """Server used for receiving emails."""
+  receiverServer: Server!
+  """Server used for sending emails."""
+  senderServer: Server
+  """The sent mailbox for the account."""
+  sentbox: Mailbox
+  """The trash mailbox for the account."""
+  trashbox: Mailbox
 }
 
 """Represents an email address with optional metadata."""
 type Address implements Node {
   """The email address."""
-  address: String
+  address: String!
   """Optional URL of the avatar associated with the address."""
   avatarURL: URL
   """Emails where this address is in the CC field."""
-  ccEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  ccEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
   id: ID!
   """Indicates whether the address is known (for recipients)."""
   known: Boolean
   """The name associated with the email address."""
-  name: String
+  name: String!
   """Emails received by this address."""
-  receivedEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  receivedEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
   """Emails sent by this address."""
-  sentEmails(after: String, before: String, first: Int, last: Int): EmailConnection
+  sentEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
   """Indicates whether the address is verified (for senders)."""
   verified: Boolean
 }
@@ -50,19 +67,25 @@ scalar Color
 
 """Represents an email message."""
 type Email implements Node {
+  """List of carbon copy (CC) recipients."""
+  cc: [Address!]!
+  """The sender of the email."""
+  from: Address!
   """The HTML body content of the email."""
-  html: HTML
+  html: HTML!
   id: ID!
   """The mailbox that contains the email."""
-  inbox: Mailbox
+  inbox: Mailbox!
   """The raw, entire body of the email (all parts)."""
-  raw: String
+  raw: String!
   """The subject of the email."""
-  subject: String
+  subject: String!
   """The text body content of the email."""
-  text: String
+  text: String!
+  """The primary recipient of the email."""
+  to: Address!
   """Indicates whether the email is trusted (not spam)."""
-  trusted: Boolean
+  trusted: Boolean!
 }
 
 """
@@ -81,53 +104,65 @@ type EmailEdge {
   node: Email!
 }
 
+"""
+The most basic error object, based on the base JavaScript Error object.
+"""
+type Error implements ErrorInterface {
+  message: String!
+}
+
+"""Basic interface for all error types to implement."""
+interface ErrorInterface {
+  message: String!
+}
+
 scalar HTML
 
 """Represents a key-value header in an email."""
 type Header implements Node {
   """The email that contains this header."""
-  email: Email
+  email: Email!
   id: ID!
   """The header key (e.g., "Subject", "Date")."""
-  key: String
+  key: String!
   """The header value."""
-  value: String
+  value: String!
 }
 
 """Represents a label applied to an email."""
 type Label implements Node {
   """Color code for the label."""
-  color: Color
+  color: Color!
   """Emails with this label."""
-  emails(after: String, before: String, first: Int, last: Int): EmailConnection
+  emails(after: String, before: String, first: Int, last: Int): EmailConnection!
   id: ID!
   """Key for the label (not displayed)."""
-  key: String
+  key: String!
   """Display text for the label."""
-  text: String
+  text: String!
 }
 
 """Represents a mailbox, such as an inbox, trash, or sent folder."""
 type Mailbox implements Node {
   """The account this mailbox belongs to."""
-  account: Account
+  account: Account!
   """List of emails stored in this mailbox."""
-  emails(after: String, before: String, first: Int, last: Int): EmailConnection
+  emails(after: String, before: String, first: Int, last: Int): EmailConnection!
   id: ID!
   """Indicates whether this is the main mailbox."""
   main: Boolean
   """Optional name for the mailbox."""
   name: String
   """The type of mailbox (e.g., Inbox, Trashbox, Sentbox)."""
-  type: MailboxType
+  type: MailboxType!
   """Accounts that use this mailbox as the drafts mailbox."""
-  usedAsDraftsboxOn: [Account!]
+  usedAsDraftsboxOn: [Account!]!
   """Accounts that use this mailbox as the main mailbox."""
-  usedAsMainboxOn: [Account!]
+  usedAsMainboxOn: [Account!]!
   """Accounts that use this mailbox as the sent mailbox."""
-  usedAsSentboxOn: [Account!]
+  usedAsSentboxOn: [Account!]!
   """Accounts that use this mailbox as the trash mailbox."""
-  usedAsTrashboxOn: [Account!]
+  usedAsTrashboxOn: [Account!]!
 }
 
 type MailboxConnection {
@@ -148,7 +183,15 @@ enum MailboxType {
   TRASHBOX
 }
 
-type Mutation
+type Mutation {
+  upsertAccount: MutationUpsertAccountResult!
+}
+
+union MutationUpsertAccountResult = Error | MutationUpsertAccountSuccess | ZodError
+
+type MutationUpsertAccountSuccess {
+  data: Account!
+}
 
 interface Node {
   id: ID!
@@ -162,33 +205,47 @@ type PageInfo {
 }
 
 type Query {
+  account(address: EmailAddress!): Account
+  accounts: [Account!]!
   """Find a mail by id"""
   email(id: ID!): Email
+  emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
+}
+
+type QueryEmailsConnection {
+  edges: [QueryEmailsConnectionEdge!]!
+  nodes: [Email!]!
+  pageInfo: PageInfo!
+}
+
+type QueryEmailsConnectionEdge {
+  cursor: String!
+  node: Email!
 }
 
 """Represents an email server used for sending or receiving emails."""
 type Server implements Node {
   """Hostname of the server."""
-  host: String
+  host: String!
   id: ID!
   """Password for authentication (optional for OAuth2)."""
   password: String
   """Port number for the server."""
-  port: Int
+  port: Int!
   """Accounts that use this server for receiving emails."""
-  receiverAccounts: [Account!]
+  receiverAccounts: [Account!]!
   """Indicates whether the connection to the server is secure."""
-  secure: Boolean
+  secure: Boolean!
   """Accounts that use this server for sending emails."""
-  senderAccounts: [Account!]
+  senderAccounts: [Account!]!
   """OAuth2 token for authentication (optional for password-based auth)."""
   token: String
   """The type of server (SMTP, IMAP, etc.)."""
-  type: ServerType
+  type: ServerType!
   """The username used to authenticate with the server."""
-  username: String
+  username: String!
 }
 
 enum ServerType {
@@ -197,9 +254,23 @@ enum ServerType {
   SMTP
 }
 
-type Subscription
+type Subscription {
+  emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
+}
 
 """
 Une adresse internet (URL). Les protocoles autorisés sont: http:, https:, mailto:, tel:
 """
 scalar URL
+
+"""A validation error, as a list of field errors."""
+type ZodError implements ErrorInterface {
+  fieldErrors: [ZodFieldError!]!
+  message: String!
+}
+
+"""A validation issue for a field."""
+type ZodFieldError {
+  message: String!
+  path: [String!]!
+}
