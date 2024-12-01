@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
 	import { loading } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
@@ -14,7 +15,7 @@
 		{#if !account}
 			<p>Account does not exist</p>
 		{:else}
-			<h1>{account.name}</h1>
+			<LoadingText tag="h1" value={account.name} />
 			<section class="mails">
 				{#each account.inboxes as inbox}
 					<LoadingText tag="h2" value={inbox.name} />
@@ -27,6 +28,9 @@
 								})}
 							>
 								<article>
+									{#if loading(mail.unsubscribe, null)}
+										<ButtonSecondary newTab href={mail.unsubscribe}>Unsubscribe</ButtonSecondary>
+									{/if}
 									<small>From <LoadingText value={mail.from.address} /> </small>
 									<LoadingText tag="h3" value={mail.subject} />
 								</article>
@@ -38,3 +42,11 @@
 		{/if}
 	{/snippet}
 </MaybeError>
+
+<style>
+	article {
+		display: flex;
+		align-items: center;
+		gap: 0 1ch;
+	}
+</style>

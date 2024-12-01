@@ -2,7 +2,9 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
     email(id: $mail) {
         from {
             address
+            probablyAPerson
         }
+        unsubscribe
         subject
         html
         text

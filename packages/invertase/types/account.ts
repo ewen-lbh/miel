@@ -17,6 +17,7 @@ export const AccountType = builder.prismaNode("Account", {
       query({ empty }) {
         return {
           where: empty ? {} : { emails: { some: {} } },
+          orderBy: { emails: { _count: "desc" } },
         }
       },
     }),

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { umamiAttributes } from '$lib/analytics';
+	import { onceLoaded, type MaybeLoading } from '$lib/loading';
 	import { tooltip } from '$lib/tooltip';
 	import { type Component } from 'svelte';
 
@@ -11,7 +12,7 @@
 	export let loading = false;
 	export let circle = false;
 	export let id = '';
-	export let href = '';
+	export let href: MaybeLoading<URL | string> = '';
 	export let formaction: string | undefined = undefined;
 	export let danger = false;
 	export let success = false;
@@ -25,10 +26,12 @@
 	export let highlighted = false;
 	export let stretches = false;
 	export let noClientSideNavigation = false;
+
+	$: href_ = onceLoaded(href, (u) => u?.toString(), '');
 </script>
 
 <svelte:element
-	this={href ? 'a' : 'button'}
+	this={href_ ? 'a' : 'button'}
 	{...umamiAttributes(track, trackData)}
 	target={newTab ? '_blank' : undefined}
 	type={submits ? 'submit' : 'button'}
@@ -42,7 +45,7 @@
 	class:stretches
 	class:circle
 	class:inside-prose={insideProse}
-	href={disabled ? undefined : href}
+	href={disabled ? undefined : href_}
 	{download}
 	{formaction}
 	{id}

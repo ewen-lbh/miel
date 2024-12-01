@@ -223,7 +223,7 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 			UID: []imap.UIDSet{
 				[]imap.UIDRange{
 					{
-						Start: imap.UID(lastEmail.InternalUID + 1),
+						Start: imap.UID(lastEmail.InternalUID-1),
 						Stop:  imap.UID(0),
 					},
 				},

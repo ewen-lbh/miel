@@ -8,7 +8,9 @@ query PageAccount($account: EmailAddress!) @loading(cascade: true) {
                     id
 					from {
 						address
+						probablyAPerson
 					}
+					unsubscribe
 					subject
 					html
 				}
