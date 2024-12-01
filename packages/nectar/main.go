@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"mime"
+	"os"
 	"strings"
 	"time"
 
@@ -15,10 +16,10 @@ import (
 
 	"gwen.works/miel/db"
 
-	"github.com/DusanKasan/parsemail"
 	"github.com/emersion/go-imap/v2"
 	"github.com/emersion/go-imap/v2/imapclient"
 	"github.com/emersion/go-message/charset"
+	"github.com/k3a/parsemail"
 )
 
 var prisma *db.PrismaClient
@@ -181,12 +182,13 @@ func (c LoggedInAccount) Trash(mailseq imap.NumSet) error {
 }
 
 func (c LoggedInAccount) SyncMails(inboxId string) error {
-	// TODO remove (its for testing)
-	// prisma.Email.FindMany(db.Email.InboxID.Equals(inboxId)).
-	// 	// OrderBy(db.Email.InternalUID.Order(db.SortOrderDesc)).
-	// 	// Take(30).
-	// 	Delete().
-	// 	Exec(context.Background())
+	if os.Getenv("VACUUM") == "YESPLZ" {
+		prisma.Email.FindMany(db.Email.InboxID.Equals(inboxId)).
+			// OrderBy(db.Email.InternalUID.Order(db.SortOrderDesc)).
+			// Take(30).
+			Delete().
+			Exec(context.Background())
+	}
 
 	box, err := prisma.Mailbox.FindUnique(db.Mailbox.ID.Equals(inboxId)).Exec(context.Background())
 
@@ -223,7 +225,7 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 			UID: []imap.UIDSet{
 				[]imap.UIDRange{
 					{
-						Start: imap.UID(lastEmail.InternalUID-1),
+						Start: imap.UID(lastEmail.InternalUID - 1),
 						Stop:  imap.UID(0),
 					},
 				},
@@ -398,22 +400,51 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 			return fmt.Errorf("while checking if email exists: %w", err)
 		}
 
-		if dbEmail == nil {
-			if len(mail.BodySection) > 1 {
-				return fmt.Errorf("mail has more than one body section: %v", mail.BinarySection)
+		mailReferences := make([]string, 0)
+
+		if len(mail.BodySection) > 1 {
+			return fmt.Errorf("mail has more than one body section: %v", mail.BinarySection)
+		}
+
+		if len(mail.BodySection) == 1 {
+			_, body := firstmapEntry(mail.BodySection)
+			parsed, err := parsemail.Parse(bytes.NewReader(body))
+			if err != nil {
+				ll.WarnDisplay("could not parse email body for %q: %w", err, envelope.Subject)
 			}
 
-			if len(mail.BodySection) == 1 {
-				_, body := firstmapEntry(mail.BodySection)
-				parsed, err := parsemail.Parse(bytes.NewReader(body))
-				if err != nil {
-					ll.WarnDisplay("could not parse email body for %q: %w", err, envelope.Subject)
+			bodyText = parsed.TextBody
+			bodyHTML = parsed.HTMLBody
+			mailReferences = append(mailReferences, parsed.References...)
+			mailReferences = append(mailReferences, parsed.InReplyTo...)
+		}
+
+		ll.Debug("references: %+v", mailReferences)
+
+		// Keep references that actually exist in the database
+		mails, err := prisma.Email.FindMany(
+			db.Email.MessageID.In(mailReferences),
+		).Select(
+			db.Email.MessageID.Field(),
+		).Exec(context.Background())
+
+		mailReferencesQuery := make([]db.EmailWhereParam, 0, len(mailReferences))
+
+		for _, ref := range mailReferences {
+			for _, mail := range mails {
+				if msgid, ok := mail.MessageID(); ok && msgid == ref {
+					mailReferencesQuery = append(mailReferencesQuery, db.Email.MessageID.Equals(ref))
+					break
 				}
-
-				bodyText = parsed.TextBody
-				bodyHTML = parsed.HTMLBody
 			}
+		}
 
+		linkReferences := make([]db.EmailSetParam, 0)
+		if len(mailReferencesQuery) > 0 {
+			linkReferences = append(linkReferences, db.Email.ThreadReferences.Link(mailReferencesQuery...))
+		}
+
+		if dbEmail == nil {
 			_, err = prisma.Email.CreateOne(
 				db.Email.InternalUID.Set(int(mail.UID)),
 				db.Email.Sender.Link(db.Address.ID.Equals(sender.ID)),
@@ -424,17 +455,19 @@ func (c LoggedInAccount) SyncMails(inboxId string) error {
 				db.Email.RawBody.Set(""),
 				db.Email.Inbox.Link(db.Mailbox.ID.Equals(inboxId)),
 				db.Email.Trusted.Set(contains(mail.Flags, imap.FlagNotJunk)),
-				db.Email.MessageID.SetOptional(messageidOrNull),
-				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
+				append([]db.EmailSetParam{
+					db.Email.MessageID.SetOptional(messageidOrNull),
+				}, linkReferences...)...,
 			).Exec(context.Background())
 
 			if err != nil {
 				ll.WarnDisplay("could not save new email %q: %w", err, envelope.Subject)
 			}
 		} else {
-			_, err = prisma.Email.UpsertOne(db.Email.ID.Equals(dbEmail.ID)).Update(
-				db.Email.MessageID.SetIfPresent(messageidOrNull),
-				// db.Email.ThreadReferences.Link(db.Email.MessageID.In(mailReferences)),
+			_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(
+				append([]db.EmailSetParam{
+					db.Email.MessageID.SetIfPresent(messageidOrNull),
+				}, linkReferences...)...,
 			).Exec(context.Background())
 			if err != nil {
 				ll.WarnDisplay("could not update email %q: %w", err, envelope.Subject)
