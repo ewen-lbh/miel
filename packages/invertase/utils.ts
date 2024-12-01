@@ -1,5 +1,5 @@
 import { DirectiveLocation } from "@graphql-tools/utils"
-import { GraphQLDirective, GraphQLString } from "graphql"
+import { GraphQLDirective, GraphQLError, GraphQLString } from "graphql"
 import { camelCase, upperFirst } from "lodash-es"
 import path from "node:path"
 import * as util from "node:util"
@@ -67,4 +67,11 @@ export function graphinx<T extends string>(module: T) {
       },
     },
   } as const
+}
+
+export function enforceNonNull<T>(value: T | null | undefined): T {
+  if (value === null || value === undefined) {
+    throw new GraphQLError("This is required")
+  }
+  return value
 }

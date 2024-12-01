@@ -34,6 +34,15 @@ type Account implements Node {
   trashbox: Mailbox
 }
 
+input AccountInput {
+  host: String
+  name: String
+  password: String
+  port: Int! = 993
+  tls: Boolean! = true
+  username: String
+}
+
 """Represents an email address with optional metadata."""
 type Address implements Node {
   """The email address."""
@@ -184,7 +193,7 @@ enum MailboxType {
 }
 
 type Mutation {
-  upsertAccount: MutationUpsertAccountResult!
+  upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
 }
 
 union MutationUpsertAccountResult = Error | MutationUpsertAccountSuccess | ZodError
