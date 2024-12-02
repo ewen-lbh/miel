@@ -49,13 +49,28 @@ model Account {
   draftsbox   Mailbox? @relation("AccountDraftsBox", fields: [draftsboxId], references: [id])
   draftsboxId String?
 
+  /// The screener mailbox for the account
+  screenerBox   Mailbox? @relation("AccountScreenerBox", fields: [screenerBoxId], references: [id])
+  screenerBoxId String?
+
   /// Server used for sending emails.
   senderServer   Server? @relation("SenderServer", fields: [senderServerId], references: [id])
   senderServerId String?
 
+  /// Credentials used for sending emails.
+  senderAuth   ServerAuth? @relation("SenderServerAuth", fields: [senderAuthId], references: [id])
+  senderAuthId String?
+
   /// Server used for receiving emails.
   receiverServer   Server @relation("ReceiverServer", fields: [receiverServerId], references: [id])
   receiverServerId String
+
+  /// Credentials used for receiving emails.
+  receiverAuth   ServerAuth @relation("ReceiverServerAuth", fields: [receiverAuthId], references: [id])
+  receiverAuthId String
+
+  /// Signatures associated with the account.
+  signatures Signature[]
 }
 
 /// Represents a mailbox, such as an inbox, trash, or sent folder.
@@ -82,14 +97,19 @@ model Mailbox {
   /// List of emails stored in this mailbox.
   emails Email[]
 
-  /// Accounts that use this mailbox as the main mailbox.
-  mainbox   Account[] @relation("AccountMainBox")
-  /// Accounts that use this mailbox as the trash mailbox.
-  trashbox  Account[] @relation("AccountTrashBox")
-  /// Accounts that use this mailbox as the sent mailbox.
-  sentbox   Account[] @relation("AccountSentBox")
-  /// Accounts that use this mailbox as the drafts mailbox.
-  draftsbox Account[] @relation("AccountDraftsBox")
+  /// Account that uses this mailbox as the main mailbox.
+  mainbox     Account[] @relation("AccountMainBox")
+  /// Account that uses this mailbox as the trash mailbox.
+  trashbox    Account[] @relation("AccountTrashBox")
+  /// Account that uses this mailbox as the sent mailbox.
+  sentbox     Account[] @relation("AccountSentBox")
+  /// Account that uses this mailbox as the drafts mailbox.
+  draftsbox   Account[] @relation("AccountDraftsBox")
+  /// Account that uses this mailbox as the screener mailbox.
+  screenerBox Account[] @relation("AccountScreenerBox")
+
+  /// Senders that get sent here by default
+  defaultBoxOf Address[] @relation("DefaultInbox")
 
   @@unique([accountId, name, internalUidValidity])
 }
@@ -107,6 +127,12 @@ enum MailboxType {
 
   /// The mailbox for drafts.
   DRAFTS
+
+  /// The mailbox for screening emails.
+  SCREENER
+
+  /// A feed-style mailbox for newsletters.
+  FEED
 }
 
 /// Represents an email message.
@@ -120,6 +146,9 @@ model Email {
   /// Message-ID of the email.
   messageId String? @unique
 
+  /// Date and time the email was received.
+  receivedAt DateTime
+
   /// The sender of the email.
   sender   Address @relation("EmailSender", fields: [senderId], references: [id])
   senderId String
@@ -131,8 +160,11 @@ model Email {
   /// List of carbon copy (CC) recipients.
   cc Address[] @relation("EmailCc")
 
-  /// The subject of the email.
+  /// The subject of the email. May have been renamed by the user.
   subject String
+
+  /// The subject of the email as it was received
+  originalSubject String
 
   /// The text body content of the email.
   textBody String
@@ -142,6 +174,12 @@ model Email {
 
   /// The raw, entire body of the email (all parts).
   rawBody String
+
+  /// Attachments included in the email.
+  attachments Attachment[]
+
+  /// Clips extracted from the email.
+  clips Clip[]
 
   /// List of headers in the email.
   headers Header[]
@@ -164,6 +202,43 @@ model Email {
   threadReplies Email[] @relation("ThreadEmails")
 
   @@unique([inboxId, internalUid])
+}
+
+model Attachment {
+  /// Unique identifier for the attachment.
+  id String @id @default(cuid())
+
+  /// The filename of the attachment.
+  filename String
+
+  /// The MIME type of the attachment.
+  mimeType String
+
+  /// The size of the attachment in bytes.
+  size Int
+
+  /// Extracted text content of the attachment.
+  textContent String
+
+  /// The email that contains this attachment.
+  email   Email  @relation(fields: [emailId], references: [id])
+  emailId String
+
+  /// The path where the attachment is stored.
+  storagePath String
+}
+
+/// Short exerpt of text from an email
+model Clip {
+  /// Unique identifier for the clip.
+  id String @id @default(cuid())
+
+  /// The text content of the clip.
+  text String
+
+  /// The email that contains this clip.
+  email   Email  @relation(fields: [emailId], references: [id])
+  emailId String
 }
 
 /// Represents an email address with optional metadata.
@@ -189,6 +264,13 @@ model Address {
   /// The type of address (sender or recipient).
   type AddressType
 
+  /// Bundle all emails sent by this address to a single row
+  bundled Boolean @default(false)
+
+  /// Default inbox where emails from this address are stored.
+  defaultInbox   Mailbox? @relation("DefaultInbox", fields: [defaultInboxId], references: [id])
+  defaultInboxId String?
+
   /// Emails sent by this address.
   sentEmails Email[] @relation("EmailSender")
 
@@ -206,6 +288,25 @@ enum AddressType {
 
   /// Represents a recipient address.
   RECIPIENT
+}
+
+/// Represents a signature that can be applied to an email.
+model Signature {
+  /// Unique identifier for the signature.
+  id String @id @default(cuid())
+
+  /// The name of the signature.
+  name String
+
+  /// The static content parts
+  staticParts String[]
+
+  /// The keys of dynamic parts
+  dynamicPartsKeys String[]
+
+  /// The account that uses this signature.
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String
 }
 
 /// Represents a label applied to an email.
@@ -240,6 +341,27 @@ model Header {
   /// The email that contains this header.
   email   Email  @relation(fields: [emailId], references: [id])
   emailId String
+}
+
+///:Credentials to authenticate against a server
+model ServerAuth {
+  /// Unique identifier for the server auth.
+  id String @id @default(cuid())
+
+  /// The username used to authenticate with the server.
+  username String
+
+  /// Password for authentication (optional for OAuth2).
+  password String?
+
+  /// OAuth2 token for authentication (optional for password-based auth).
+  token String?
+
+  /// The accounts that use these credentials for sender server.
+  senderAccounts Account[] @relation("SenderServerAuth")
+
+  /// The accounts that use these credentials for receiver server.
+  receiverAccounts Account[] @relation("ReceiverServerAuth")
 }
 
 /// Represents an email server used for sending or receiving emails.
