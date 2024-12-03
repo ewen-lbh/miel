@@ -2,6 +2,9 @@ query PageHome @loading {
 	accounts @loading(count: 3) {
 		id
 		address
+		receiverServer {
+			username
+		}
 		name
 	}
 }

@@ -22,6 +22,11 @@ const config = {
 		},
 		Color: {
 			type: 'string'
+		},
+		DateTime: {
+			type: 'Date',
+			marshal: (x) => x.toISOString(),
+			unmarshal: (x) => new Date(x)
 		}
 	}
 };

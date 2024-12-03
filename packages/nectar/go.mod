@@ -3,6 +3,8 @@ module github.com/ewen-lbh/miel
 go 1.23.3
 
 require (
+	github.com/bep/debounce v1.2.1
+	github.com/emersion/go-imap v1.2.1
 	github.com/emersion/go-imap/v2 v2.0.0-beta.4
 	github.com/emersion/go-message v0.18.1
 	github.com/ewen-lbh/label-logger-go v0.1.3

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
+	import { countThing } from '$lib/i18n';
 	import { loading } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
 	import { route } from '$lib/ROUTES';
@@ -11,34 +11,34 @@
 </script>
 
 <MaybeError result={$PageAccount}>
-	{#snippet children({ account })}
+	{#snippet children({ account, screenings })}
 		{#if !account}
 			<p>Account does not exist</p>
 		{:else}
 			<LoadingText tag="h1" value={account.name} />
-			<section class="mails">
-				{#each account.inboxes as inbox}
-					<LoadingText tag="h2" value={inbox.name} />
-					<ul class="mails">
-						{#each inbox.emails.nodes as mail}
+			<section class="screenings">
+				<a href={route('/[account]/screener', $page.params.account)}>
+					{countThing('screening', screenings.totalCount)} to sort out
+				</a>
+			</section>
+
+			<main>
+				<ul>
+					{#each account.mainbox?.emails.edges ?? [] as { node: email }}
+						<li>
 							<a
 								href={route('/[account]/[mail]', {
 									account: $page.params.account,
-									mail: loading(mail.id, '')
+									mail: loading(email.id, '')
 								})}
 							>
-								<article>
-									{#if loading(mail.unsubscribe, null)}
-										<ButtonSecondary newTab href={mail.unsubscribe}>Unsubscribe</ButtonSecondary>
-									{/if}
-									<small>From <LoadingText value={mail.from.address} /> </small>
-									<LoadingText tag="h3" value={mail.subject} />
-								</article>
+								<LoadingText value={email.subject} />
+								from <LoadingText value={email.from.address} />
 							</a>
-						{/each}
-					</ul>
-				{/each}
-			</section>
+						</li>
+					{/each}
+				</ul>
+			</main>
 		{/if}
 	{/snippet}
 </MaybeError>

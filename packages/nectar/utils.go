@@ -15,6 +15,15 @@ func contains[T comparable](s []T, e T) bool {
 	return false
 }
 
+func groupby[T any, K comparable](s []T, key func(T) K) map[K][]T {
+	m := make(map[K][]T)
+	for _, v := range s {
+		k := key(v)
+		m[k] = append(m[k], v)
+	}
+	return m
+}
+
 func firstmapEntry[K comparable, V any](m map[K]V) (K, V) {
 	for k, v := range m {
 		return k, v
@@ -25,6 +34,11 @@ func firstmapEntry[K comparable, V any](m map[K]V) (K, V) {
 func seqsetSize(seqset imap.SeqSet) int {
 	nums, _ := seqset.Nums()
 	return len(nums)
+}
+
+func uidsetSize(uidset imap.UIDSet) int {
+	uids, _ := uidset.Nums()
+	return len(uids)
 }
 
 func isQuotedPrintable(s string) bool {

@@ -57,6 +57,7 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
+        query: { orderBy: { internalUid: "desc" } },
       },
       EmailConnectionType
     ),
@@ -65,6 +66,7 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
+        query: { orderBy: { internalUid: "desc" } },
       },
       EmailConnectionType
     ),
@@ -73,6 +75,7 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
+        query: { orderBy: { internalUid: "desc" } },
       },
       EmailConnectionType
     ),

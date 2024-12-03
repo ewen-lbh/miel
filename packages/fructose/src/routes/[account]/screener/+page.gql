@@ -1,0 +1,27 @@
+query PageScreener($account: EmailAddress!) @loading(cascade: true) {
+	account(address: $account) {
+		inboxes(type: [FEED, INBOX, TRASHBOX]) {
+			id
+			name
+			type
+		}
+	}
+	screenings(first: 30) @paginate @list(connection: true, name: "List_Screenings") {
+		edges {
+			node {
+				id
+				address
+				name
+				probablyAPerson
+				verified
+				lastSentEmails: sentEmails(first: 10) {
+					nodes {
+                        id
+						subject
+						spamLevel: header(key: "X-Spam-Level")
+					}
+				}
+			}
+		}
+	}
+}

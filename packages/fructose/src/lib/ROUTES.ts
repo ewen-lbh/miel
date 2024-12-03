@@ -15,6 +15,9 @@ const PAGES = {
   },
   "/[account]/[mail]": (params: { account: (string | number), mail: (string | number) }) => {
     return `/${params.account}/${params.mail}`
+  },
+  "/[account]/screener": (account: (string | number), params?: {  }) => {
+    return `/${account}/screener`
   }
 }
 
@@ -136,7 +139,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail' }
+  PAGES: { '/': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail', '/[account]/screener': 'account' }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: Record<string, never>

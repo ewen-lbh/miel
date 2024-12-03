@@ -16,6 +16,7 @@ export const LabelType = builder.prismaNode("Label", {
       {
         type: EmailType,
         cursor: "id",
+        query: { orderBy: { internalUid: "desc" } },
       },
       EmailConnectionType
     ),

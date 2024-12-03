@@ -181,8 +181,8 @@ model Email {
   /// Clips extracted from the email.
   clips Clip[]
 
-  /// List of headers in the email.
-  headers Header[]
+  /// List of headers in the email. Array of [key, value, key, value, ...]
+  headers String[]
 
   /// Labels applied to the email.
   labels Label[]
@@ -325,22 +325,6 @@ model Label {
 
   /// Emails with this label.
   emails Email[]
-}
-
-/// Represents a key-value header in an email.
-model Header {
-  /// Unique identifier for the header.
-  id String @id @default(cuid())
-
-  /// The header key (e.g., "Subject", "Date").
-  key String
-
-  /// The header value.
-  value String
-
-  /// The email that contains this header.
-  email   Email  @relation(fields: [emailId], references: [id])
-  emailId String
 }
 
 ///:Credentials to authenticate against a server

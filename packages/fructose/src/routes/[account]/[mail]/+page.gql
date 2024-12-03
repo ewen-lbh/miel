@@ -1,12 +1,16 @@
 query PageEmail($mail: ID!) @loading(cascade: true) {
-    email(id: $mail) {
-        from {
-            address
-            probablyAPerson
-        }
-        unsubscribe
-        subject
-        html
-        text
-    }
+	email(id: $mail) {
+		from {
+			address
+			probablyAPerson
+		}
+		to {
+			address
+		}
+		receivedAt
+		unsubscribe
+		subject
+		html
+		text
+	}
 }

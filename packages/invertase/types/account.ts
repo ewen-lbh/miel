@@ -1,11 +1,13 @@
 import { builder } from "../builder"
 import { typeName } from "../utils"
+import { EmailAddressType } from "./email-address"
+import { MailboxTypeType } from "./mailbox-type"
 
 export const AccountType = builder.prismaNode("Account", {
   id: { field: "id" },
   name: typeName(),
   fields: (t) => ({
-    address: t.exposeString("address"),
+    address: t.expose("address", { type: EmailAddressType }),
     name: t.exposeString("name"),
     inboxes: t.relation("inboxes", {
       args: {
@@ -13,10 +15,17 @@ export const AccountType = builder.prismaNode("Account", {
           defaultValue: false,
           description: "Include empty inboxes",
         }),
+        type: t.arg({
+          type: [MailboxTypeType],
+          description: "Return only inboxes of the given types",
+        }),
       },
-      query({ empty }) {
+      query({ empty, type }) {
         return {
-          where: empty ? {} : { emails: { some: {} } },
+          where: {
+            ...(empty ? {} : { emails: { some: {} } }),
+            ...(type ? { type: { in: type } } : {}),
+          },
           orderBy: { emails: { _count: "desc" } },
         }
       },

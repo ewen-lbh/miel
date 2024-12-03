@@ -35,6 +35,10 @@ export const builder = new SchemaBuilder<{
       Input: string
       Output: string
     }
+    DateTime: {
+      Input: Date
+      Ouput: Date
+    }
   }
   Directives: {
     graphinx: GraphinxDirective

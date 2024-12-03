@@ -11,7 +11,7 @@ Represents a user account with associated mailboxes and server configurations.
 """
 type Account implements Node {
   """The email address of the account."""
-  address: String!
+  address: EmailAddress!
   """The drafts mailbox for the account."""
   draftsbox: Mailbox
   id: ID!
@@ -19,6 +19,8 @@ type Account implements Node {
   inboxes(
     """Include empty inboxes"""
     empty: Boolean = false
+    """Return only inboxes of the given types"""
+    type: [MailboxType!]
   ): [Mailbox!]!
   """The primary inbox for the account."""
   mainbox: Mailbox
@@ -75,12 +77,25 @@ A field whose value is a hex color code: https://en.wikipedia.org/wiki/Web_color
 """
 scalar Color
 
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
 """Represents an email message."""
 type Email implements Node {
   """List of carbon copy (CC) recipients."""
   cc: [Address!]!
   """The sender of the email."""
   from: Address!
+  """
+  Check if the email has a header by its key. Example: `{ email(...) { respectsPeople: hasHeader(key: "List-Unsubscribe") } } `
+  """
+  hasHeader(key: String!): Boolean!
+  """Get all the values of a header by its key"""
+  header(key: String!): [String!]!
+  """Headers of the email"""
+  headers: [Header!]!
   """The HTML body content of the email."""
   html: HTML!
   id: ID!
@@ -88,15 +103,24 @@ type Email implements Node {
   inbox: Mailbox!
   """The raw, entire body of the email (all parts)."""
   raw: String!
-  """The subject of the email."""
-  subject: String!
+  """Date and time the email was received."""
+  receivedAt: DateTime!
+  """The subject was changed by the user"""
+  renamed: Boolean!
+  """The subject of the email"""
+  subject(
+    """
+    Return the original subject even if the mail was renamed (see Mail.renamed)
+    """
+    original: Boolean = false
+  ): String!
   """The text body content of the email."""
   text: String!
   """The primary recipient of the email."""
   to: Address!
   """Indicates whether the email is trusted (not spam)."""
   trusted: Boolean!
-  """Link to unsubscribe from this email"""
+  """URL to unsubscribe from the email"""
   unsubscribe: URL
 }
 
@@ -130,14 +154,9 @@ interface ErrorInterface {
 
 scalar HTML
 
-"""Represents a key-value header in an email."""
-type Header implements Node {
-  """The email that contains this header."""
+type Header {
   email: Email!
-  id: ID!
-  """The header key (e.g., "Subject", "Date")."""
   key: String!
-  """The header value."""
   value: String!
 }
 
@@ -167,13 +186,13 @@ type Mailbox implements Node {
   name: String
   """The type of mailbox (e.g., Inbox, Trashbox, Sentbox)."""
   type: MailboxType!
-  """Accounts that use this mailbox as the drafts mailbox."""
+  """Account that uses this mailbox as the drafts mailbox."""
   usedAsDraftsboxOn: [Account!]!
-  """Accounts that use this mailbox as the main mailbox."""
+  """Account that uses this mailbox as the main mailbox."""
   usedAsMainboxOn: [Account!]!
-  """Accounts that use this mailbox as the sent mailbox."""
+  """Account that uses this mailbox as the sent mailbox."""
   usedAsSentboxOn: [Account!]!
-  """Accounts that use this mailbox as the trash mailbox."""
+  """Account that uses this mailbox as the trash mailbox."""
   usedAsTrashboxOn: [Account!]!
 }
 
@@ -190,12 +209,22 @@ type MailboxEdge {
 
 enum MailboxType {
   DRAFTS
+  FEED
   INBOX
+  SCREENER
   SENTBOX
   TRASHBOX
 }
 
 type Mutation {
+  """
+  Screen an address to a specific inbox. Can also be used on a already screened address to change its default inbox
+  """
+  screenTo(
+    address: EmailAddress!
+    """Mailbox to screen the mail to"""
+    box: ID!
+  ): Address!
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
 }
 
@@ -224,6 +253,10 @@ type Query {
   emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
+  """
+  Addresses that are waiting screening (have not been assigned a default inbox yet).
+  """
+  screenings(after: String, before: String, first: Int, last: Int): QueryScreeningsConnection!
 }
 
 type QueryEmailsConnection {
@@ -235,6 +268,18 @@ type QueryEmailsConnection {
 type QueryEmailsConnectionEdge {
   cursor: String!
   node: Email!
+}
+
+type QueryScreeningsConnection {
+  edges: [QueryScreeningsConnectionEdge!]!
+  nodes: [Address!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type QueryScreeningsConnectionEdge {
+  cursor: String!
+  node: Address!
 }
 
 """Represents an email server used for sending or receiving emails."""

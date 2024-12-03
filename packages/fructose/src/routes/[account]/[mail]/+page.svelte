@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
+	import { formatDateTimeSmart } from '$lib/dates';
 	import { loading, mapAllLoading, mapLoading, onceAllLoaded } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
 	import { tooltip } from '$lib/tooltip';
@@ -29,9 +30,16 @@
 					</span>
 				{/if}
 			</small>
+			<small>
+				To <LoadingText value={email.to.address}></LoadingText>
+			</small>
 			{#if loading(email.unsubscribe, null)}
 				<ButtonSecondary newTab href={email.unsubscribe}>Unsubscribe</ButtonSecondary>
 			{/if}
+			<p>
+				Received at <LoadingText value={mapLoading(email.receivedAt, formatDateTimeSmart)}
+				></LoadingText>
+			</p>
 			<LoadingText tag="h1" value={email.subject}></LoadingText>
 			<div class="mail-content">
 				{@html email.html}
