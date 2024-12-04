@@ -151,9 +151,7 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 			ll.WarnDisplay("while syncing mail %q: %w", err, mail.Envelope.Subject)
 		}
 
-		if !ll.ProgressBarFinished() {
-			ll.IncrementProgressBar()
-		}
+		ll.IncrementProgressBar()
 	}
 	ll.StopProgressBar()
 
