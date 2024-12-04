@@ -109,6 +109,7 @@ func (c *LoggedInAccount) SyncScreenings() error {
 		if err != nil {
 			return fmt.Errorf("while re-syncing screenbox after screenings sync: %w", err)
 		}
+		redisClient.Publish(ctx, fmt.Sprintf("screenings:updates:%s", c.account.ID), "updated")
 	}
 
 	for _, boxId := range changedMailboxes {

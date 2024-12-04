@@ -10,10 +10,11 @@ import ZodPlugin from "@pothos/plugin-zod"
 import RelayPlugin from "@pothos/plugin-relay"
 import type PrismaTypes from "./pothos-types.d.ts"
 import { GraphinxDirective } from "./utils.ts"
+import { pubsub } from "./lib/pubsub.ts"
 
 export const prisma = new PrismaClient({})
 
-export const builder = new SchemaBuilder<{
+export type PothosTypes = {
   PrismaTypes: PrismaTypes
   DefaultFieldNullability: false
   DefaultNodeNullability: false
@@ -37,13 +38,15 @@ export const builder = new SchemaBuilder<{
     }
     DateTime: {
       Input: Date
-      Ouput: Date
+      Output: Date
     }
   }
   Directives: {
     graphinx: GraphinxDirective
   }
-}>({
+}
+
+export const builder = new SchemaBuilder<PothosTypes>({
   plugins: [
     ErrorsPlugin,
     ZodPlugin,
@@ -55,12 +58,9 @@ export const builder = new SchemaBuilder<{
   errors: {
     defaultTypes: [Error, ZodError],
   },
-  smartSubscriptions: {
-    ...subscribeOptionsFromIterator((name) => {
-      // TODO
-      console.info(`Subscribing to ${name}`)
-    }),
-  },
+  smartSubscriptions: subscribeOptionsFromIterator((name) =>
+    pubsub.subscribe(name)
+  ),
   prisma: {
     client: prisma,
     // defaults to false, uses /// comments from prisma schema as descriptions

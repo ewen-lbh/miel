@@ -1,5 +1,5 @@
 import { builder, prisma } from "../builder"
-import { AddressType, EmailAddressType } from "../schema"
+import { AddressType, EmailAddressType, MailboxType } from "../schema"
 import { fieldName } from "../utils"
 
 builder.mutationField(fieldName(), (t) =>
@@ -11,6 +11,7 @@ builder.mutationField(fieldName(), (t) =>
       address: t.arg({ type: EmailAddressType, required: true }),
       box: t.arg.globalID({
         description: "Mailbox to screen the mail to",
+        for: MailboxType,
         required: true,
       }),
     },

@@ -1,5 +1,6 @@
 import { builder, prisma } from "../builder"
-import { EmailType } from "../schema"
+import { subscribe } from "../lib/pubsub"
+import { EmailType, MailboxType } from "../schema"
 import { fieldName } from "../utils"
 
 builder.queryField(fieldName(), (t) =>
@@ -7,17 +8,16 @@ builder.queryField(fieldName(), (t) =>
     type: EmailType,
     cursor: "id",
     args: {
-      inbox: t.arg.id({ required: true }),
+      inbox: t.arg.globalID({ required: true, for: MailboxType }),
     },
     smartSubscription: true,
-    async subscribe() {
-      console.error("TODO")
-      return
+    subscribe(subs, _, { inbox }) {
+      subscribe(subs, "mailbox:updates", inbox.id)
     },
     async resolve(query, _, { inbox }) {
       return prisma.email.findMany({
         ...query,
-        where: { inboxId: inbox },
+        where: { inboxId: inbox.id },
         orderBy: { internalUid: "desc" },
       })
     },

@@ -155,6 +155,8 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 	}
 	ll.StopProgressBar()
 
+	ll.Log("Published", "green", fmt.Sprintf("mailbox:updates:%s", box.ID))
+	redisClient.Publish(ctx, fmt.Sprintf("mailbox:updates:%s", box.ID), nil)
 	return nil
 
 }

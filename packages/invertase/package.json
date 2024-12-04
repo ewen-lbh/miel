@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@graphql-tools/utils": "^10.6.1",
+    "@graphql-yoga/redis-event-target": "^3.0.1",
     "@pothos/core": "^4.3.0",
     "@pothos/plugin-errors": "^4.2.0",
     "@pothos/plugin-prisma": "^4.4.0",
@@ -15,15 +16,21 @@
     "@pothos/plugin-zod": "^4.1.0",
     "@types/lodash-es": "^4.17.12",
     "cheerio": "^1.0.0",
+    "envelop-trim-inputs": "^0.0.3",
     "express": "^4.21.1",
     "graphql": "^16.9.0",
     "graphql-scalars": "^1.24.0",
+    "graphql-ws": "^5.16.0",
     "graphql-yoga": "^5.10.4",
+    "ioredis": "^5.4.1",
     "lodash-es": "^4.17.21",
+    "ws": "^8.18.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "@types/ws": "^8.5.13",
     "graphinx": "^0.12.2",
     "nodemon": "^3.1.7",
     "tsx": "^4.19.2"

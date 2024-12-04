@@ -10,14 +10,19 @@ import (
 	ll "github.com/ewen-lbh/label-logger-go"
 
 	"github.com/ewen-lbh/miel/db"
+	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 var prisma *db.PrismaClient
+var redisClient *redis.Client
 
 var ctx = context.Background()
 
 func init() {
+	err := godotenv.Load()
 	if err != nil {
+		panic(fmt.Errorf("while loading vars from .env: %w", err))
 	}
 
 	prisma = db.NewClient()
@@ -25,9 +30,12 @@ func init() {
 		panic(fmt.Sprintf("could not connect to database: %v", err))
 	}
 
+	opts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
+		panic(fmt.Sprintf("could not parse redis url: %v", err))
 	}
 
+	redisClient = redis.NewClient(opts)
 }
 
 func main() {
