@@ -1,0 +1,424 @@
+* {
+	max-width: 100%;
+	font-family: var(--font-main);
+}
+
+:root {
+	line-height: 1.5;
+	color: var(--text);
+	background: var(--bg);
+
+	--font-main: 'Space Grotesk', sans-serif;
+	--font-mono: 'Space Mono', monospace;
+	--border-width: 2px;
+
+	/* Title */
+	--size-title: 1.6rem;
+	--weight-title: 700;
+
+	/* Field label */
+	--size-field-label: 0.9rem;
+	--weight-field-label: 500;
+
+	/* Paragraph */
+	--size-paragraph: 1rem;
+	--weight-paragraph: 500;
+
+	/* Details */
+	--size-details: 0.85rem;
+	--weight-details: 700;
+
+	/* Big Figure */
+	--size-big-figure: 2.4rem;
+	--weight-big-figure: 500;
+
+	/* Big button */
+	--size-big-button: 1.1rem;
+	--weight-big-button: 700;
+}
+
+.icon {
+	flex-shrink: 0;
+	vertical-align: bottom;
+
+	h1 &,
+	h2 &,
+	h3 & {
+		width: 1em;
+		height: 1em;
+	}
+}
+
+[hidden] {
+	display: none !important;
+}
+
+html {
+	color-scheme: light dark;
+}
+
+.typo-title,
+h1,
+h2 {
+	font-size: var(--size-title);
+	line-height: 0.95;
+}
+
+h1 {
+	font-size: 1.8em;
+}
+
+h2 {
+	font-size: 1.4em;
+}
+
+.typo-field-label,
+dt {
+	font-size: var(--size-field-label);
+	font-weight: var(--weight-field-label);
+	text-transform: uppercase;
+	letter-spacing: 0.15em;
+
+	/* font-feature-settings: "ss04" 1; */
+}
+
+.typo-big-figure {
+	font-size: var(--size-big-figure);
+	font-weight: var(--weight-big-figure);
+}
+
+.typo-paragraph,
+p {
+	font-size: var(--size-paragraph);
+	font-weight: var(--weight-paragraph);
+}
+
+.typo-details {
+	font-size: var(--size-details);
+	font-weight: var(--weight-details);
+}
+
+.typo-big-button {
+	font-size: var(--size-big-button);
+	font-weight: var(--weight-big-button);
+}
+
+a {
+	color: unset;
+	text-decoration: none;
+}
+
+dd > a:not([class^='button']),
+p > a:not([class^='button']),
+a.in-body {
+	color: var(--primary);
+	text-decoration: underline;
+	text-decoration-thickness: 0.125em;
+	text-underline-offset: 0.5ch;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+body {
+	margin: 0;
+}
+
+[data-user-html] > {
+	p {
+		margin-bottom: 1em;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		margin-top: 1em;
+		margin-bottom: 0.5em;
+	}
+}
+
+ul,
+ol {
+	padding-left: 0;
+	list-style: none;
+}
+
+[data-user-html] ul {
+	padding-left: 1em;
+	list-style: disc;
+}
+
+[data-user-html] ol {
+	padding-left: 1em;
+	list-style: decimal;
+}
+
+ul.nobullet {
+	padding-left: 0;
+	list-style: none;
+}
+
+ins {
+	color: var(--success);
+	text-decoration: none;
+	background-color: var(--success-bg);
+}
+
+del {
+	color: var(--danger);
+	background-color: var(--danger-bg);
+}
+
+hr {
+	width: 80%;
+	max-width: 1000px;
+	border: var(--border-block) solid var(--muted-bg);
+	border-radius: 1000px;
+}
+
+code {
+	font-family: var(--font-mono);
+	color: currentcolor;
+}
+
+code.hljs {
+	border-radius: var(--radius-block);
+}
+
+a.user-mention {
+	padding: 0.25rem;
+	color: var(--primary) !important;
+	text-decoration: none !important;
+	background-color: var(--primary-bg) !important;
+	border-radius: var(--radius-inline);
+}
+
+a.user-mention:hover,
+a.user-mention:focus-visible {
+	color: var(--primary) !important;
+	background-color: var(--primary-bg) !important;
+}
+
+.skeleton-effect-wave {
+	mask-image: linear-gradient(to right, transparent 0%, black 25%, black 75%, transparent 100%);
+	mask-repeat: repeat;
+	mask-position: 50% top;
+	mask-size: 200% 100%;
+	animation: skeleton-effect-wave 1s infinite;
+}
+
+div.skeleton-effect-wave {
+	background-color: var(--skeleton-ui-bg);
+}
+
+@keyframes skeleton-effect-wave {
+	0% {
+		mask-position: 50% top;
+	}
+
+	100% {
+		mask-position: -150% top;
+	}
+}
+
+button {
+	font-size: 1em;
+	color: currentcolor;
+	appearance: none;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+@media (prefers-reduced-motion) {
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
+	}
+}
+
+/* TODO for now no view transitions on desktop cuz they're borked 
+@media (min-width: 900px) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+} */
+
+.svelte-lightbox-overlay {
+	background-color: rgba(0 0 0 / 80%) !important;
+	backdrop-filter: blur(4px);
+}
+
+.primary,
+.primary a {
+  --bg: var(--primary-bg);
+  --color: var(--primary);
+
+  color: var(--color);
+  border-color: var(--color);
+}
+
+.success,
+.success a {
+  --bg: var(--success-bg);
+  --color: var(--success);
+
+  color: var(--color);
+  border-color: var(--color);
+}
+
+.warning,
+.warning a {
+  --bg: var(--warning-bg);
+  --color: var(--warning);
+
+  color: var(--color);
+  border-color: var(--color);
+}
+
+.danger,
+.danger a {
+  --bg: var(--danger-bg);
+  --color: var(--danger);
+
+  color: var(--color);
+  border-color: var(--color);
+}
+
+.muted,
+.muted a {
+  --bg: var(--bg);
+  --color: var(--muted);
+
+  color: var(--color);
+  border-color: var(--color);
+}
+
+:root,
+dialog,
+::backdrop {
+  /* Surfaces */
+
+  --bg: #fff;
+  --bg2: #e7e7e7;
+  --bg3: #cecece;
+  --bg4: #9e9e9e;
+  --shy: #6d6d6d;
+  --muted: #414141;
+  --fg: #000;
+
+  /* Thematic */
+
+  /* IMPORTANT: All colors must be such that text in var(--original-bg) color on top of them is legible */
+  --danger: #971212;
+  --primary: #0a5bc5;
+  --success: #056721;
+  --warning: #c24600;
+
+  /* For *-bg variants, no such guarantee is needed (no element should have a neutral color on top of them, it's ugly) */
+  --primary-bg: #c3eaff;
+  --danger-bg: #ffcbcb;
+  --success-bg: #caffd8;
+  --warning-bg: #ffe58f;
+
+  /* Utility */
+
+  --shadow: 0 0 0.125rem #0004, 0 0.125rem 0.5rem #0001;
+  --shadow-big: 0 0 0.5rem #0004, 0 0.5rem 3rem #0001;
+  --border-inline: 1px;
+  --border-block: 1px;
+  --radius-inline: 0.25rem;
+  --radius-block: 0.5rem;
+  --skeleton-ui-bg: rgb(225 225 225);
+  --backdrop: rgb(0 0 0 / 30%);
+  --original-bg: var(
+    --bg
+  ); /* May be useful to .warning/.success/.danger/.primary util classes, since they overwrite --bg */
+
+  /* Legacy */
+
+  --text: var(--fg);
+  --title: var(--fg);
+  --border: var(--fg);
+  --error: var(--danger);
+  --ring: var(--bg3);
+  --disabled-bg: var(--bg);
+  --disabled-text: var(--shy);
+  --disabled-border: var(--bg2);
+  --muted-bg: var(--bg2);
+  --muted-text: var(--muted);
+  --muted-link: var(--shy);
+  --muted-border: var(--muted);
+
+  /* Special */
+
+  --logo-stroke-width: 60px;
+  --logo-highlight-fill: var(--bg);
+  --logo-highlight-stroke: var(--fg);
+  --logo-base-fill: var(--bg);
+  --logo-base-stroke: var(--fg);
+  --logo-shadows-fill: var(--bg);
+  --logo-shadows-stroke: var(--fg);
+}
+
+:root[data-theme-variant='dark'],
+:root[data-theme-variant='dark']::backdrop,
+dialog[data-theme-variant='dark'],
+dialog[data-theme-variant='dark']::backdrop {
+  /* Surfaces */
+  --bg: #000;
+  --bg2: #1a1a1a;
+  --bg3: #363636;
+  --bg4: #585858;
+  --shy: #b8b8b8;
+  --muted: #ddd;
+  --fg: #fff;
+
+  /* Thematic */
+  --danger: #ff4848;
+  --primary: #499eff;
+  --success: #3fcf68;
+  --warning: #f39c2b;
+  --danger-bg: #1d0909;
+  --primary-bg: #03212b;
+  --success-bg: #0b2512;
+  --warning-bg: #3f2508;
+
+  /* Utility */
+  --backdrop: rgb(0 0 0 / 80%);
+  --skeleton-ui-bg: rgb(30 30 30);
+  --shadow: 0 0.25rem 0.5rem #000;
+}
+
+:root {
+  line-height: 1.5;
+  color: var(--fg);
+  background: var(--bg);
+  border-color: var(--fg);
+
+  --font-main: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --border-width: 2px;
+  --size-title: 1.6rem;
+  --weight-title: 700;
+  --size-field-label: 0.9rem;
+  --weight-field-label: 500;
+  --size-paragraph: 1rem;
+  --weight-paragraph: 500;
+  --size-details: 0.85rem;
+  --weight-details: 700;
+  --size-big-figure: 2.4rem;
+  --weight-big-figure: 500;
+  --size-big-button: 1.1rem;
+  --weight-big-button: 700;
+}

@@ -56,6 +56,9 @@ dependencies:
   ioredis:
     specifier: ^5.4.1
     version: 5.4.1
+  js-sha256:
+    specifier: ^0.11.0
+    version: 0.11.0
   lodash-es:
     specifier: ^4.17.21
     version: 4.17.21
@@ -1685,6 +1688,10 @@ packages:
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
     dev: true
+
+  /js-sha256@0.11.0:
+    resolution: {integrity: sha512-6xNlKayMZvds9h1Y1VWc0fQHQ82BxTXizWPEtEeGvmOUYpBRy4gbWroHLpzowe6xiQhHpelCQiE7HEdznyBL9Q==}
+    dev: false
 
   /linkify-plugin-mention@4.1.4(linkifyjs@4.1.4):
     resolution: {integrity: sha512-eY69XDmZG8Z6syTYwH+2H8CFrYYw695ENuORNmerDpjOKCX3Ev3BineiskG8YyVA5OJIsnwEWa5k4l8OXEAh8w==}

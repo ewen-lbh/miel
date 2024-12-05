@@ -57,7 +57,7 @@ function navtopPushState(key: NavigationTopStateKeys | ModalStateKeys) {
 
 const commonActions = {
 	delete: {
-		label: 'Supprimer',
+		label: 'Delete',
 		icon: IconTrash,
 		filledIcon: IconTrashFilled,
 		do() {
@@ -65,15 +65,15 @@ const commonActions = {
 		}
 	},
 	edit: {
-		label: 'Modifier',
+		label: 'Edit subject',
 		icon: IconPen
 	},
 	settings: {
-		label: 'Paramètres',
+		label: 'Settings',
 		icon: IconCog
 	},
 	copyID: {
-		label: "Copier l'ID",
+		label: 'Copy ID',
 		icon: IconXML,
 		do() {
 			navigationTopActionEventDispatcher('NAVTOP_COPY_ID');
@@ -90,7 +90,23 @@ export const topnavConfigs: Partial<{
 				// TODO Figure out a way to get PageParams of RouteID? The PageParams exported on  (app)/layout's $type is empty...
 				page: Page<{ [K in keyof LayoutParams]-?: NonNullable<LayoutParams[K]> }, RouteID>
 		  ) => NavigationContext);
-}> = {};
+}> = {
+	'/': {
+		actions: rootPagesActions
+	},
+	'/[account]/[mail]': {
+		title: 'Email',
+		actions: [commonActions.delete, commonActions.edit, commonActions.copyID]
+	},
+	'/[account]/screener': {
+		title: 'Screener',
+		actions: []
+	},
+	'/[account]': ({ params }) => ({
+		title: params.account,
+		actions: rootPagesActions
+	})
+};
 
 /**
  * Like refroute("/login"), but also adds a &why=unauthorized query param to explain why the user is being redirected to the login page.

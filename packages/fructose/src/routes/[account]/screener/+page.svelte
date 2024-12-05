@@ -28,6 +28,7 @@
 				<li>
 					<LoadingText tag="h2" value={address.address} />
 					<LoadingText value={address.name} />
+					<img src={loading(address.avatarURL, null)?.toString()} />
 					<p>Last 10 mails</p>
 					<ul>
 						{#each address.lastSentEmails.nodes as { subject, spamLevel, id }}

@@ -1,12 +1,9 @@
-import express from "express"
-import { createYoga } from "graphql-yoga"
-import { builder } from "./builder.ts"
 import { useTrimInputs } from "envelop-trim-inputs"
-import { WebSocketServer } from "ws"
+import express from "express"
 import * as GraphQLWS from "graphql-ws/lib/use/ws"
-
-await import("./schema.js")
-const schema = builder.toSchema()
+import { createYoga } from "graphql-yoga"
+import { WebSocketServer } from "ws"
+import { schema } from "./write-schema.ts"
 
 const yoga = createYoga({
   schema,

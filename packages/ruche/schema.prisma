@@ -279,6 +279,9 @@ model Address {
 
   /// Emails where this address is in the CC field.
   ccEmails Email[] @relation("EmailCc")
+
+  /// Last email sent at date. Used for sorting
+  lastEmailSentAt DateTime?
 }
 
 /// Defines the types of addresses.

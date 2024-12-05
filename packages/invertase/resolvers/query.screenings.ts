@@ -1,3 +1,4 @@
+import { uniqBy } from "lodash-es"
 import { builder, prisma } from "../builder"
 import { subscribe } from "../lib/pubsub"
 import { AddressType } from "../types/address"
@@ -21,16 +22,10 @@ builder.queryField(fieldName(), (t) =>
       })
     },
     async resolve(query) {
-      return await prisma.address.findMany({
+      return prisma.address.findMany({
         ...query,
-        where: {
-          defaultInbox: null,
-        },
-        orderBy: {
-          sentEmails: {
-            _count: "desc",
-          },
-        },
+        where: { defaultInbox: null, sentEmails: { some: {} } },
+        orderBy: { lastEmailSentAt: "desc" },
       })
     },
   })

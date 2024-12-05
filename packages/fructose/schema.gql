@@ -313,6 +313,10 @@ enum ServerType {
 
 type Subscription {
   emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
+  """
+  Addresses that are waiting screening (have not been assigned a default inbox yet).
+  """
+  screenings(after: String, before: String, first: Int, last: Int): QueryScreeningsConnection!
 }
 
 """

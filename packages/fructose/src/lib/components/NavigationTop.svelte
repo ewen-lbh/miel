@@ -2,11 +2,10 @@
   import ButtonGhost from '$lib/components/ButtonGhost.svelte';
   import OverflowMenu from '$lib/components/OverflowMenu.svelte';
   import ButtonPrimary from '$lib/components/ButtonPrimary.svelte';
-  import LogoChurros from '$lib/components/LogoChurros.svelte';
   import type { ActionData, OverflowMenuAction } from '$lib/components/OverflowMenu.svelte';
   import { isMobile } from '$lib/mobile';
   import { topnavConfigs } from '$lib/navigation';
-  import { SvelteComponent } from 'svelte';
+  import type { Component } from 'svelte';
   import IconBack from '~icons/msl/arrow-back';
   import IconBugReport from '~icons/msl/bug-report-outline';
   import type { LayoutRouteId } from '../../routes/$types';
@@ -19,9 +18,9 @@
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           overflow?: OverflowMenuAction<any>[];
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          icon: typeof SvelteComponent<any>;
+          icon: Component<any>;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          filledIcon?: typeof SvelteComponent<any>;
+          filledIcon?: Component<any>;
         }
       | {
           label: string;
@@ -97,7 +96,7 @@
       <div class="title">{title}</div>
     {:else}
       <a class="left logo" href="/">
-        <LogoChurros wordmark></LogoChurros>
+        Miel
       </a>
     {/if}
   </div>

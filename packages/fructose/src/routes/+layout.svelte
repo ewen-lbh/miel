@@ -4,14 +4,10 @@
 	import { page } from '$app/stores';
 	import { env } from '$env/dynamic/public';
 	import { CURRENT_VERSION } from '$lib/buildinfo';
-	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
 	import NavigationBottom from '$lib/components/NavigationBottom.svelte';
 	import NavigationSide from '$lib/components/NavigationSide.svelte';
 	import NavigationTop, { type NavigationContext } from '$lib/components/NavigationTop.svelte';
-	import QuickAccessList from '$lib/components/QuickAccessList.svelte';
 	import { isMobile } from '$lib/mobile';
-	import { addReferrer, refroute } from '$lib/navigation';
-	import { route } from '$lib/ROUTES';
 	import { scrollableContainer, setupScrollPositionRestorer } from '$lib/scroll';
 	import { isDark } from '$lib/theme';
 	import { setupViewTransition } from '$lib/view-transitions';
@@ -23,7 +19,6 @@
 
 	const mobile = isMobile();
 	export let data: PageData;
-	$: ({ AppLayout, RootLayout } = data);
 
 	let scrolled = false;
 	setupScrollPositionRestorer(
@@ -32,7 +27,6 @@
 			scrolled = isScrolled;
 		}
 	);
-	let changelogAcknowledged = false;
 
 	const navtop = writable<NavigationContext>({
 		actions: [],
@@ -45,11 +39,9 @@
 	$: if (browser && $page.route.id) document.body.dataset.route = $page.route.id;
 </script>
 
-<svelte:body data-route={$page.route.id} />
-
 <div class="layout" id="layout" class:mobile>
 	<header class="left">
-		<NavigationSide user={null} />
+		<NavigationSide />
 	</header>
 
 	<div class="mobile-area">
@@ -72,31 +64,11 @@
 			</div>
 		</div>
 		<div class="nav-bottom">
-			<NavigationBottom me={$AppLayout.data?.me ?? null} />
+			<NavigationBottom />
 		</div>
 	</div>
 
 	<aside class="right">
-		{#if $AppLayout.data?.me}
-			<section class="quick-access">
-				<QuickAccessList pins={$AppLayout.data.me} />
-			</section>
-		{:else if !$RootLayout.data?.loggedIn}
-			<section class="login">
-				<h2>Connexion</h2>
-				<p>Pour accéder à vos événements, groupes et réservations, connectes-toi.</p>
-				<section class="actions">
-					<!-- Can't use refroute here cuz it's not called again on every page change, since this lives in the layout -->
-					<ButtonSecondary
-						noClientSideNavigation
-						href={addReferrer(route('/login'), $page.url.pathname)}>Connexion</ButtonSecondary
-					>
-					<ButtonSecondary noClientSideNavigation href={refroute('/signup')}
-						>Inscription</ButtonSecondary
-					>
-				</section>
-			</section>
-		{/if}
 		<footer class="muted">
 			<p>
 				Churros v{CURRENT_VERSION}
@@ -122,8 +94,7 @@
 	</aside>
 </div>
 
-<style lang="scss">
-	@use 'sass:math';
+<style>
 
 	/**
 
@@ -156,16 +127,16 @@
 
 	.layout {
 		display: grid;
-		grid-template-columns: 1fr minmax(300px, var(--scrollable-content-width, 700px)) 1fr;
+		grid-template-columns: 1fr minmax(300px, var(--scrollable-content-width, 1000px)) 1fr;
 		gap: 2rem;
 		width: 100dvw;
 
-		// TODO animate --scrollable-content-width changes
+		/* TODO animate --scrollable-content-width changes */
 
 		--scrollable-area-border-color: var(--bg3);
 
-		// Waiting on https://drafts.csswg.org/css-env-1/ to use variables in media queries
-		// --width-mobile: 900px;
+		/* Waiting on https://drafts.csswg.org/css-env-1/ to use variables in media queries */
+		/* --width-mobile: 900px; */
 	}
 
 	.layout .left {
@@ -193,7 +164,7 @@
 	#scrollable-area {
 		display: flex;
 		flex-direction: column;
-		max-width: var(--scrollable-content-width, 700px);
+		max-width: var(--scrollable-content-width, 1000px);
 	}
 
 	.layout .nav-bottom {
@@ -223,8 +194,6 @@
 	.cap .corner-right {
 		position: absolute;
 		inset: 0;
-
-		// z-index: 11;
 	}
 
 	.cap .corner-left {
@@ -313,12 +282,6 @@
 		opacity: 1;
 	}
 
-	.login .actions {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: 0.5em;
-	}
-
 	@media (min-width: 900px) {
 		#scrollable-area {
 			height: 100%;
@@ -326,50 +289,6 @@
 			border-right: solid 1px var(--scrollable-area-border-color);
 			border-left: solid 1px var(--scrollable-area-border-color);
 		}
-	}
-
-	.announcements {
-		display: flex;
-		flex-flow: column wrap;
-		width: 100%;
-		view-timeline-name: announcements;
-	}
-
-	.announcement {
-		display: flex;
-		column-gap: 1rem;
-		align-items: center;
-		justify-content: space-between;
-		padding: 0.5rem 2rem;
-		color: var(--text);
-		background: var(--bg);
-	}
-
-	@media (min-width: 900px) {
-		.announcements {
-			padding: 0 1rem;
-		}
-
-		.announcement:first-child {
-			border-top-left-radius: var(--radius-block);
-			border-top-right-radius: var(--radius-block);
-		}
-
-		.announcement:last-child {
-			border-bottom-right-radius: var(--radius-block);
-			border-bottom-left-radius: var(--radius-block);
-		}
-	}
-
-	.announcement:last-child {
-		margin-bottom: 2rem;
-	}
-
-	.announcement .text {
-		display: flex;
-		flex-wrap: wrap;
-		column-gap: 1rem;
-		align-items: center;
 	}
 
 	@keyframes spinner {

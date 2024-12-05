@@ -2,16 +2,9 @@
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import ButtonGhost from '$lib/components/ButtonGhost.svelte';
 	import ButtonNavigation from '$lib/components/ButtonNavigation.svelte';
-	import ChurrosLogo from '$lib/components/LogoChurros.svelte';
-	import { route } from '$lib/ROUTES';
 	import IconBugReport from '~icons/msl/bug-report-outline';
-	import IconEvents from '~icons/msl/calendar-today-outline';
-	import IconEventsFilled from '~icons/msl/event';
 	import IconHomeFilled from '~icons/msl/home';
 	import IconHome from '~icons/msl/home-outline';
-	import IconSearch from '~icons/msl/search';
-	import IconServicesFilled from '~icons/msl/widgets';
-	import IconServices from '~icons/msl/widgets-outline';
 
 	let animatingChurrosLogo = false;
 
@@ -37,7 +30,7 @@
 				}, 1000);
 			}}
 		>
-			<ChurrosLogo drawing={animatingChurrosLogo} />
+			Mi
 		</ButtonNavigation>
 	</div>
 	<div class="middle">
@@ -50,7 +43,7 @@
 			iconFilled={IconHomeFilled}
 		/>
 
-		<ButtonNavigation
+		<!-- <ButtonNavigation
 			href="/search"
 			routeID="/(app)/search/[[q]]"
 			label="Explorer"
@@ -74,7 +67,7 @@
 			tooltipsOn="left"
 			icon={IconServices}
 			iconFilled={IconServicesFilled}
-		/>
+		/> -->
 	</div>
 
 	<div class="bottom">

@@ -10,7 +10,7 @@ export default defineConfig({
 		icons({
 			compiler: 'svelte',
 			defaultClass: 'icon',
-			scale: 1.5
+			scale: 1.25
 		}),
 		houdini(),
 		sveltekit(),

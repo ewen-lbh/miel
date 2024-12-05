@@ -226,8 +226,10 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		db.Address.Address.Set(envelope.From[0].Addr()),
 		db.Address.Name.Set(envelope.From[0].Name),
 		db.Address.Type.Set(db.AddressTypeSender),
+		db.Address.LastEmailSentAt.Set(envelope.Date),
 	).Update(
 		db.Address.Name.Set(envelope.From[0].Name),
+		db.Address.LastEmailSentAt.Set(envelope.Date),
 	).Exec(ctx)
 
 	if err != nil {

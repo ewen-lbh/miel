@@ -11,12 +11,13 @@ query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 			node {
 				id
 				address
+				avatarURL
 				name
 				probablyAPerson
 				verified
 				lastSentEmails: sentEmails(first: 10) {
 					nodes {
-                        id
+						id
 						subject
 						spamLevel: header(key: "X-Spam-Level")
 					}
