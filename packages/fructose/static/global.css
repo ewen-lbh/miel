@@ -145,8 +145,8 @@ body {
 	}
 }
 
-ul,
-ol {
+ul:not(.show-bullets),
+ol:not(.show-bullets) {
 	padding-left: 0;
 	list-style: none;
 }

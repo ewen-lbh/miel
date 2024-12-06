@@ -8,14 +8,7 @@ query PageAccount($account: EmailAddress!) @loading(cascade: true) {
 			emails(first: 50) @paginate @loading(count: 10) {
 				edges {
 					node {
-						id
-						from {
-							name
-							...Avatar
-							address
-						}
-						subject
-						unsubscribe
+						...EmailRow
 					}
 				}
 			}

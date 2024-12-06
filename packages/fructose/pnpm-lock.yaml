@@ -20,12 +20,18 @@ dependencies:
   graphql-ws:
     specifier: ^5.16.0
     version: 5.16.0(graphql@15.9.0)
+  nanoid:
+    specifier: ^5.0.9
+    version: 5.0.9
   svelte-store2storage:
     specifier: ^2.0.0
     version: 2.0.0
   sveltejs-tippy:
     specifier: ^3.0.0
     version: 3.0.0
+  tldts:
+    specifier: ^6.1.65
+    version: 6.1.65
   ts-opaque:
     specifier: ^3.0.1
     version: 3.0.1
@@ -4718,6 +4724,17 @@ packages:
     resolution: {integrity: sha512-buQF6HugTA4YeSA/s9xBhu0ferEAx7sRSn45G+Juh3p+Dz3vEKfxtqdg6JUnHIWDCV/r0u8Lrobs9AB4dtYcUQ==}
     dependencies:
       '@popperjs/core': 2.11.8
+    dev: false
+
+  /tldts-core@6.1.65:
+    resolution: {integrity: sha512-Uq5t0N0Oj4nQSbU8wFN1YYENvMthvwU13MQrMJRspYCGLSAZjAfoBOJki5IQpnBM/WFskxxC/gIOTwaedmHaSg==}
+    dev: false
+
+  /tldts@6.1.65:
+    resolution: {integrity: sha512-xU9gLTfAGsADQ2PcWee6Hg8RFAv0DnjMGVJmDnUmI8a9+nYmapMQix4afwrdaCtT+AqP4MaxEzu7cCrYmBPbzQ==}
+    hasBin: true
+    dependencies:
+      tldts-core: 6.1.65
     dev: false
 
   /to-regex-range@5.0.1:

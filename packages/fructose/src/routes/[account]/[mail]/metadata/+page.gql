@@ -1,0 +1,35 @@
+query PageEmailMetadata($mail: ID!) @loading {
+	email(id: $mail) {
+		subject
+
+		to {
+			address
+		}
+		cc {
+			address
+		}
+
+		from {
+			...FromHeader
+		}
+
+		travelPath: header(key: "Received")
+		dmarc {
+			ok
+			explanation
+		}
+		spf {
+			ok
+			explanation
+		}
+		dkim {
+			ok
+			explanation
+		}
+		unsubscribe
+		headers {
+			key
+			value
+		}
+	}
+}

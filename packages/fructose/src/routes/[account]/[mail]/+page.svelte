@@ -20,7 +20,7 @@
 	$effect(() => {
 		if (!loaded(htmlContent)) return;
 		if (!mailContentFrame) return;
-		mailContentFrame.contentDocument?.write(htmlContent);
+		mailContentFrame.contentDocument?.write(htmlContent.replaceAll('<a ', "<a target='_blank' "));
 		unwrapFrame();
 		unwrapInterval = setInterval(unwrapFrame, 200);
 		return () => clearInterval(unwrapInterval);
@@ -74,7 +74,19 @@
 				></LoadingText>
 			</p>
 			<LoadingText tag="h1" value={email.subject}></LoadingText>
-			<iframe title="Mail content" bind:this={mailContentFrame} class="mail-content"></iframe>
+			{#if email.html}
+				<iframe title="Mail content" bind:this={mailContentFrame} class="mail-content"></iframe>
+			{:else}
+				<main class="text main-content">
+					{#if !loaded(email.text)}
+						<LoadingText lines={10} tag="p"></LoadingText>
+					{:else}
+						{#each email.text.split(/\r?\n/) as line}
+							<p>{line}</p>
+						{/each}
+					{/if}
+				</main>
+			{/if}
 		{/if}
 	{/snippet}
 </MaybeError>

@@ -40,6 +40,11 @@ export const formatTime = (date: unknown) =>
 		timeStyle: 'short'
 	}).format(new Date(date as Date));
 
+export const formatTimeWithSeconds = (date: unknown) =>
+	new Intl.DateTimeFormat('en-US', {
+		timeStyle: 'medium'
+	}).format(new Date(date as Date));
+
 /**
  * Show the time only if the date is today, otherwise show the full date
  * @param date
@@ -50,6 +55,19 @@ export const formatDateTimeSmart: (date: Date | string) => string = (date) => {
 
 	return formatDate(date);
 };
+
+
+/**
+ * Show the time only if the date is today, otherwise show the full date
+ * @param date 
+ * @returns 
+ */
+export const formatDateTimeSmartWithSeconds: (date: Date | string) => string = (date) => {
+	if (typeof date === 'string') date = new Date(Date.parse(date));
+	if (isToday(date)) return formatTimeWithSeconds(date);
+
+	return formatDate(date);
+}
 
 export const formatDatetimeLocal = (date: Date | string) => {
 	if (typeof date === 'string') date = new Date(Date.parse(date));

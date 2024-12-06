@@ -6,6 +6,7 @@ import type { Page } from '@sveltejs/kit';
 import { get } from 'svelte/store';
 import IconXML from '~icons/msl/code';
 import IconTrashFilled from '~icons/msl/delete';
+import IconMetadata from '~icons/msl/format-list-bulleted';
 import IconTrash from '~icons/msl/delete-outline';
 import IconPen from '~icons/msl/edit-outline';
 import IconCog from '~icons/msl/settings-outline';
@@ -104,8 +105,22 @@ export const topnavConfigs: {
 	},
 	'/[account]/[mail]': ({ params }) => ({
 		title: 'Email',
-		actions: [commonActions.delete, commonActions.edit, commonActions.copyID],
+		actions: [
+			{
+				icon: IconMetadata,
+				label: 'See metadata',
+				href: route('/[account]/[mail]/metadata', params)
+			},
+			commonActions.delete,
+			commonActions.edit,
+			commonActions.copyID
+		],
 		back: route('/[account]', params.account)
+	}),
+	'/[account]/[mail]/metadata': ({ params }) => ({
+		title: 'Email Metadata',
+		actions: [],
+		back: route('/[account]/[mail]', params)
 	}),
 	'/[account]/screener': ({ params }) => ({
 		title: 'Screener',

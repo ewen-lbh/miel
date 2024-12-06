@@ -1,15 +1,11 @@
 query PageEmailsFrom($address: EmailAddress!) @loading {
 	address(email: $address) {
-		...Avatar
-		name
-		address
+		...FromHeader
 
 		sentEmails(first: 10) @paginate {
 			edges {
 				node {
-					id
-					subject
-					receivedAt
+					...EmailRow
 				}
 			}
 		}

@@ -1,6 +1,11 @@
 import { builder } from "../builder"
-import { typeName } from "../utils"
+import { parseComplexHeader, typeName } from "../utils"
 import { DateTimeType } from "./date-time"
+import {
+  EmailAuthenticationResultType,
+  resolveAuthenticationResultCheck,
+} from "./email-authentication-result"
+import { firstHeaderValue, headerValues } from "./header"
 import { HTMLType } from "./html"
 
 export const EmailType = builder.prismaNode("Email", {
@@ -36,5 +41,27 @@ export const EmailType = builder.prismaNode("Email", {
     from: t.relation("sender"),
     to: t.relation("recipient"),
     cc: t.relation("cc"),
+    spf: t.field({
+      description: "Result of the SPF check",
+      type: EmailAuthenticationResultType,
+      nullable: true,
+      resolve: resolveAuthenticationResultCheck("spf"),
+    }),
+    dkim: t.field({
+      description: "Result of the DKIM check",
+      type: EmailAuthenticationResultType,
+      nullable: true,
+      resolve: resolveAuthenticationResultCheck("dkim", (v) =>
+        v.startsWith("pass ")
+      ),
+    }),
+    dmarc: t.field({
+      description: "Result of the DMARC check",
+      type: EmailAuthenticationResultType,
+      nullable: true,
+      resolve: resolveAuthenticationResultCheck("dmarc", (v) =>
+        /^(p=)?pass/i.test(v)
+      ),
+    }),
   }),
 })

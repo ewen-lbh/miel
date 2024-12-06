@@ -9,6 +9,7 @@
 	import { route } from '$lib/ROUTES';
 	import { infinitescroll } from '$lib/scroll';
 	import type { PageData } from './$houdini';
+	import EmailRow from '$lib/components/EmailRow.svelte';
 	const { data }: { data: PageData } = $props();
 	const { PageAccount } = $derived(data);
 </script>
@@ -26,17 +27,7 @@
 			<main use:infinitescroll={async () => PageAccount.loadNextPage()}>
 				<Submenu>
 					{#each account.mainbox?.emails.edges ?? [] as { node: email }}
-						<SubmenuItem
-							icon={null}
-							href={route('/[account]/[mail]', {
-								account: $page.params.account,
-								mail: loading(email.id, '')
-							})}
-							subtext={mapLoading(email.from.address, (a) => `from ${a}`)}
-						>
-							<Avatar linkify slot="icon" address={email.from} />
-							<LoadingText value={email.subject} />
-						</SubmenuItem>
+						<EmailRow {email} />
 					{/each}
 				</Submenu>
 			</main>

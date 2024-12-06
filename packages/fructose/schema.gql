@@ -86,6 +86,10 @@ scalar DateTime
 type Email implements Node {
   """List of carbon copy (CC) recipients."""
   cc: [Address!]!
+  """Result of the DKIM check"""
+  dkim: EmailAuthenticationResult
+  """Result of the DMARC check"""
+  dmarc: EmailAuthenticationResult
   """The sender of the email."""
   from: Address!
   """
@@ -107,6 +111,8 @@ type Email implements Node {
   receivedAt: DateTime!
   """The subject was changed by the user"""
   renamed: Boolean!
+  """Result of the SPF check"""
+  spf: EmailAuthenticationResult
   """The subject of the email"""
   subject(
     """
@@ -128,6 +134,13 @@ type Email implements Node {
 A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
 """
 scalar EmailAddress
+
+type EmailAuthenticationResult {
+  """Reason for the authentication check (why it passed or failed)"""
+  explanation: String!
+  """The authentication check passed"""
+  ok: Boolean!
+}
 
 type EmailConnection {
   edges: [EmailEdge!]!

@@ -17,10 +17,7 @@ query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 				verified
 				lastSentEmails: sentEmails(first: 3) {
 					nodes {
-						id
-						subject
-						receivedAt
-						spamLevel: header(key: "X-Spam-Level") @loading(count: 1)
+						...EmailRow
 					}
 				}
 			}

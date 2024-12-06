@@ -1,0 +1,19 @@
+query PageInboxes($account: EmailAddress!) {
+	account(address: $account) {
+		inboxes {
+			name
+			type
+			emails(first: 3) {
+				nodes {
+					from {
+						...Avatar
+						name
+						address
+					}
+					subject
+					receivedAt
+				}
+			}
+		}
+	}
+}

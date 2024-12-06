@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { graphql } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
+	import EmailRow from '$lib/components/EmailRow.svelte';
 	import IconMailboxType from '$lib/components/IconMailboxType.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
 	import Submenu from '$lib/components/Submenu.svelte';
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
-	import { formatDateTimeSmart } from '$lib/dates';
-	import { loaded, loading, mapLoading } from '$lib/loading';
+	import { loaded, loading } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
-	import { refroute } from '$lib/navigation';
 	import { infinitescroll } from '$lib/scroll';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { PageData } from './$houdini';
@@ -62,24 +60,8 @@
 						</div>
 					</SubmenuItem>
 
-					{#each address.lastSentEmails.nodes as { subject, spamLevel, receivedAt, id }}
-						<SubmenuItem
-							icon={null}
-							href={refroute('/[account]/[mail]', {
-								account: $page.params.account,
-								mail: loading(id, '')
-							})}
-						>
-							<svelte:fragment slot="subtext">
-								<LoadingText value={mapLoading(receivedAt, formatDateTimeSmart)}></LoadingText>
-								<LoadingText
-									value={mapLoading(spamLevel.at(0) ?? null, (lvl) =>
-										lvl ? ` · Spam level: ${lvl}` : ''
-									)}
-								/>
-							</svelte:fragment>
-							<LoadingText value={subject} />
-						</SubmenuItem>
+					{#each address.lastSentEmails.nodes as email}
+						<EmailRow noavatar {email} />
 					{/each}
 				{/each}
 			</Submenu>

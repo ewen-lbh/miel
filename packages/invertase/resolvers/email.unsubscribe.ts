@@ -49,6 +49,10 @@ export function unsubscribeLinkFromBody(htmlBody: string) {
       candidates.unshift(href)
       continue
     }
+    if (text.toLowerCase().includes("désinscrire")) {
+      candidates.push(href)
+      continue
+    }
     if (text.toLowerCase().includes("notification")) {
       candidates.push(href)
       continue

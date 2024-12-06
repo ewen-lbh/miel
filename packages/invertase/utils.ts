@@ -97,3 +97,25 @@ export async function workingURL(...urls: string[]): Promise<string | null> {
   }
   return null
 }
+
+/**
+ * Parse a header value that contains ';'-separated key-value pairs.
+ */
+export function parseComplexHeader(value: string) {
+  const segments = Object.fromEntries(
+    value.split(";").map((segment) => {
+      const [key, ...values] = segment.trim().split("=")
+      let value = values.join("=").trim()
+      let description = ""
+      /* Parse eventual parenthesized end of value as a description */
+      if (value.includes("(") && value.includes(")")) {
+        ;[value, description] = value.split("(")
+        value = value.trim()
+        description = description.replace(")", "").trim()
+      }
+      return value ? [key.trim(), { value, description }] : [key, null]
+    })
+  )
+
+  return segments
+}
