@@ -15,6 +15,8 @@ type Account implements Node {
   """The drafts mailbox for the account."""
   draftsbox: Mailbox
   id: ID!
+  """Get a mailbox on this account by its ID"""
+  inbox(id: ID!): Mailbox
   """List of mailboxes associated with the account."""
   inboxes(
     """Include empty inboxes"""
@@ -190,6 +192,8 @@ type Label implements Node {
 type Mailbox implements Node {
   """The account this mailbox belongs to."""
   account: Account!
+  """Senders that get sent here by default"""
+  defaultOf(after: String, before: String, first: Int, last: Int): MailboxDefaultOfConnection!
   """List of emails stored in this mailbox."""
   emails(
     after: String
@@ -220,6 +224,18 @@ type MailboxConnection {
   edges: [MailboxEdge!]!
   nodes: [MailboxType!]!
   pageInfo: PageInfo!
+}
+
+type MailboxDefaultOfConnection {
+  edges: [MailboxDefaultOfConnectionEdge!]!
+  nodes: [Address!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type MailboxDefaultOfConnectionEdge {
+  cursor: String!
+  node: Address!
 }
 
 type MailboxEdge {

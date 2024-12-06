@@ -1,5 +1,6 @@
 import { builder } from "../builder"
-import { graphinx, typeName } from "../utils"
+import { typeName } from "../utils"
+import { AddressType } from "./address"
 import { EmailType } from "./email"
 import { EmailConnectionType } from "./email-connection"
 import { MailboxTypeType } from "./mailbox-type"
@@ -10,7 +11,14 @@ export const MailboxType = builder.prismaNode("Mailbox", {
   fields: (t) => ({
     account: t.relation("account"),
     type: t.expose("type", { type: MailboxTypeType }),
-    name: t.exposeString("name", { nullable: true }),
+    name: t.string({
+      description:
+        "The mailbox's name. The special inbox name 'INBOX' is replaced with 'Main'",
+      nullable: true,
+      resolve({ name }) {
+        return name === "INBOX" ? "Main" : name
+      },
+    }),
     main: t.exposeBoolean("main", { nullable: true }),
     emails: t.relatedConnection(
       "emails",
@@ -33,6 +41,11 @@ export const MailboxType = builder.prismaNode("Mailbox", {
       },
       EmailConnectionType
     ),
+    defaultOf: t.relatedConnection("defaultBoxOf", {
+      cursor: "id",
+      type: AddressType,
+      totalCount: true,
+    }),
     usedAsMainboxOn: t.relation("mainbox"),
     usedAsTrashboxOn: t.relation("trashbox"),
     usedAsSentboxOn: t.relation("sentbox"),

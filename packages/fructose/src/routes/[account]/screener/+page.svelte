@@ -62,6 +62,10 @@
 
 					{#each address.lastSentEmails.nodes as email}
 						<EmailRow noavatar {email} />
+					{:else}
+						<SubmenuItem icon={null}>
+							<p class="muted">No emails</p>
+						</SubmenuItem>
 					{/each}
 				{/each}
 			</Submenu>

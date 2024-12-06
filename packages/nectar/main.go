@@ -144,10 +144,17 @@ func main() {
 	}
 
 	ll.Log("Done", "green", "syncing inboxes and mails")
+
+	err = c.StartDecisionsListener()
+	if err != nil {
+		ll.ErrorDisplay("while starting decisions listener", err)
+	}
+
 	ll.Log("Starting", "cyan", "idle listener")
 
 	err = c.StartIdleListener()
 	if err != nil {
 		ll.ErrorDisplay("while starting idle listener", err)
 	}
+
 }

@@ -262,164 +262,164 @@ button {
 
 .primary,
 .primary a {
-  --bg: var(--primary-bg);
-  --color: var(--primary);
+	--bg: var(--primary-bg);
+	--color: var(--primary);
 
-  color: var(--color);
-  border-color: var(--color);
+	color: var(--color);
+	border-color: var(--color);
 }
 
 .success,
 .success a {
-  --bg: var(--success-bg);
-  --color: var(--success);
+	--bg: var(--success-bg);
+	--color: var(--success);
 
-  color: var(--color);
-  border-color: var(--color);
+	color: var(--color);
+	border-color: var(--color);
 }
 
 .warning,
 .warning a {
-  --bg: var(--warning-bg);
-  --color: var(--warning);
+	--bg: var(--warning-bg);
+	--color: var(--warning);
 
-  color: var(--color);
-  border-color: var(--color);
+	color: var(--color);
+	border-color: var(--color);
 }
 
 .danger,
 .danger a {
-  --bg: var(--danger-bg);
-  --color: var(--danger);
+	--bg: var(--danger-bg);
+	--color: var(--danger);
 
-  color: var(--color);
-  border-color: var(--color);
+	color: var(--color);
+	border-color: var(--color);
 }
 
 .muted,
 .muted a {
-  --bg: var(--bg);
-  --color: var(--muted);
+	--bg: var(--bg);
+	--color: var(--muted);
 
-  color: var(--color);
-  border-color: var(--color);
+	color: var(--color);
+	border-color: var(--color);
 }
 
 :root,
 dialog,
 ::backdrop {
-  /* Surfaces */
+	/* Surfaces */
 
-  --bg: #fff;
-  --bg2: #e7e7e7;
-  --bg3: #cecece;
-  --bg4: #9e9e9e;
-  --shy: #6d6d6d;
-  --muted: #414141;
-  --fg: #000;
+	--bg: #fff;
+	--bg2: #e7e7e7;
+	--bg3: #cecece;
+	--bg4: #9e9e9e;
+	--shy: #6d6d6d;
+	--muted: #414141;
+	--fg: #000;
 
-  /* Thematic */
+	/* Thematic */
 
-  /* IMPORTANT: All colors must be such that text in var(--original-bg) color on top of them is legible */
-  --danger: #971212;
-  --primary: #0a5bc5;
-  --success: #056721;
-  --warning: #c24600;
+	/* IMPORTANT: All colors must be such that text in var(--original-bg) color on top of them is legible */
+	--danger: #971212;
+	--primary: #0a5bc5;
+	--success: #056721;
+	--warning: #c24600;
 
-  /* For *-bg variants, no such guarantee is needed (no element should have a neutral color on top of them, it's ugly) */
-  --primary-bg: #c3eaff;
-  --danger-bg: #ffcbcb;
-  --success-bg: #caffd8;
-  --warning-bg: #ffe58f;
+	/* For *-bg variants, no such guarantee is needed (no element should have a neutral color on top of them, it's ugly) */
+	--primary-bg: #dff4ff;
+	--danger-bg: #ffcbcb;
+	--success-bg: #caffd8;
+	--warning-bg: #ffe58f;
 
-  /* Utility */
+	/* Utility */
 
-  --shadow: 0 0 0.125rem #0004, 0 0.125rem 0.5rem #0001;
-  --shadow-big: 0 0 0.5rem #0004, 0 0.5rem 3rem #0001;
-  --border-inline: 1px;
-  --border-block: 1px;
-  --radius-inline: 0.25rem;
-  --radius-block: 0.5rem;
-  --skeleton-ui-bg: rgb(225 225 225);
-  --backdrop: rgb(0 0 0 / 30%);
-  --original-bg: var(
-    --bg
-  ); /* May be useful to .warning/.success/.danger/.primary util classes, since they overwrite --bg */
+	--shadow: 0 0 0.125rem #0004, 0 0.125rem 0.5rem #0001;
+	--shadow-big: 0 0 0.5rem #0004, 0 0.5rem 3rem #0001;
+	--border-inline: 1px;
+	--border-block: 1px;
+	--radius-inline: 0.25rem;
+	--radius-block: 0.5rem;
+	--skeleton-ui-bg: rgb(225 225 225);
+	--backdrop: rgb(0 0 0 / 30%);
+	--original-bg: var(
+		--bg
+	); /* May be useful to .warning/.success/.danger/.primary util classes, since they overwrite --bg */
 
-  /* Legacy */
+	/* Legacy */
 
-  --text: var(--fg);
-  --title: var(--fg);
-  --border: var(--fg);
-  --error: var(--danger);
-  --ring: var(--bg3);
-  --disabled-bg: var(--bg);
-  --disabled-text: var(--shy);
-  --disabled-border: var(--bg2);
-  --muted-bg: var(--bg2);
-  --muted-text: var(--muted);
-  --muted-link: var(--shy);
-  --muted-border: var(--muted);
+	--text: var(--fg);
+	--title: var(--fg);
+	--border: var(--fg);
+	--error: var(--danger);
+	--ring: var(--bg3);
+	--disabled-bg: var(--bg);
+	--disabled-text: var(--shy);
+	--disabled-border: var(--bg2);
+	--muted-bg: var(--bg2);
+	--muted-text: var(--muted);
+	--muted-link: var(--shy);
+	--muted-border: var(--muted);
 
-  /* Special */
+	/* Special */
 
-  --logo-stroke-width: 60px;
-  --logo-highlight-fill: var(--bg);
-  --logo-highlight-stroke: var(--fg);
-  --logo-base-fill: var(--bg);
-  --logo-base-stroke: var(--fg);
-  --logo-shadows-fill: var(--bg);
-  --logo-shadows-stroke: var(--fg);
+	--logo-stroke-width: 60px;
+	--logo-highlight-fill: var(--bg);
+	--logo-highlight-stroke: var(--fg);
+	--logo-base-fill: var(--bg);
+	--logo-base-stroke: var(--fg);
+	--logo-shadows-fill: var(--bg);
+	--logo-shadows-stroke: var(--fg);
 }
 
 :root[data-theme-variant='dark'],
 :root[data-theme-variant='dark']::backdrop,
 dialog[data-theme-variant='dark'],
 dialog[data-theme-variant='dark']::backdrop {
-  /* Surfaces */
-  --bg: #000;
-  --bg2: #1a1a1a;
-  --bg3: #363636;
-  --bg4: #585858;
-  --shy: #b8b8b8;
-  --muted: #ddd;
-  --fg: #fff;
+	/* Surfaces */
+	--bg: #000;
+	--bg2: #1a1a1a;
+	--bg3: #363636;
+	--bg4: #585858;
+	--shy: #b8b8b8;
+	--muted: #ddd;
+	--fg: #fff;
 
-  /* Thematic */
-  --danger: #ff4848;
-  --primary: #499eff;
-  --success: #3fcf68;
-  --warning: #f39c2b;
-  --danger-bg: #1d0909;
-  --primary-bg: #03212b;
-  --success-bg: #0b2512;
-  --warning-bg: #3f2508;
+	/* Thematic */
+	--danger: #ff4848;
+	--primary: #499eff;
+	--success: #3fcf68;
+	--warning: #f39c2b;
+	--danger-bg: #1d0909;
+	--primary-bg: #03151b;
+	--success-bg: #0b2512;
+	--warning-bg: #3f2508;
 
-  /* Utility */
-  --backdrop: rgb(0 0 0 / 80%);
-  --skeleton-ui-bg: rgb(30 30 30);
-  --shadow: 0 0.25rem 0.5rem #000;
+	/* Utility */
+	--backdrop: rgb(0 0 0 / 80%);
+	--skeleton-ui-bg: rgb(30 30 30);
+	--shadow: 0 0.25rem 0.5rem #000;
 }
 
 :root {
-  line-height: 1.5;
-  color: var(--fg);
-  background: var(--bg);
-  border-color: var(--fg);
+	line-height: 1.5;
+	color: var(--fg);
+	background: var(--bg);
+	border-color: var(--fg);
 
-  --font-main: 'Space Grotesk', sans-serif;
-  --font-mono: 'Space Mono', monospace;
-  --border-width: 2px;
-  --size-title: 1.6rem;
-  --weight-title: 700;
-  --size-field-label: 0.9rem;
-  --weight-field-label: 500;
-  --size-paragraph: 1rem;
-  --weight-paragraph: 500;
-  --size-details: 0.85rem;
-  --weight-details: 700;
-  --size-big-figure: 2.4rem;
-  --weight-big-figure: 500;
-  --size-big-button: 1.1rem;
-  --weight-big-button: 700;
+	--font-main: 'Space Grotesk', sans-serif;
+	--font-mono: 'Space Mono', monospace;
+	--border-width: 2px;
+	--size-title: 1.6rem;
+	--weight-title: 700;
+	--size-field-label: 0.9rem;
+	--weight-field-label: 500;
+	--size-paragraph: 1rem;
+	--weight-paragraph: 500;
+	--size-details: 0.85rem;
+	--weight-details: 700;
+	--size-big-figure: 2.4rem;
+	--weight-big-figure: 500;
+	--size-big-button: 1.1rem;
+	--weight-big-button: 700;
 }

@@ -127,6 +127,16 @@ export const topnavConfigs: {
 		actions: [],
 		back: route('/[account]', params.account)
 	}),
+	'/[account]/inboxes': ({ params }) => ({
+		title: 'Inboxes',
+		actions: [],
+		back: route('/[account]', params.account)
+	}),
+	'/[account]/inboxes/[inbox]': ({ params }) => ({
+		title: 'Inbox',
+		actions: [],
+		back: route('/[account]/inboxes', params.account)
+	}),
 	'/[account]': ({ params }) => ({
 		title: params.account,
 		actions: rootPagesActions,

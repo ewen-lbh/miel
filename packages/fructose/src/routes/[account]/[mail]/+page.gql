@@ -3,6 +3,8 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 		from {
 			address
 			probablyAPerson
+			name
+			...Avatar
 		}
 		to {
 			address
@@ -12,5 +14,18 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 		subject
 		html
 		text
+		spamlevel: header(key: "X-Spam-Level")
+		dkim {
+			ok
+			explanation
+		}
+		spf {
+			ok
+			explanation
+		}
+		dmarc {
+			ok
+			explanation
+		}
 	}
 }

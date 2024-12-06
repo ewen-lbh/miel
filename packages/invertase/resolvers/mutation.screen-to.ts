@@ -1,4 +1,5 @@
 import { builder, prisma } from "../builder"
+import { publish } from "../lib/pubsub"
 import { AddressType, EmailAddressType, MailboxType } from "../schema"
 import { fieldName } from "../utils"
 
@@ -16,13 +17,27 @@ builder.mutationField(fieldName(), (t) =>
       }),
     },
     async resolve(query, _, { address, box }) {
-      return await prisma.address.update({
+      await prisma.email.updateMany({
+        where: {
+          sender: { address },
+          inbox: { type: "SCREENER" },
+        },
+        data: {
+          inboxId: box.id,
+        },
+      })
+      const result = await prisma.address.update({
         ...query,
         where: { address },
         data: {
           defaultInbox: { connect: { id: box.id } },
         },
       })
+      publish("screenings:decisions", "", {
+        address,
+        inboxId: box.id,
+      })
+      return result
     },
   })
 )

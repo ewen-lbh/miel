@@ -10,6 +10,7 @@ export const CHANNELS = [
   "mailbox:updates",
   "screenings:updates",
   "idler:online",
+  "screenings:decisions",
 ] as const
 export type PubsubChannel = (typeof CHANNELS)[number]
 
@@ -27,8 +28,12 @@ export const pubsub = createPubSub({
   eventTarget: createRedisEventTarget({ publishClient, subscribeClient }),
 })
 
-export function publish(channel: PubsubChannel, id: string) {
-  pubsub.publish(`${channel}:${id}`, { id })
+export function publish(
+  channel: PubsubChannel,
+  id: string,
+  payload?: Record<string, string>
+) {
+  pubsub.publish(`${channel}${id ? `:${id}` : ""}`, { id, ...payload })
 }
 
 export function subscribe(

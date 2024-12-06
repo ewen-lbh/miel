@@ -1,6 +1,6 @@
 query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 	account(address: $account) {
-		inboxes(type: [FEED, INBOX, TRASHBOX]) {
+		inboxes(empty: true, type: [FEED, INBOX, TRASHBOX]) {
 			id
 			name
 			type

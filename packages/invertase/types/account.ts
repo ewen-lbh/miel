@@ -1,6 +1,7 @@
-import { builder } from "../builder"
+import { builder, prisma } from "../builder"
 import { typeName } from "../utils"
 import { EmailAddressType } from "./email-address"
+import { MailboxType } from "./mailbox"
 import { MailboxTypeType } from "./mailbox-type"
 
 export const AccountType = builder.prismaNode("Account", {
@@ -28,6 +29,23 @@ export const AccountType = builder.prismaNode("Account", {
           },
           orderBy: { emails: { _count: "desc" } },
         }
+      },
+    }),
+    inbox: t.prismaField({
+      type: MailboxType,
+      nullable: true,
+      description: "Get a mailbox on this account by its ID",
+      args: {
+        id: t.arg.globalID({ for: MailboxType, required: true }),
+      },
+      async resolve(query, account, { id }) {
+        return prisma.mailbox.findUnique({
+          ...query,
+          where: {
+            id: id.id,
+            accountId: account.id,
+          },
+        })
       },
     }),
     mainbox: t.relation("mainbox", { nullable: true }),

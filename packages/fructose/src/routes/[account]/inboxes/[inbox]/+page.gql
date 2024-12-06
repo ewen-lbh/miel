@@ -1,0 +1,16 @@
+query PageInbox($account: EmailAddress!, $inbox: ID!) @loading(cascade: true) {
+	account(address: $account) {
+		inbox(id: $inbox) {
+			id
+			name
+			type
+			emails(first: 50) @paginate @loading(count: 5) {
+				edges {
+					node {
+						...EmailRow
+					}
+				}
+			}
+		}
+	}
+}
