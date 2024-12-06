@@ -1,6 +1,6 @@
 import { sha256 } from "js-sha256"
-import { builder } from "../builder"
-import { typeName } from "../utils"
+import { builder, prisma } from "../builder"
+import { typeName, workingURL } from "../utils"
 import { EmailType } from "./email"
 import { EmailConnectionType } from "./email-connection"
 import { URLType } from "./url"
@@ -42,18 +42,6 @@ export const AddressType = builder.prismaNode("Address", {
   id: { field: "id" },
   name: typeName(),
   fields: (t) => ({
-    avatarURL: t.field({
-      type: URLType,
-      nullable: true,
-      description: "A avatar URL for this address",
-      async resolve({ avatarURL, address }) {
-        if (avatarURL) return avatarURL
-        // Fallback to gravatar
-        return `https://www.gravatar.com/avatar/${sha256(
-          address.trim().toLowerCase()
-        )}?d=404`
-      },
-    }),
     address: t.exposeString("address"),
     name: t.exposeString("name"),
     known: t.exposeBoolean("known", { nullable: true }),

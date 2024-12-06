@@ -49,11 +49,45 @@
 			<NavigationTop {scrolled}></NavigationTop>
 			<div class="cap">
 				<div class="corner-left-wrapper corner-wrapper">
-					<div class="corner-left"></div>
+					<svg
+						class="corner-left"
+						width="30"
+						height="30"
+						viewBox="0 0 30 30"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M30 0H0V30H1.36362C1.36362 14.1845 14.1846 1.36359 30 1.36359L30 0Z"
+							fill="var(--bg)"
+						/>
+						<path
+							d="M1.36362 30C1.36362 14.1845 14.1846 1.36359 30 1.36359"
+							stroke="var(--scrollable-area-border-color)"
+							stroke-width="var(--border-block)"
+						/>
+					</svg>
 				</div>
 				<div class="middle"></div>
 				<div class="corner-right-wrapper corner-wrapper">
-					<div class="corner-right"></div>
+					<svg
+						class="corner-right"
+						width="30"
+						height="30"
+						viewBox="0 0 30 30"
+						fill="none"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path
+							d="M0 0H30V30H28.6364C28.6364 14.1845 15.8154 1.36359 2.86102e-06 1.36359L0 0Z"
+							fill="var(--bg)"
+						/>
+						<path
+							d="M28.6364 30C28.6364 14.1845 15.8154 1.36359 0 1.36359"
+							stroke="var(--scrollable-area-border-color)"
+							stroke-width="var(--border-block)"
+						/>
+					</svg>
 				</div>
 			</div>
 		</header>
@@ -95,7 +129,6 @@
 </div>
 
 <style>
-
 	/**
 
   Layout:
@@ -187,27 +220,17 @@
 		position: relative;
 		width: 30px;
 		height: 30px;
-		background: var(--bg);
+		/* background: var(--bg); */
 	}
 
 	.cap .corner-left,
 	.cap .corner-right {
 		position: absolute;
 		inset: 0;
+		z-index: 1000;
+		height: 30px;
+		width: 30px;
 	}
-
-	.cap .corner-left {
-		border-top: solid 1px var(--scrollable-area-border-color);
-		border-left: solid 1px var(--scrollable-area-border-color);
-		border-top-left-radius: 30px;
-	}
-
-	.cap .corner-right {
-		border-top: solid 1px var(--scrollable-area-border-color);
-		border-right: solid 1px var(--scrollable-area-border-color);
-		border-top-right-radius: 30px;
-	}
-
 	.nav-top {
 		position: sticky;
 		top: 0;
@@ -285,7 +308,7 @@
 	@media (min-width: 900px) {
 		#scrollable-area {
 			height: 100%;
-			padding: 30px;
+			/* padding: 30px; */
 			border-right: solid 1px var(--scrollable-area-border-color);
 			border-left: solid 1px var(--scrollable-area-border-color);
 		}

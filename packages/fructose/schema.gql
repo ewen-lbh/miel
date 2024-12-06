@@ -49,7 +49,7 @@ input AccountInput {
 type Address implements Node {
   """The email address."""
   address: String!
-  """Optional URL of the avatar associated with the address."""
+  """A avatar URL for this address"""
   avatarURL: URL
   """Emails where this address is in the CC field."""
   ccEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
@@ -178,7 +178,14 @@ type Mailbox implements Node {
   """The account this mailbox belongs to."""
   account: Account!
   """List of emails stored in this mailbox."""
-  emails(after: String, before: String, first: Int, last: Int): EmailConnection!
+  emails(
+    after: String
+    before: String
+    first: Int
+    """Include emails from unscreened senders"""
+    includeUnscreened: Boolean = false
+    last: Int
+  ): EmailConnection!
   id: ID!
   """Indicates whether this is the main mailbox."""
   main: Boolean
@@ -248,6 +255,10 @@ type PageInfo {
 type Query {
   account(address: EmailAddress!): Account
   accounts: [Account!]!
+  """Find an address by its email address"""
+  address(email: EmailAddress!): Address
+  """Get all addresses"""
+  addresses(after: String, before: String, first: Int, last: Int): QueryAddressesConnection!
   """Find a mail by id"""
   email(id: ID!): Email
   emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
@@ -257,6 +268,17 @@ type Query {
   Addresses that are waiting screening (have not been assigned a default inbox yet).
   """
   screenings(after: String, before: String, first: Int, last: Int): QueryScreeningsConnection!
+}
+
+type QueryAddressesConnection {
+  edges: [QueryAddressesConnectionEdge!]!
+  nodes: [Address!]!
+  pageInfo: PageInfo!
+}
+
+type QueryAddressesConnectionEdge {
+  cursor: String!
+  node: Address!
 }
 
 type QueryEmailsConnection {
@@ -313,6 +335,8 @@ enum ServerType {
 
 type Subscription {
   emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
+  """Check if the daemon listening for new mail is running."""
+  idlerIsOnline: Boolean!
   """
   Addresses that are waiting screening (have not been assigned a default inbox yet).
   """

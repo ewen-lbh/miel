@@ -1,15 +1,19 @@
 query PageAccount($account: EmailAddress!) @loading(cascade: true) {
-	screenings {
-		totalCount
-	}
 	account(address: $account) {
 		name
+		inboxes {
+			name
+		}
 		mainbox {
-			emails(first: 50) @paginate {
+			emails(first: 50) @paginate @loading(count: 10) {
 				edges {
 					node {
 						id
-						from { name avatarURL address }
+						from {
+							name
+							...Avatar
+							address
+						}
 						subject
 						unsubscribe
 					}

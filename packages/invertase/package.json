@@ -6,6 +6,7 @@
     "node": ">=22.11.0"
   },
   "dependencies": {
+    "@atcute/client": "^2.0.6",
     "@graphql-tools/utils": "^10.6.1",
     "@graphql-yoga/redis-event-target": "^3.0.1",
     "@pothos/core": "^4.3.0",

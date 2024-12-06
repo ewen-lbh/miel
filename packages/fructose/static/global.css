@@ -1,6 +1,7 @@
 * {
 	max-width: 100%;
 	font-family: var(--font-main);
+	box-sizing: border-box;
 }
 
 :root {

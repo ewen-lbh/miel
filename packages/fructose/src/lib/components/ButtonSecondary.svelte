@@ -58,7 +58,11 @@
 	on:contextmenu
 >
 	<div class="loading" class:visible={loading}>…</div>
-	{#if icon}
+	{#if $$slots.icon}
+		<div class="icon">
+			<slot name="icon" />
+		</div>
+	{:else if icon}
 		<div class="icon">
 			<svelte:component this={icon} />
 		</div>

@@ -1,4 +1,5 @@
 import { DirectiveLocation } from "@graphql-tools/utils"
+import * as cheerio from "cheerio"
 import { GraphQLDirective, GraphQLError, GraphQLString } from "graphql"
 import { camelCase, upperFirst } from "lodash-es"
 import path from "node:path"
@@ -12,7 +13,7 @@ export function fieldName(): string {
     path
       .basename(util.getCallSite()[1].scriptName)
       .replace(/\w+\.([\w-]+)\.ts$/, "$1")
-  )
+  ).replace("Url", "URL")
 }
 
 /**
@@ -24,7 +25,7 @@ export function typeName(): string {
     camelCase(
       path.basename(util.getCallSite()[1].scriptName.replace(/\.ts$/, ""))
     )
-  )
+  ).replace("Url", "URL")
 }
 
 export const graphinxDirective = new GraphQLDirective({
@@ -74,4 +75,25 @@ export function enforceNonNull<T>(value: T | null | undefined): T {
     throw new GraphQLError("This is required")
   }
   return value
+}
+
+/**
+ * Successively tries each of the given URLs and returns the first URL that does not return a non-error status code, or null if all URLs fail.
+ */
+export async function workingURL(...urls: string[]): Promise<string | null> {
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { method: "HEAD" })
+      if (response.ok) {
+        // Check if the response is an image
+        const contentType = response.headers.get("content-type")
+        if (contentType?.startsWith("image/")) {
+          return url
+        }
+      }
+    } catch (error) {
+      // Ignore
+    }
+  }
+  return null
 }

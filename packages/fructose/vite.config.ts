@@ -1,5 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import houdini from 'houdini/vite';
+import houdini from '@ewen-lbh/houdini/vite';
 import { kitRoutes } from 'vite-plugin-kit-routes';
 import { type KIT_ROUTES } from './src/lib/ROUTES';
 import { defineConfig } from 'vite';
@@ -12,7 +12,9 @@ export default defineConfig({
 			defaultClass: 'icon',
 			scale: 1.25
 		}),
-		houdini(),
+		houdini({
+			autoCodeGen: 'smart'
+		}),
 		sveltekit(),
 		kitRoutes<KIT_ROUTES>({
 			format_short: true,

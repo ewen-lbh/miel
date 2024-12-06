@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@atcute/client':
+    specifier: ^2.0.6
+    version: 2.0.6
   '@graphql-tools/utils':
     specifier: ^10.6.1
     version: 10.6.1(graphql@16.9.0)
@@ -90,6 +93,10 @@ devDependencies:
     version: 4.19.2
 
 packages:
+
+  /@atcute/client@2.0.6:
+    resolution: {integrity: sha512-mhdqEicGUx0s5HTFOLpz91rcLS9j/g63de0nmAqv7blhU3j+xBf4le54qr2YIXNfnReZI7EwLYLX/YIBez4LGA==}
+    dev: false
 
   /@clack/core@0.3.5:
     resolution: {integrity: sha512-5cfhQNH+1VQ2xLQlmzXMqUoiaH0lRBq9/CLW9lTyMbuKLC3+xEK01tHVvyut++mLOn5urSHmkm6I0Lg9MaJSTQ==}

@@ -8,6 +8,11 @@ const config = {
 			client: './src/lib/client'
 		}
 	},
+	types: {
+		QueryScreeningsConnectionEdge: {
+			keys: ['cursor']
+		}
+	},
 	scalars: {
 		EmailAddress: {
 			type: 'string'

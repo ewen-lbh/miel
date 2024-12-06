@@ -6,20 +6,21 @@ query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 			type
 		}
 	}
-	screenings(first: 30) @paginate @list(connection: true, name: "List_Screenings") {
+	screenings(first: 5) @paginate {
 		edges {
 			node {
 				id
 				address
-				avatarURL
+				...Avatar
 				name
 				probablyAPerson
 				verified
-				lastSentEmails: sentEmails(first: 10) {
+				lastSentEmails: sentEmails(first: 3) {
 					nodes {
 						id
 						subject
-						spamLevel: header(key: "X-Spam-Level")
+						receivedAt
+						spamLevel: header(key: "X-Spam-Level") @loading(count: 1)
 					}
 				}
 			}

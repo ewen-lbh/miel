@@ -50,6 +50,7 @@
         "vitest": "^2.0.4"
     },
     "dependencies": {
+        "@ewen-lbh/houdini": "^1.6.0",
         "@iconify-json/material-symbols-light": "^1.2.8",
         "bits-ui": "^0.21.16",
         "date-fns": "^4.1.0",

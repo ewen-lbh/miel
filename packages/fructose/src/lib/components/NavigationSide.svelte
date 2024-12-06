@@ -5,6 +5,10 @@
 	import IconBugReport from '~icons/msl/bug-report-outline';
 	import IconHomeFilled from '~icons/msl/home';
 	import IconHome from '~icons/msl/home-outline';
+	import IconLightTheme from '~icons/msl/sunny-outline';
+	import IconDarkTheme from '~icons/msl/nightlight-outline';
+	import IconAutoTheme from '~icons/msl/night-sight-auto-outline';
+	import { theme } from '$lib/theme';
 
 	let animatingChurrosLogo = false;
 
@@ -16,6 +20,14 @@
 			animatingChurrosLogo = false;
 		}, 1000);
 	});
+
+	let willSwitchThemeTo: typeof $theme.variant = $derived(
+		{
+			dark: 'auto',
+			auto: 'light',
+			light: 'dark'
+		}[$theme.variant]
+	);
 </script>
 
 <nav>
@@ -36,41 +48,29 @@
 	<div class="middle">
 		<ButtonNavigation
 			href="/"
-			routeID="/(app)"
+			routeID="/"
 			label="Accueil"
 			tooltipsOn="left"
 			icon={IconHome}
 			iconFilled={IconHomeFilled}
 		/>
-
-		<!-- <ButtonNavigation
-			href="/search"
-			routeID="/(app)/search/[[q]]"
-			label="Explorer"
-			tooltipsOn="left"
-			icon={IconSearch}
-		/>
-
-		<ButtonNavigation
-			href={route('/events')}
-			routeID="/(app)/events/[[week=date]]"
-			label="Événements"
-			tooltipsOn="left"
-			icon={IconEvents}
-			iconFilled={IconEventsFilled}
-		/>
-
-		<ButtonNavigation
-			href={route('/services')}
-			routeID="/(app)/services"
-			label="Services"
-			tooltipsOn="left"
-			icon={IconServices}
-			iconFilled={IconServicesFilled}
-		/> -->
 	</div>
 
 	<div class="bottom">
+		<ButtonGhost
+			help="Switch to {willSwitchThemeTo} theme"
+			on:click={() => {
+				$theme.variant = willSwitchThemeTo;
+			}}
+		>
+			{#if willSwitchThemeTo === 'light'}
+				<IconLightTheme></IconLightTheme>
+			{:else if willSwitchThemeTo === 'dark'}
+				<IconDarkTheme></IconDarkTheme>
+			{:else}
+				<IconAutoTheme></IconAutoTheme>
+			{/if}
+		</ButtonGhost>
 		<ButtonGhost
 			danger
 			on:click={() => {

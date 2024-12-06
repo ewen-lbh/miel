@@ -9,6 +9,7 @@ import IconTrashFilled from '~icons/msl/delete';
 import IconTrash from '~icons/msl/delete-outline';
 import IconPen from '~icons/msl/edit-outline';
 import IconCog from '~icons/msl/settings-outline';
+import IconScreener from '~icons/msl/thumbs-up-down-outline';
 import type { LayoutParams, LayoutRouteId } from '../routes/$types';
 
 export function addReferrer(url: URL | string, referrer?: URL | string): string;
@@ -34,10 +35,17 @@ export function addReferrer(
 // @ts-expect-error can't be bothered to type that shit
 export const refroute: typeof route = (...args) => addReferrer(route(...args));
 
-export type NavigationTopActionEvent = `NAVTOP_${'COPY_ID'}`;
-const navigationTopActionEventDispatcher = (eventID: NavigationTopActionEvent) => {
-	window.dispatchEvent(new CustomEvent(eventID));
+export type NavigationTopActionEvent = `NAVTOP_${'COPY_ID' | 'UPDATE_TITLE'}`;
+const navigationTopActionEventDispatcher = (
+	eventID: NavigationTopActionEvent,
+	details: unknown = undefined
+) => {
+	window.dispatchEvent(new CustomEvent(eventID, details));
 };
+
+export function updateTitle(newTitle: string) {
+	navigationTopActionEventDispatcher('NAVTOP_UPDATE_TITLE', { detail: newTitle });
+}
 
 export type ModalStateKeys = ``;
 
@@ -83,35 +91,45 @@ const commonActions = {
 
 const rootPagesActions = [] as Array<NavigationContext['actions'][number]>;
 
-export const topnavConfigs: Partial<{
+export const topnavConfigs: {
 	[RouteID in NonNullable<LayoutRouteId>]:
 		| NavigationContext
 		| ((
 				// TODO Figure out a way to get PageParams of RouteID? The PageParams exported on  (app)/layout's $type is empty...
 				page: Page<{ [K in keyof LayoutParams]-?: NonNullable<LayoutParams[K]> }, RouteID>
 		  ) => NavigationContext);
-}> = {
+} = {
 	'/': {
 		actions: rootPagesActions
 	},
-	'/[account]/[mail]': {
+	'/[account]/[mail]': ({ params }) => ({
 		title: 'Email',
-		actions: [commonActions.delete, commonActions.edit, commonActions.copyID]
-	},
-	'/[account]/screener': {
+		actions: [commonActions.delete, commonActions.edit, commonActions.copyID],
+		back: route('/[account]', params.account)
+	}),
+	'/[account]/screener': ({ params }) => ({
 		title: 'Screener',
-		actions: []
-	},
+		actions: [],
+		back: route('/[account]', params.account)
+	}),
 	'/[account]': ({ params }) => ({
 		title: params.account,
-		actions: rootPagesActions
+		actions: rootPagesActions,
+		quickAction: {
+			icon: IconScreener,
+			label: 'Screener',
+			href: refroute('/[account]/screener', params.account)
+		},
+		back: route('/')
+	}),
+	'/[account]/addressbook': ({ params }) => ({
+		title: 'Address book',
+		actions: [],
+		back: route('/[account]', params.account)
+	}),
+	'/[account]/from/[address]': ({ params }) => ({
+		title: `Emails from ${params.address}`,
+		actions: [],
+		back: route('/[account]', params.account)
 	})
 };
-
-/**
- * Like refroute("/login"), but also adds a &why=unauthorized query param to explain why the user is being redirected to the login page.
- * @param explain {boolean} - Adds &why=unauthorized to the query string.
- */
-export function loginRedirection({ explain = true } = {}) {
-	return refroute('/login') + (explain ? '?why=unauthorized' : '');
-}

@@ -6,7 +6,11 @@ import { PothosTypes } from "../builder"
 
 const REDIS_URL = new URL(process.env.REDIS_URL || "redis://localhost:6379")
 
-export const CHANNELS = ["mailbox:updates", "screenings:updates"] as const
+export const CHANNELS = [
+  "mailbox:updates",
+  "screenings:updates",
+  "idler:online",
+] as const
 export type PubsubChannel = (typeof CHANNELS)[number]
 
 export const publishClient = new Redis({
@@ -34,5 +38,5 @@ export function subscribe(
   channel: PubsubChannel,
   id: string
 ) {
-  subs.register(`${channel}:${id}`)
+  subs.register(`${channel}${id ? `:${id}` : ""}`)
 }

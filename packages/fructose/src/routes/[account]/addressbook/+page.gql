@@ -1,0 +1,11 @@
+query PageAddressbook {
+	addresses(first: 10) @paginate {
+		edges {
+			node {
+				address
+				name
+				...Avatar
+			}
+		}
+	}
+}
