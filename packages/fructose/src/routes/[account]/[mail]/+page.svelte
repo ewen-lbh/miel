@@ -2,7 +2,9 @@
 	import Avatar from '$lib/components/Avatar.svelte';
 	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
-	import { loaded, loading, onceAllLoaded } from '$lib/loading';
+	import IconSubmit from '~icons/msl/send-outline';
+	import ButtonPrimary from '$lib/components/ButtonPrimary.svelte';
+	import { allLoaded, loaded, loading, mapLoading, onceAllLoaded } from '$lib/loading';
 	import IconExpand from '~icons/msl/expand-more';
 	import IconCollapse from '~icons/msl/expand-less';
 	import LoadingText from '$lib/LoadingText.svelte';
@@ -15,6 +17,11 @@
 	import type { PageData } from './$houdini';
 	import { greenToRed } from '$lib/colors';
 	import { tooltip } from '$lib/tooltip';
+	import GrowableTextarea from '$lib/components/GrowableTextarea.svelte';
+	import { formatDateTimeSmart } from '$lib/dates';
+	import { graphql } from '$houdini';
+	import { page } from '$app/stores';
+	import { mutationSucceeded } from '$lib/errors';
 
 	let { data }: { data: PageData } = $props();
 	let { PageEmail } = $derived(data);
@@ -23,6 +30,25 @@
 	let unwrapInterval: number | NodeJS.Timeout | undefined = $state();
 
 	let authChecksExpanded = $state(false);
+
+	let replyBody = $state('');
+	let sendingReply = $state(false);
+	const Reply = graphql(`
+		mutation Reply(
+			$email: ID!
+			$to: EmailAddress!
+			$content: String!
+			$subject: String!
+			$from: EmailAddress!
+		) {
+			sendEmail(from: $from, to: $to, subject: $subject, body: $content, inReply: $email) {
+				...MutationErrors
+				...on MutationSendEmailSuccess {
+					data
+				}
+			}
+		}
+	`);
 
 	let htmlContent = $derived($PageEmail.data?.email?.html);
 	$effect(() => {
@@ -83,6 +109,9 @@
 					</div>
 				</div>
 				<LoadingText tag="h1" value={email.subject}></LoadingText>
+				<div class="date">
+					<LoadingText value={mapLoading(email.receivedAt, formatDateTimeSmart)} />
+				</div>
 
 				<section class="spam-and-auth">
 					{#if allGood}
@@ -197,6 +226,33 @@
 					{/if}
 				</main>
 			{/if}
+			<section class="reply">
+				<h2 class="typo-field-label">Reply to <LoadingText value={email.from.address} /></h2>
+				<GrowableTextarea bind:value={replyBody} />
+				<section class="submit">
+					<ButtonPrimary
+						loading={sendingReply}
+						on:click={async () => {
+							if (!allLoaded(email)) return;
+							sendingReply = true;
+							const result = await Reply.mutate({
+								email: $page.params.mail,
+								to: email.from.address,
+								from: $page.params.account,
+								content: replyBody,
+								subject: `Re: ${email.subject}`
+							});
+							if (mutationSucceeded('sendEmail', result)) {
+								replyBody = '';
+							}
+							sendingReply = false;
+						}}
+					>
+						<IconSubmit />
+						Send
+					</ButtonPrimary>
+				</section>
+			</section>
 		{/if}
 	{/snippet}
 </MaybeError>
@@ -284,5 +340,23 @@
 
 	header .auth-checks .icon {
 		font-size: 1.75em;
+	}
+
+	section.reply {
+		margin-top: 3rem;
+		width: 100%;
+
+		padding: 0 1rem;
+	}
+
+	section.reply h2 {
+		margin-bottom: 1rem;
+		font-weight: bold;
+	}
+
+	section.reply .submit {
+		display: flex;
+		justify-content: center;
+		margin-top: 1rem;
 	}
 </style>

@@ -206,7 +206,9 @@ type Mailbox implements Node {
   id: ID!
   """Indicates whether this is the main mailbox."""
   main: Boolean
-  """Optional name for the mailbox."""
+  """
+  The mailbox's name. The special inbox name 'INBOX' is replaced with 'Main'
+  """
   name: String
   """The type of mailbox (e.g., Inbox, Trashbox, Sentbox)."""
   type: MailboxType!
@@ -261,7 +263,25 @@ type Mutation {
     """Mailbox to screen the mail to"""
     box: ID!
   ): Address!
+  """Send an email"""
+  sendEmail(
+    body: String!
+    """
+    Email address must have a connected account with a sender server configured
+    """
+    from: EmailAddress!
+    """Reply to another email"""
+    inReply: ID
+    subject: String!
+    to: EmailAddress!
+  ): MutationSendEmailResult!
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
+}
+
+union MutationSendEmailResult = Error | MutationSendEmailSuccess | ZodError
+
+type MutationSendEmailSuccess {
+  data: Boolean!
 }
 
 union MutationUpsertAccountResult = Error | MutationUpsertAccountSuccess | ZodError

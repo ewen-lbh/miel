@@ -4,7 +4,7 @@
 	import IconBox from '~icons/msl/markunread-mailbox-outline';
 	import IconFeed from '~icons/msl/newsmode-outline';
 	import IconSent from '~icons/msl/send-outline';
-	import IconDrafts from '~icons/msl/draft-orders-outline';
+	import IconDrafts from '~icons/msl/edit-document-outline';
 	import IconScreener from '~icons/msl/thumbs-up-down-outline';
 	import { loaded, type MaybeLoading } from '$lib/loading';
 
@@ -34,10 +34,40 @@
 		}
 	});
 
+	let colorclass = $derived.by(() => {
+		if (!loaded(type)) return '';
+		switch (type) {
+			case 'TRASHBOX':
+				return 'danger';
+			case 'INBOX':
+				return '';
+			case 'FEED':
+				return 'primary';
+			case 'SENTBOX':
+				return 'success';
+			case 'DRAFTS':
+				return 'warning';
+			case 'SCREENER':
+				return 'muted';
+			default:
+				return '';
+		}
+	});
+
 	$inspect(Icon);
 	$inspect(type);
 </script>
 
-{#if Icon}
-	<Icon />
-{/if}
+<div class="mailbox-icon {colorclass}">
+	{#if Icon}
+		<Icon />
+	{/if}
+</div>
+
+<style>
+	.mailbox-icon {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+</style>

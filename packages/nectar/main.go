@@ -45,38 +45,57 @@ func main() {
 		prisma.Mailbox.FindMany().Delete().Exec(ctx)
 	}
 
-	// Create account via CLI: account create <host> <port> <secure|insecure> <username> <password>
-	if len(os.Args) == 8 && os.Args[1] == "account" && os.Args[2] == "create" {
-		portNum, err := strconv.Atoi(os.Args[4])
+	// Create account via CLI: account create <host> <sender port> <receiver port> <secure|insecure> <username> <password>
+	if len(os.Args) == 9 && os.Args[1] == "account" && os.Args[2] == "create" {
+		senderPort, err := strconv.Atoi(os.Args[4])
 		if err != nil {
-			ll.ErrorDisplay("invalid port number", err)
+			ll.ErrorDisplay("invalid sender port number", err)
+			return
+		}
+
+		receiverPort, err := strconv.Atoi(os.Args[5])
+		if err != nil {
+			ll.ErrorDisplay("invalid receiver port number", err)
 			return
 		}
 
 		receiver, err := prisma.Server.CreateOne(
 			db.Server.Host.Set(os.Args[3]),
-			db.Server.Port.Set(portNum),
-			db.Server.Secure.Set(os.Args[5] == "secure"),
-			db.Server.Username.Set(os.Args[6]),
+			db.Server.Port.Set(receiverPort),
+			db.Server.Secure.Set(os.Args[6] == "secure"),
+			db.Server.Username.Set(os.Args[7]),
 			db.Server.Type.Set(db.ServerTypeImap),
 		).Exec(ctx)
 		if err != nil {
-			ll.ErrorDisplay("couldn't create Server", err)
+			ll.ErrorDisplay("couldn't create ReceiverServer", err)
+		}
+
+		sender, err := prisma.Server.CreateOne(
+			db.Server.Host.Set(os.Args[3]),
+			db.Server.Port.Set(senderPort),
+			db.Server.Secure.Set(os.Args[6] == "secure"),
+			db.Server.Username.Set(os.Args[7]),
+			db.Server.Type.Set(db.ServerTypeSMTP),
+		).Exec(ctx)
+		if err != nil {
+			ll.ErrorDisplay("couldn't create SenderServer", err)
 		}
 
 		auth, err := prisma.ServerAuth.CreateOne(
-			db.ServerAuth.Username.Set(os.Args[6]),
-			db.ServerAuth.Password.Set(os.Args[7]),
+			db.ServerAuth.Username.Set(os.Args[7]),
+			db.ServerAuth.Password.Set(os.Args[8]),
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create ServerAuth", err)
 		}
 
 		_, err = prisma.Account.CreateOne(
-			db.Account.Address.Set(os.Args[6]),
+			db.Account.Address.Set(os.Args[7]),
 			db.Account.Name.Set(os.Args[3]),
 			db.Account.ReceiverServer.Link(db.Server.ID.Equals(receiver.ID)),
 			db.Account.ReceiverAuth.Link(db.ServerAuth.ID.Equals(auth.ID)),
+			db.Account.SenderServer.Link(db.Server.ID.Equals(sender.ID)),
+			db.Account.SenderAuth.Link(db.ServerAuth.ID.Equals(auth.ID)),
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create Account", err)
