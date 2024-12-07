@@ -119,3 +119,15 @@ export function parseComplexHeader(value: string) {
 
   return segments
 }
+
+export function storageUrl(storagePath: string) {
+  const diskLocation = path.resolve(
+    path.join(path.dirname(new URL(import.meta.url).pathname), "../nectar")
+  )
+  return new URL(
+    path
+      .relative(diskLocation, path.resolve(storagePath))
+      .replace("invertase/", "storage/"),
+    "http://localhost:4000"
+  ).toString()
+}

@@ -74,6 +74,23 @@ enum AddressType {
   SENDER
 }
 
+type Attachment implements Node {
+  """The MIME type of the attachment."""
+  contentType: String!
+  """The email that contains this attachment."""
+  email: Email!
+  """The attachment is an embedded file."""
+  embedded: Boolean!
+  """The filename of the attachment."""
+  filename: String!
+  id: ID!
+  """The size of the attachment in bytes."""
+  size: Int!
+  """Extracted text content of the attachment."""
+  textContent: String!
+  url: URL!
+}
+
 """
 A field whose value is a hex color code: https://en.wikipedia.org/wiki/Web_colors.
 """
@@ -86,6 +103,16 @@ scalar DateTime
 
 """Represents an email message."""
 type Email implements Node {
+  """Attachments included in the email."""
+  attachments(
+    after: String
+    before: String
+    """Include embedded attachments"""
+    embedded: Boolean = false
+    first: Int
+    last: Int
+  ): EmailAttachmentsConnection!
+  attachmentsBaseURL: String!
   """List of carbon copy (CC) recipients."""
   cc: [Address!]!
   """Result of the DKIM check"""
@@ -113,6 +140,8 @@ type Email implements Node {
   receivedAt: DateTime!
   """The subject was changed by the user"""
   renamed: Boolean!
+  """Emaisl that reference this email as part of their thread."""
+  replies(after: String, before: String, first: Int, last: Int): EmailConnection!
   """Result of the SPF check"""
   spf: EmailAuthenticationResult
   """The subject of the email"""
@@ -136,6 +165,18 @@ type Email implements Node {
 A field whose value conforms to the standard internet email address format as specified in HTML Spec: https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address.
 """
 scalar EmailAddress
+
+type EmailAttachmentsConnection {
+  edges: [EmailAttachmentsConnectionEdge!]!
+  nodes: [Attachment!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type EmailAttachmentsConnectionEdge {
+  cursor: String!
+  node: Attachment!
+}
 
 type EmailAuthenticationResult {
   """Reason for the authentication check (why it passed or failed)"""
@@ -255,6 +296,8 @@ enum MailboxType {
 }
 
 type Mutation {
+  """Change an email's subject"""
+  renameEmail(email: ID!, subject: String!): MutationRenameEmailResult!
   """
   Screen an address to a specific inbox. Can also be used on a already screened address to change its default inbox
   """
@@ -276,6 +319,12 @@ type Mutation {
     to: EmailAddress!
   ): MutationSendEmailResult!
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
+}
+
+union MutationRenameEmailResult = Error | MutationRenameEmailSuccess | ZodError
+
+type MutationRenameEmailSuccess {
+  data: Email!
 }
 
 union MutationSendEmailResult = Error | MutationSendEmailSuccess | ZodError

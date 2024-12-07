@@ -1,0 +1,53 @@
+<script lang="ts">
+	import { loaded, type MaybeLoading } from '$lib/loading';
+	import { tick } from 'svelte';
+
+	interface Props {
+		html: MaybeLoading<string>;
+		cidSourceUrlTemplate?: (cid: string) => string;
+	}
+
+	let mailContentFrame: HTMLIFrameElement | undefined = $state();
+	let unwrapInterval: number | NodeJS.Timeout | undefined = $state();
+
+	const { html: htmlContent, cidSourceUrlTemplate }: Props = $props();
+
+	$effect(() => {
+		if (!loaded(htmlContent)) return;
+		if (!mailContentFrame) return;
+		mailContentFrame.contentDocument?.write(
+			htmlContent
+				.replaceAll('<a ', "<a target='_blank' ")
+				.replaceAll(
+					/src=(['"])cid:(.+?)\1/g,
+					(_, quote, cid) => `src=${quote}${cidSourceUrlTemplate?.(cid) ?? ''}${quote}`
+				)
+				.replace(/<hr .*data-marker="__DIVIDER__".*$/g, '')
+		);
+		unwrapFrame();
+		unwrapInterval = setInterval(unwrapFrame, 200);
+		return () => clearInterval(unwrapInterval);
+	});
+
+	async function unwrapFrame() {
+		if (!mailContentFrame?.contentDocument?.body) return;
+		const frameBody = mailContentFrame.contentDocument.body;
+
+		await tick();
+		if (frameBody.scrollHeight <= mailContentFrame.clientHeight) {
+			return;
+		}
+		mailContentFrame.style.height = `${frameBody.scrollHeight + 50}px`;
+	}
+</script>
+
+<iframe title="Mail content" bind:this={mailContentFrame} class="mail-content"></iframe>
+
+<style>
+	iframe {
+		border: none;
+		/* for now... */
+		background: white;
+		width: 100%;
+	}
+</style>

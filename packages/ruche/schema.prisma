@@ -220,12 +220,17 @@ model Attachment {
   /// Extracted text content of the attachment.
   textContent String
 
+  /// The attachment is an embedded file.
+  embedded Boolean @default(false)
+
   /// The email that contains this attachment.
   email   Email  @relation(fields: [emailId], references: [id])
   emailId String
 
   /// The path where the attachment is stored.
   storagePath String
+
+  @@unique([emailId, filename])
 }
 
 /// Short exerpt of text from an email

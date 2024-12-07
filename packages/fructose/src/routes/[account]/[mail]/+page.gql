@@ -27,5 +27,23 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 			ok
 			explanation
 		}
+		attachmentsBaseURL
+		attachments {
+			nodes {
+				filename
+				size
+				contentType
+				url
+			}
+		}
+		replies(first: 3) @paginate {
+			edges {
+				node {
+					...EmailRow
+					text
+					html
+				}
+			}
+		}
 	}
 }

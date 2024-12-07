@@ -33,7 +33,7 @@ export function resolveAuthenticationResultCheck(
             ?.toLowerCase()
             .startsWith("pass ")
         ),
-        explanation: firstHeaderValue(headers, "Received-SPF"),
+        explanation: firstHeaderValue(headers, "Received-SPF") ?? "",
       }
     }
     const results = firstHeaderValue(headers, "Authentication-Results")

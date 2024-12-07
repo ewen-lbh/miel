@@ -11,6 +11,7 @@
 	import { scrollableContainer, setupScrollPositionRestorer } from '$lib/scroll';
 	import { isDark } from '$lib/theme';
 	import { setupViewTransition } from '$lib/view-transitions';
+	import ToastsArea from './ToastsArea.svelte';
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
 	import type { PageData } from './$houdini';
@@ -38,6 +39,8 @@
 
 	$: if (browser && $page.route.id) document.body.dataset.route = $page.route.id;
 </script>
+
+<ToastsArea />
 
 <div class="layout" id="layout" class:mobile>
 	<header class="left">

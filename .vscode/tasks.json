@@ -1,0 +1,81 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Develop Nectar",
+      "type": "shell",
+      "command": "cd packages/nectar && go run *.go",
+      "presentation": {
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Develop Invertase",
+      "type": "shell",
+      "command": "cd packages/invertase && pnpm dev",
+      "presentation": {
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Develop Fructose",
+      "type": "shell",
+      "command": "cd packages/fructose && pnpm dev",
+      "presentation": {
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset database",
+      "type": "shell",
+      "command": "cd packages/ruche && pnpm prisma migrate reset"
+    },
+    {
+      "label": "Generate Prisma Client",
+      "type": "shell",
+      "command": "cd packages/ruche && pnpm prisma generate"
+    },
+    {
+      "label": "Install dependencies",
+      "type": "shell",
+      "command": "pnpm install"
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "pnpm build"
+    },
+    {
+      "label": "Create .env file",
+      "type": "shell",
+      "command": "cp .env.example .env"
+    },
+    {
+      "label": "Setup environment",
+      "dependsOn": [
+        "Install dependencies",
+        "Create .env file",
+        "Generate Prisma Client",
+        "Build",
+        "Reset database",
+        "Develop"
+      ],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "After branch switch",
+      "type": "shell",
+      "dependsOn": ["Install dependencies", "Reset database", "Develop"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Develop",
+      "dependsOn": ["Develop Nectar", "Develop Invertase", "Develop Fructose"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

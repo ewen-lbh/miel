@@ -56,6 +56,9 @@ dependencies:
   graphql-yoga:
     specifier: ^5.10.4
     version: 5.10.4(graphql@16.9.0)
+  helmet:
+    specifier: ^8.0.0
+    version: 8.0.0
   ioredis:
     specifier: ^5.4.1
     version: 5.4.1
@@ -1565,6 +1568,11 @@ packages:
     dependencies:
       '@types/hast': 3.0.4
     dev: true
+
+  /helmet@8.0.0:
+    resolution: {integrity: sha512-VyusHLEIIO5mjQPUI1wpOAEu+wl6Q0998jzTxqUYGE45xCIcAxy3MsbEK/yyJUJ3ADeMoB6MornPH6GMWAf+Pw==}
+    engines: {node: '>=18.0.0'}
+    dev: false
 
   /html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}

@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -55,6 +57,7 @@ func (c *LoggedInAccount) Screen(mailseq imap.NumSet) error {
 }
 
 func (c *LoggedInAccount) SyncMails(inboxId string) error {
+	c.Reconnect(nil)
 	box, err := prisma.Mailbox.FindUnique(db.Mailbox.ID.Equals(inboxId)).Exec(ctx)
 
 	if err != nil {
@@ -146,9 +149,14 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 			return fmt.Errorf("could not collect mail: %w", err)
 		}
 
+		if mail.Envelope == nil {
+			ll.Warn("mail has no envelope: %+v", mail)
+			continue
+		}
+
 		err = c.SyncMail(box, mail)
 		if err != nil {
-			ll.WarnDisplay("while syncing mail %q: %w", err, mail.Envelope.Subject)
+			ll.WarnDisplay("while syncing mail %q", err, mail.Envelope.Subject)
 		}
 
 		ll.IncrementProgressBar()
@@ -275,6 +283,14 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 
 	mailReferences := make([]string, 0)
 	mailHeaders := make([]string, 0)
+	type Attachment struct {
+		Filename string
+		Content  []byte
+		MimeType string
+		Size     int
+		Embedded bool
+	}
+	attachments := make([]Attachment, 0)
 
 	if len(mail.BodySection) > 1 {
 		return fmt.Errorf("mail has more than one body section: %v", mail.BinarySection)
@@ -291,6 +307,36 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 				return true
 			})
 			os.WriteFile("body.eml", body, 0644)
+		}
+
+		for _, file := range parsed.EmbeddedFiles {
+			data, err := io.ReadAll(file.Data)
+			if err != nil {
+				return fmt.Errorf("while reading bytes from embedded file %q: %w", file.CID, err)
+			}
+
+			attachments = append(attachments, Attachment{
+				MimeType: file.ContentType,
+				Filename: file.CID,
+				Size:     len(data),
+				Content:  data,
+				Embedded: true,
+			})
+		}
+
+		for _, attachment := range parsed.Attachments {
+			data, err := io.ReadAll(attachment.Data)
+			if err != nil {
+				ll.WarnDisplay("while reading attachment %q of %q: %w", err, attachment.Filename, envelope.Subject)
+				continue
+			}
+
+			attachments = append(attachments, Attachment{
+				MimeType: attachment.ContentType,
+				Filename: attachment.Filename,
+				Size:     len(data),
+				Content:  data,
+			})
 		}
 
 		bodyText = parsed.TextBody
@@ -343,7 +389,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			)
 		}
 
-		_, err := prisma.Email.UpsertOne(uniqueParam).Update(
+		resultingEmail, err := prisma.Email.UpsertOne(uniqueParam).Update(
 			append([]db.EmailSetParam{
 				db.Email.ReceivedAt.Set(envelope.Date),
 				db.Email.Sender.Link(db.Address.ID.Equals(sender.ID)),
@@ -378,6 +424,44 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 
 		if err != nil {
 			return fmt.Errorf("could not save new email %q: %w", envelope.Subject, err)
+		}
+
+		if len(attachments) > 0 {
+			for _, attachment := range attachments {
+				storagepath := fmt.Sprintf("attachments/%s/%s", resultingEmail.ID, attachment.Filename)
+				err = os.MkdirAll(filepath.Dir(storagepath), 0755)
+				if err != nil {
+					return fmt.Errorf("while creating directories to save attachment to %q: %w", storagepath, err)
+				}
+
+				err = os.WriteFile(storagepath, attachment.Content, 0644)
+				if err != nil {
+					return fmt.Errorf("while writing attachment to %q: %w", storagepath, err)
+				}
+
+				_, err = prisma.Attachment.UpsertOne(
+					db.Attachment.EmailIDFilename(
+						db.Attachment.EmailID.Equals(resultingEmail.ID),
+						db.Attachment.Filename.Equals(attachment.Filename),
+					),
+				).Create(
+					db.Attachment.Filename.Set(attachment.Filename),
+					db.Attachment.MimeType.Set(attachment.MimeType),
+					db.Attachment.Size.Set(attachment.Size),
+					db.Attachment.TextContent.Set(""),
+					db.Attachment.Email.Link(db.Email.ID.Equals(resultingEmail.ID)),
+					db.Attachment.StoragePath.Set(storagepath),
+					db.Attachment.Embedded.Set(attachment.Embedded),
+				).Update(
+					db.Attachment.MimeType.Set(attachment.MimeType),
+					db.Attachment.Size.Set(attachment.Size),
+					db.Attachment.TextContent.Set(""),
+				).Exec(ctx)
+
+				if err != nil {
+					return fmt.Errorf("could not save attachment %q: %w", attachment.Filename, err)
+				}
+			}
 		}
 	} else {
 		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(

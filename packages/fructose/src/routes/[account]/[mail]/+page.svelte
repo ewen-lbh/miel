@@ -1,27 +1,30 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+	import { graphql } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
-	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
-	import MaybeError from '$lib/components/MaybeError.svelte';
-	import IconSubmit from '~icons/msl/send-outline';
 	import ButtonPrimary from '$lib/components/ButtonPrimary.svelte';
-	import { allLoaded, loaded, loading, mapLoading, onceAllLoaded } from '$lib/loading';
-	import IconExpand from '~icons/msl/expand-more';
-	import IconCollapse from '~icons/msl/expand-less';
+	import ButtonSecondary from '$lib/components/ButtonSecondary.svelte';
+	import EmailRow from '$lib/components/EmailRow.svelte';
+	import GrowableTextarea from '$lib/components/GrowableTextarea.svelte';
+	import MaybeError from '$lib/components/MaybeError.svelte';
+	import Pill from '$lib/components/Pill.svelte';
+	import Submenu from '$lib/components/Submenu.svelte';
+	import UnwrappingIframe from '$lib/components/UnwrappingIframe.svelte';
+	import { formatDateTimeSmart } from '$lib/dates';
+	import { allLoaded, loaded, loading, mapLoading, onceAllLoaded, onceLoaded } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
 	import { updateTitle } from '$lib/navigation';
-	import { tick } from 'svelte';
+	import { toasts } from '$lib/toasts';
+	import { tooltip } from '$lib/tooltip';
+	import IconAttachment from '~icons/msl/attachment';
+	import IconFail from '~icons/msl/cancel-outline';
 	import IconPass from '~icons/msl/check-circle-outline';
 	import IconAllGood from '~icons/msl/done-all';
+	import IconCollapse from '~icons/msl/expand-less';
+	import IconExpand from '~icons/msl/expand-more';
+	import IconSubmit from '~icons/msl/send-outline';
 	import IconWarning from '~icons/msl/warning-outline';
-	import IconFail from '~icons/msl/cancel-outline';
 	import type { PageData } from './$houdini';
-	import { greenToRed } from '$lib/colors';
-	import { tooltip } from '$lib/tooltip';
-	import GrowableTextarea from '$lib/components/GrowableTextarea.svelte';
-	import { formatDateTimeSmart } from '$lib/dates';
-	import { graphql } from '$houdini';
-	import { page } from '$app/stores';
-	import { mutationSucceeded } from '$lib/errors';
 
 	let { data }: { data: PageData } = $props();
 	let { PageEmail } = $derived(data);
@@ -43,33 +46,25 @@
 		) {
 			sendEmail(from: $from, to: $to, subject: $subject, body: $content, inReply: $email) {
 				...MutationErrors
-				...on MutationSendEmailSuccess {
+				... on MutationSendEmailSuccess {
 					data
 				}
 			}
 		}
 	`);
 
-	let htmlContent = $derived($PageEmail.data?.email?.html);
-	$effect(() => {
-		if (!loaded(htmlContent)) return;
-		if (!mailContentFrame) return;
-		mailContentFrame.contentDocument?.write(htmlContent.replaceAll('<a ', "<a target='_blank' "));
-		unwrapFrame();
-		unwrapInterval = setInterval(unwrapFrame, 200);
-		return () => clearInterval(unwrapInterval);
-	});
-
-	async function unwrapFrame() {
-		if (!mailContentFrame?.contentDocument?.body) return;
-		const frameBody = mailContentFrame.contentDocument.body;
-
-		await tick();
-		if (frameBody.scrollHeight <= mailContentFrame.clientHeight) {
-			return;
+	const Rename = graphql(`
+		mutation RenameEmail($email: ID!, $newSubject: String!) {
+			renameEmail(email: $email, subject: $newSubject) {
+				...MutationErrors
+				... on MutationRenameEmailSuccess {
+					data {
+						subject
+					}
+				}
+			}
 		}
-		mailContentFrame.style.height = `${frameBody.scrollHeight + 300}px`;
-	}
+	`);
 
 	let subject = $derived($PageEmail.data?.email?.subject);
 	$effect(() => {
@@ -108,7 +103,28 @@
 						<LoadingText class="muted" value={email.from.address} />
 					</div>
 				</div>
-				<LoadingText tag="h1" value={email.subject}></LoadingText>
+				{#if !loaded(email.subject)}
+					<LoadingText tag="h1" />
+				{:else}
+					<h1
+						contenteditable
+						onfocusout={async (event) => {
+							if (!(event instanceof FocusEvent)) return;
+							const newSubject = (event.target as HTMLElement).innerText;
+							const result = await Rename.mutate({
+								email: $page.params.mail,
+								newSubject
+							});
+							toasts.mutation(result, 'renameEmail', '', "Couldn't rename email");
+							const active = document.activeElement;
+							if (active instanceof HTMLElement) {
+								active.blur();
+							}
+						}}
+					>
+						{email.subject}
+					</h1>
+				{/if}
 				<div class="date">
 					<LoadingText value={mapLoading(email.receivedAt, formatDateTimeSmart)} />
 				</div>
@@ -213,8 +229,23 @@
 					{/if}
 				</div>
 			</header>
-			{#if email.html}
-				<iframe title="Mail content" bind:this={mailContentFrame} class="mail-content"></iframe>
+			{#if email.attachments.nodes.length > 0}
+				<section class="attachments">
+					{#each email.attachments.nodes as attachment}
+						<Pill
+							href={onceLoaded(attachment.url, (u) => u?.toString(), '')}
+							class="primary"
+							icon={IconAttachment}
+							text={attachment.filename}
+						></Pill>
+					{/each}
+				</section>
+			{/if}
+			{#if email.html && loaded(email.attachmentsBaseURL)}
+				<UnwrappingIframe
+					cidSourceUrlTemplate={(cid) => `${email.attachmentsBaseURL}/${cid}`}
+					html={email.html}
+				/>
 			{:else}
 				<main class="text main-content">
 					{#if !loaded(email.text)}
@@ -226,6 +257,31 @@
 					{/if}
 				</main>
 			{/if}
+			<section class="replies">
+				{#if email.replies.edges.length > 0}
+					<h2>Replies</h2>
+				{/if}
+				{#each email.replies.edges as { node: reply }}
+					<Submenu>
+						<EmailRow email={reply} />
+					</Submenu>
+					<article class="reply">
+						{#if reply.html}
+							<UnwrappingIframe html={reply.html} />
+						{:else}
+							<main class="text main-content">
+								{#if !loaded(reply.text)}
+									<LoadingText lines={10} tag="p"></LoadingText>
+								{:else}
+									{#each reply.text.split(/\r?\n/) as line}
+										<p>{line}</p>
+									{/each}
+								{/if}
+							</main>
+						{/if}
+					</article>
+				{/each}
+			</section>
 			<section class="reply">
 				<h2 class="typo-field-label">Reply to <LoadingText value={email.from.address} /></h2>
 				<GrowableTextarea bind:value={replyBody} />
@@ -242,7 +298,8 @@
 								content: replyBody,
 								subject: `Re: ${email.subject}`
 							});
-							if (mutationSucceeded('sendEmail', result)) {
+
+							if (toasts.mutation(result, 'sendEmail', 'Reply sent', "Coudln't reply")) {
 								replyBody = '';
 							}
 							sendingReply = false;
@@ -258,12 +315,6 @@
 </MaybeError>
 
 <style>
-	iframe {
-		border: none;
-		/* for now... */
-		background: white;
-	}
-
 	header {
 		display: flex;
 		justify-content: center;
@@ -274,8 +325,8 @@
 		gap: 1rem;
 	}
 
-	header :global(h1) {
-		max-width: 600px;
+	header h1 {
+		max-width: 800px;
 		margin: 0 auto;
 	}
 
@@ -340,6 +391,28 @@
 
 	header .auth-checks .icon {
 		font-size: 1.75em;
+	}
+
+	.attachments {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1rem;
+		flex-wrap: wrap;
+		padding: 1rem;
+		justify-content: center;
+	}
+
+	.main-content.text {
+		max-width: 800px;
+		width: 100%;
+		margin: 0 auto;
+		padding: 1rem;
+		border-radius: var(--radius-block);
+		background-color: var(--bg2);
+	}
+
+	section.replies h2 {
+		text-align: center;
 	}
 
 	section.reply {

@@ -1,11 +1,13 @@
 import { builder } from "../builder"
-import { parseComplexHeader, typeName } from "../utils"
+import { storageUrl, typeName } from "../utils"
+import { AttachmentType } from "./attachment"
 import { DateTimeType } from "./date-time"
+import path from "node:path"
 import {
   EmailAuthenticationResultType,
   resolveAuthenticationResultCheck,
 } from "./email-authentication-result"
-import { firstHeaderValue, headerValues } from "./header"
+import { EmailConnectionType } from "./email-connection"
 import { HTMLType } from "./html"
 
 export const EmailType = builder.prismaNode("Email", {
@@ -41,6 +43,26 @@ export const EmailType = builder.prismaNode("Email", {
     from: t.relation("sender"),
     to: t.relation("recipient"),
     cc: t.relation("cc"),
+    attachments: t.relatedConnection("attachments", {
+      cursor: "id",
+      type: AttachmentType,
+      totalCount: true,
+      args: {
+        embedded: t.arg.boolean({
+          required: false,
+          defaultValue: false,
+          description: "Include embedded attachments",
+        }),
+      },
+      query: ({ embedded }) => ({
+        where: { embedded: embedded ? undefined : false },
+      }),
+    }),
+    attachmentsBaseURL: t.string({
+      resolve({ id }) {
+        return storageUrl(path.join("attachments", id))
+      },
+    }),
     spf: t.field({
       description: "Result of the SPF check",
       type: EmailAuthenticationResultType,

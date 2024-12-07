@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { SvelteComponent } from 'svelte';
-  import LoadingSpinner from './LoadingSpinner.svelte';
   import { umamiAttributes } from '$lib/analytics';
 
   export let track = '';
@@ -36,7 +35,7 @@
 >
   {#if loading}
     <div class="icon">
-      <LoadingSpinner></LoadingSpinner>
+      …
     </div>
   {:else if icon}
     <div class="icon">

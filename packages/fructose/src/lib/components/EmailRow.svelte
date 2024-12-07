@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { fragment, graphql, PendingValue, type EmailRow } from '$houdini';
+	import { fragment, graphql, type EmailRow } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import { formatDateTimeSmart } from '$lib/dates';
-	import { loading, LoadingText, mapLoading } from '$lib/loading';
+	import { countThing } from '$lib/i18n';
+	import { loading, LoadingText, mapAllLoading } from '$lib/loading';
 	import { refroute } from '$lib/navigation';
+	import { safeValue } from '$lib/typing';
 
 	interface Props {
 		email: EmailRow | null;
@@ -27,18 +29,29 @@
 						address
 						...Avatar
 					}
+					attachments {
+						totalCount
+					}
 				}
 			`)
 		)
 	);
 
-	const { id, receivedAt, spamLevel, subject, from } = $derived(
+	const {
+		id,
+		receivedAt,
+		spamLevel,
+		subject,
+		from,
+		attachments: { totalCount: attachmentsCount }
+	} = $derived(
 		$Email ?? {
 			id: null,
 			receivedAt: null,
 			spamLevel: null,
 			subject: null,
-			from: null
+			from: null,
+			attachments: { totalCount: 0 }
 		}
 	);
 </script>
@@ -56,9 +69,18 @@
 		{/if}
 	</svelte:fragment>
 	<svelte:fragment slot="subtext">
-		<LoadingText value={mapLoading(receivedAt, formatDateTimeSmart)}></LoadingText>
 		<LoadingText
-			value={mapLoading(spamLevel?.at(0) ?? null, (lvl) => (lvl ? ` · Spam level: ${lvl}` : ''))}
+			value={mapAllLoading(
+				[receivedAt, spamLevel?.at(0) ?? null, attachmentsCount],
+				(date, lvl, count) =>
+					[
+						safeValue(() => formatDateTimeSmart(date)),
+						lvl ? `Spam: ${lvl}` : null,
+						count ? countThing('attachment', count) : null
+					]
+						.filter(Boolean)
+						.join(' · ')
+			)}
 		/>
 	</svelte:fragment>
 	<LoadingText value={subject} />
