@@ -1,9 +1,20 @@
 query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 	account(address: $account) {
-		inboxes(empty: true, type: [FEED, INBOX, TRASHBOX]) {
-			id
+		mainbox {
 			name
-			type
+			id
+		}
+		feedbox {
+			name
+			id
+		}
+		trashbox {
+			name
+			id
+		}
+		inboxes {
+			name
+			id
 		}
 	}
 	screenings(first: 5) @paginate {

@@ -14,6 +14,8 @@ type Account implements Node {
   address: EmailAddress!
   """The drafts mailbox for the account."""
   draftsbox: Mailbox
+  """First maibox of type FEED"""
+  feedbox: Mailbox
   id: ID!
   """Get a mailbox on this account by its ID"""
   inbox(id: ID!): Mailbox
@@ -305,7 +307,7 @@ type Mutation {
     address: EmailAddress!
     """Mailbox to screen the mail to"""
     box: ID!
-  ): Address!
+  ): MutationScreenToResult!
   """Send an email"""
   sendEmail(
     body: String!
@@ -325,6 +327,12 @@ union MutationRenameEmailResult = Error | MutationRenameEmailSuccess | ZodError
 
 type MutationRenameEmailSuccess {
   data: Email!
+}
+
+union MutationScreenToResult = Error | MutationScreenToSuccess | ZodError
+
+type MutationScreenToSuccess {
+  data: Address!
 }
 
 union MutationSendEmailResult = Error | MutationSendEmailSuccess | ZodError

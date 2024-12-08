@@ -10,9 +10,11 @@
 
 	interface Props {
 		type: MaybeLoading<MailboxType$options>;
+		/** Don't add a color css class to the icon, let the parent decide the icon's color */
+		inheritcolors?: boolean;
 	}
 
-	const { type }: Props = $props();
+	const { type, inheritcolors = false }: Props = $props();
 
 	let Icon = $derived.by(() => {
 		if (!loaded(type)) return null;
@@ -58,7 +60,7 @@
 	$inspect(type);
 </script>
 
-<div class="mailbox-icon {colorclass}">
+<div class="mailbox-icon {inheritcolors ? '' : colorclass}">
 	{#if Icon}
 		<Icon />
 	{/if}

@@ -6,6 +6,7 @@ import { fieldName } from "../utils"
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
     type: AddressType,
+    errors: {},
     description:
       "Screen an address to a specific inbox. Can also be used on a already screened address to change its default inbox",
     args: {

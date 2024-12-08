@@ -52,3 +52,9 @@ export function countThing(thing: string, count: MaybeLoading<number>): string {
 	const _count = loading(count, 3);
 	return `${_count} ${pluralize(thing, _count)}`;
 }
+
+export function ellipsis(subject: MaybeLoading<string>, maxlength: number): string {
+	const _subject = loading(subject, '');
+	if (_subject.length <= maxlength) return _subject;
+	return `${_subject.slice(0, maxlength - 1)}…`;
+}

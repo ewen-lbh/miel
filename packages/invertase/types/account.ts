@@ -52,6 +52,20 @@ export const AccountType = builder.prismaNode("Account", {
     trashbox: t.relation("trashbox", { nullable: true }),
     sentbox: t.relation("sentbox", { nullable: true }),
     draftsbox: t.relation("draftsbox", { nullable: true }),
+    feedbox: t.prismaField({
+      description: "First maibox of type FEED",
+      type: MailboxType,
+      nullable: true,
+      resolve(query, account) {
+        return prisma.mailbox.findFirst({
+          ...query,
+          where: {
+            accountId: account.id,
+            type: "FEED",
+          },
+        })
+      },
+    }),
     senderServer: t.relation("senderServer", { nullable: true }),
     receiverServer: t.relation("receiverServer"),
   }),
