@@ -47,17 +47,12 @@ func (c *LoggedInAccount) Trash(mailseq imap.NumSet) error {
 	return c.Move(mailseq, trashbox.Name, 3*time.Second)
 }
 
-func (c *LoggedInAccount) Screen(mailseq imap.NumSet) error {
-	screenerBox, ok := c.account.ScreenerBox()
-	if !ok {
-		return fmt.Errorf("no screenerbox for this account")
+func (c *LoggedInAccount) SyncMails(inboxId string) error {
+	err := c.Reconnect(nil)
+	if err != nil {
+		return fmt.Errorf("while reconnecting: %w", err)
 	}
 
-	return c.Move(mailseq, screenerBox.Name, 5*time.Second)
-}
-
-func (c *LoggedInAccount) SyncMails(inboxId string) error {
-	c.Reconnect(nil)
 	box, err := prisma.Mailbox.FindUnique(db.Mailbox.ID.Equals(inboxId)).Exec(ctx)
 
 	if err != nil {
@@ -149,8 +144,8 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 			return fmt.Errorf("could not collect mail: %w", err)
 		}
 
-		if mail.Envelope == nil {
-			ll.Warn("mail has no envelope: %+v", mail)
+		if mail == nil || mail.Envelope == nil {
+			ll.Warn("mail has no envelope")
 			continue
 		}
 

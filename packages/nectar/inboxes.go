@@ -95,15 +95,6 @@ func (c *LoggedInAccount) SyncInboxes() (err error) {
 			}
 		}
 
-		if _, ok := acct.ScreenerBox(); !ok && dbBox.Type == db.MailboxTypeScreener {
-			_, err = prisma.Account.FindUnique(db.Account.ID.Equals(c.account.ID)).Update(
-				db.Account.ScreenerBox.Link(db.Mailbox.ID.Equals(dbBox.ID)),
-			).Exec(ctx)
-			if err != nil {
-				err = fmt.Errorf("while linking screenerbox %s to account: %w", box.Mailbox, err)
-			}
-		}
-
 		if err != nil {
 			err = fmt.Errorf("could not upsert mailbox %s to DB: %w", box.Mailbox, err)
 			return
@@ -126,8 +117,6 @@ func inferMailboxType(mailbox *imap.ListData) db.MailboxType {
 		return db.MailboxTypeDrafts
 	case "Sent":
 		return db.MailboxTypeSentbox
-	case SCREENER_MAILBOX_NAME:
-		return db.MailboxTypeScreener
 	default:
 		return db.MailboxTypeInbox
 	}

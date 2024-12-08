@@ -56,7 +56,6 @@ func (c *LoggedInAccount) StartIdleListener() error {
 	resync := func() {
 		ll.Log("Updating", "white", "because mailbox changed")
 		c.SyncMails(mainbox.ID)
-		c.SyncScreenings()
 	}
 
 	atMostEvery1s := debounce.New(1 * time.Second)

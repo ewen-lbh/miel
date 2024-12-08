@@ -292,7 +292,6 @@ enum MailboxType {
   DRAFTS
   FEED
   INBOX
-  SCREENER
   SENTBOX
   TRASHBOX
 }

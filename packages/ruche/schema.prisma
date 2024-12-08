@@ -49,10 +49,6 @@ model Account {
   draftsbox   Mailbox? @relation("AccountDraftsBox", fields: [draftsboxId], references: [id])
   draftsboxId String?
 
-  /// The screener mailbox for the account
-  screenerBox   Mailbox? @relation("AccountScreenerBox", fields: [screenerBoxId], references: [id])
-  screenerBoxId String?
-
   /// Server used for sending emails.
   senderServer   Server? @relation("SenderServer", fields: [senderServerId], references: [id])
   senderServerId String?
@@ -105,8 +101,6 @@ model Mailbox {
   sentbox     Account[] @relation("AccountSentBox")
   /// Account that uses this mailbox as the drafts mailbox.
   draftsbox   Account[] @relation("AccountDraftsBox")
-  /// Account that uses this mailbox as the screener mailbox.
-  screenerBox Account[] @relation("AccountScreenerBox")
 
   /// Senders that get sent here by default
   defaultBoxOf Address[] @relation("DefaultInbox")
@@ -127,9 +121,6 @@ enum MailboxType {
 
   /// The mailbox for drafts.
   DRAFTS
-
-  /// The mailbox for screening emails.
-  SCREENER
 
   /// A feed-style mailbox for newsletters.
   FEED

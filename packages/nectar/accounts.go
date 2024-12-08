@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"mime"
 	"os"
 	"sync"
 	"time"
 
+	ll "github.com/ewen-lbh/label-logger-go"
 	"github.com/ewen-lbh/miel/db"
 
 	"github.com/emersion/go-imap/v2/imapclient"
@@ -42,11 +44,13 @@ func (c *LoggedInAccount) Reconnect(options *imapclient.Options) error {
 	defer c.Unlock()
 	_, err, timedout := timeout(200*time.Millisecond, func() (any, error) { err := c.imap.Close(); return nil, err })
 	if err != nil {
-		return fmt.Errorf("couldn't close connection: %w", err)
+		ll.WarnDisplay("couldn't close connection", err)
 	}
 	if timedout {
 		return fmt.Errorf("couldn't close connection: timed out")
 	}
+
+	ctx = context.Background()
 
 	c.imap, err = ConnectToIMAP(c.account.ReceiverServer(), c.account.ReceiverAuth(), options)
 	if err != nil {
@@ -103,7 +107,6 @@ func (c *LoggedInAccount) ResyncAccount(accountId string) error {
 		db.Account.Trashbox.Fetch(),
 		db.Account.Draftsbox.Fetch(),
 		db.Account.Sentbox.Fetch(),
-		db.Account.ScreenerBox.Fetch(),
 	).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("while resyncing db account %q on client: %w", accountId, err)

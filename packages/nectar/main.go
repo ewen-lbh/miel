@@ -112,7 +112,6 @@ func main() {
 		db.Account.Trashbox.Fetch(),
 		db.Account.Draftsbox.Fetch(),
 		db.Account.Sentbox.Fetch(),
-		db.Account.ScreenerBox.Fetch(),
 	).Exec(ctx)
 
 	if err != nil {
@@ -129,12 +128,6 @@ func main() {
 	c, err := CreateIMAPClient(accountId)
 	if err != nil {
 		ll.ErrorDisplay("while creating imap client", err)
-		return
-	}
-
-	err = c.EnsureHasScreenerBox()
-	if err != nil {
-		ll.ErrorDisplay("while ensuring screener box exists", err)
 		return
 	}
 
@@ -157,11 +150,6 @@ func main() {
 		}
 	}
 
-	err = c.SyncScreenings()
-	if err != nil {
-		ll.ErrorDisplay("could not sync screenings for %s: %w", err, accountId)
-	}
-
 	ll.Log("Done", "green", "syncing inboxes and mails")
 
 	err = c.StartDecisionsListener()
@@ -175,5 +163,4 @@ func main() {
 	if err != nil {
 		ll.ErrorDisplay("while starting idle listener", err)
 	}
-
 }
