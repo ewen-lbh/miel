@@ -12,8 +12,7 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 		receivedAt
 		unsubscribe
 		subject
-		html
-		text
+		...MailBody
 		spamlevel: header(key: "X-Spam-Level")
 		dkim {
 			ok
@@ -27,7 +26,6 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 			ok
 			explanation
 		}
-		attachmentsBaseURL
 		attachments {
 			nodes {
 				filename
@@ -40,8 +38,7 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 			edges {
 				node {
 					...EmailRow
-					text
-					html
+					...MailBody
 				}
 			}
 		}

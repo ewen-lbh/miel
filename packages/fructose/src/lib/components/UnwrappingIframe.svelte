@@ -15,18 +15,17 @@
 	$effect(() => {
 		if (!loaded(htmlContent)) return;
 		if (!mailContentFrame) return;
-		mailContentFrame.contentDocument?.write(
-			htmlContent
-				.replaceAll('<a ', "<a target='_blank' ")
-				.replaceAll(
-					/src=(['"])cid:(.+?)\1/g,
-					(_, quote, cid) => `src=${quote}${cidSourceUrlTemplate?.(cid) ?? ''}${quote}`
-				)
-				.replace(/<hr .*data-marker="__DIVIDER__".*$/g, '')
-		);
+		if (mailContentFrame.contentDocument?.body?.hasChildNodes()) return;
+		const finalContent = htmlContent
+			.replaceAll('<a ', "<a target='_blank' ")
+			.replaceAll(
+				/src=(['"])cid:(.+?)\1/g,
+				(_, quote, cid) => `src=${quote}${cidSourceUrlTemplate?.(cid) ?? ''}${quote}`
+			)
+			.replace(/<hr .*data-marker="__DIVIDER__".*$/g, '');
+		mailContentFrame.contentDocument?.write(finalContent);
 		unwrapFrame();
 		unwrapInterval = setInterval(unwrapFrame, 200);
-		return () => clearInterval(unwrapInterval);
 	});
 
 	async function unwrapFrame() {

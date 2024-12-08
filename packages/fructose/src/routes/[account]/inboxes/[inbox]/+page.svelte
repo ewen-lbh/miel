@@ -6,36 +6,16 @@
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import { infinitescroll } from '$lib/scroll';
 	import type { PageData } from './$houdini';
+	import Classic from './classic.svelte';
+	import Unrolled from './unrolled.svelte';
 
 	let { data }: { data: PageData } = $props();
-	let { PageInbox } = $derived(data);
 </script>
 
-<MaybeError result={$PageInbox}>
-	{#snippet children({ account })}
-		<div class="content">
-			{#if !account?.inbox}
-				<p>Oops! No inbox with ID {$page.params.inbox} exists for this account.</p>
-			{:else}
-				<main use:infinitescroll={async () => PageInbox.loadNextPage()}>
-					<Submenu>
-						{#each account.inbox.emails.edges as { node: email }}
-							<EmailRow {email} />
-						{:else}
-							<SubmenuItem icon={null}>
-								<p class="muted">No emails</p>
-							</SubmenuItem>
-						{/each}
-					</Submenu>
-					<div data-infinitescroll-bottom=""></div>
-				</main>
-			{/if}
-		</div>
-	{/snippet}
-</MaybeError>
-
-<style>
-	.content {
-		padding: 0.5rem 2rem;
-	}
-</style>
+{#if data.PageInboxUnrolled}
+	<Unrolled data={data.PageInboxUnrolled} />
+{:else if data.PageInbox}
+	<Classic data={data.PageInbox} />
+{:else}
+	Loading…
+{/if}

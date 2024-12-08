@@ -1,33 +1,29 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import type { PageInboxStore } from '$houdini';
 	import EmailRow from '$lib/components/EmailRow.svelte';
-	import FromHeader from '$lib/components/FromHeader.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
 	import Submenu from '$lib/components/Submenu.svelte';
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import { infinitescroll } from '$lib/scroll';
-	import type { PageData } from './$houdini';
 
-	let { data }: { data: PageData } = $props();
-	let { PageEmailsFrom } = $derived(data);
+	interface Props {
+		data: PageInboxStore;
+	}
+
+	let { data: PageInbox }: Props = $props();
 </script>
 
-<MaybeError result={$PageEmailsFrom}>
-	{#snippet children({ address })}
+<MaybeError result={$PageInbox}>
+	{#snippet children({ account })}
 		<div class="content">
-			{#if !address}
-				<p>Oops! You don't know about {$page.params.address} yet.</p>
+			{#if !account?.inbox}
+				<p>Oops! No inbox with ID {$page.params.inbox} exists for this account.</p>
 			{:else}
-				<FromHeader {address}>
-					{#snippet title({ name })}
-						Mails from {name}
-					{/snippet}
-				</FromHeader>
-				<main use:infinitescroll={async () => PageEmailsFrom.loadNextPage()}>
+				<main use:infinitescroll={async () => PageInbox.loadNextPage()}>
 					<Submenu>
-						{#each address.sentEmails.edges as { node: email }}
-							<EmailRow noavatar {email} />
-
+						{#each account.inbox.emails.edges as { node: email }}
+							<EmailRow {email} />
 						{:else}
 							<SubmenuItem icon={null}>
 								<p class="muted">No emails</p>

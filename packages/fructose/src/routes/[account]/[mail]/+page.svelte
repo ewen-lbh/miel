@@ -1,4 +1,6 @@
 <script lang="ts">
+	import MailBody from '$lib/components/MailBody.svelte';
+
 	import { page } from '$app/stores';
 	import { graphql } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
@@ -236,44 +238,17 @@
 					{/each}
 				</section>
 			{/if}
-			{#if email.html && loaded(email.attachmentsBaseURL)}
-				<UnwrappingIframe
-					cidSourceUrlTemplate={(cid) => `${loading(email.attachmentsBaseURL, '')}/${cid}`}
-					html={email.html}
-				/>
-			{:else}
-				<main class="text main-content">
-					{#if !loaded(email.text)}
-						<LoadingText lines={10} tag="p"></LoadingText>
-					{:else}
-						{#each email.text.split(/\r?\n/) as line}
-							<p>{line}</p>
-						{/each}
-					{/if}
-				</main>
+			{#if email}
+				<MailBody {email}></MailBody>
 			{/if}
 			<section class="replies">
 				{#if email.replies.edges.length > 0}
 					<h2>Replies</h2>
 				{/if}
 				{#each email.replies.edges as { node: reply }}
-					<Submenu>
-						<EmailRow email={reply} />
-					</Submenu>
+					<EmailRow email={reply} />
 					<article class="reply">
-						{#if reply.html}
-							<UnwrappingIframe html={reply.html} />
-						{:else}
-							<main class="text main-content">
-								{#if !loaded(reply.text)}
-									<LoadingText lines={10} tag="p"></LoadingText>
-								{:else}
-									{#each reply.text.split(/\r?\n/) as line}
-										<p>{line}</p>
-									{/each}
-								{/if}
-							</main>
-						{/if}
+						<MailBody email={reply} />
 					</article>
 				{/each}
 			</section>

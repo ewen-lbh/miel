@@ -4,7 +4,9 @@ declare global {
 	namespace App {
 		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 		type XSSSafeHTMLString = import('ts-opaque').Opaque<string, 'XSSSafeHTMLString'>;
-		// interface Error {}
+		interface Error {
+			message: string;
+		}
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}

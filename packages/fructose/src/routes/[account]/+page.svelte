@@ -49,6 +49,7 @@
 							</SubmenuItem>
 						{/each}
 					</Submenu>
+					<div data-infinitescroll-bottom=""></div>
 				</main>
 			</div>
 		{/if}
