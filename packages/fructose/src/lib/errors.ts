@@ -40,8 +40,7 @@ export const fieldErrorsToFormattedError = <T extends {}>(
 // See https://stackoverflow.com/questions/51442157/type-for-every-possible-string-value-except
 export type CaveatKey = 'didSoftDelete' | 'softDeleted' | 'constraintsWereSimplified';
 
-type SuccessWithCaveats<K extends CaveatKey, TSuccess, Fragments, Typename> = {
-	data: TSuccess;
+type SuccessWithCaveats<K extends CaveatKey, TSuccess, Fragments, Typename> = TSuccess & {
 	' $fragments': Fragments;
 	__typename: Typename;
 } & Partial<Record<K, string | null>>;
@@ -49,9 +48,11 @@ type SuccessWithCaveats<K extends CaveatKey, TSuccess, Fragments, Typename> = {
 type OperationResult<SuccessData, CaveatsKeys extends CaveatKey, Fragments, Typename> =
 	| SuccessWithCaveats<CaveatsKeys, SuccessData, Fragments, Typename>
 	| {
+			__typename: 'Error';
 			message: string;
 	  }
 	| {
+			__typename: 'ZodError';
 			fieldErrors: Array<{
 				path: string[];
 				message: string;
@@ -119,7 +120,9 @@ export function operationSucceeded<SuccessData, CaveatsKeys extends CaveatKey, F
 	operationResult: undefined | OperationResult<SuccessData, CaveatsKeys, Fragments, Typename>
 ): operationResult is SuccessWithCaveats<CaveatsKeys, SuccessData, Fragments, Typename> {
 	return Boolean(
-		(!result.errors || result.errors.length <= 0) && operationResult && 'data' in operationResult
+		(!result.errors || result.errors.length <= 0) &&
+			operationResult &&
+			!['Error', 'ZodError'].includes(operationResult.__typename as string)
 	);
 }
 

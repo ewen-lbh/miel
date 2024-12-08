@@ -29,9 +29,6 @@
 	let { data }: { data: PageData } = $props();
 	let { PageEmail } = $derived(data);
 
-	let mailContentFrame: HTMLIFrameElement | undefined = $state();
-	let unwrapInterval: number | NodeJS.Timeout | undefined = $state();
-
 	let authChecksExpanded = $state(false);
 
 	let replyBody = $state('');
@@ -46,8 +43,8 @@
 		) {
 			sendEmail(from: $from, to: $to, subject: $subject, body: $content, inReply: $email) {
 				...MutationErrors
-				... on MutationSendEmailSuccess {
-					data
+				... on Address {
+					id
 				}
 			}
 		}
@@ -57,10 +54,8 @@
 		mutation RenameEmail($email: ID!, $newSubject: String!) {
 			renameEmail(email: $email, subject: $newSubject) {
 				...MutationErrors
-				... on MutationRenameEmailSuccess {
-					data {
-						subject
-					}
+				... on Email {
+					subject
 				}
 			}
 		}
@@ -161,7 +156,7 @@
 						<div class="auth-checks">
 							<div
 								class="auth-check {email.dkim?.ok ? 'success' : 'danger'}"
-								use:tooltip={email.dkim?.explanation ?? 'No result found in headers'}
+								use:tooltip={loading(email.dkim?.explanation ?? 'No result found in headers', '')}
 							>
 								<div class="icon">
 									{#if email.dkim?.ok}
@@ -174,7 +169,7 @@
 							</div>
 							<div
 								class="auth-check {email.dmarc?.ok ? 'success' : 'danger'}"
-								use:tooltip={email.dmarc?.explanation ?? 'No result found in headers'}
+								use:tooltip={loading(email.dmarc?.explanation ?? 'No result found in headers', '')}
 							>
 								<div class="icon">
 									{#if email.dmarc?.ok}
@@ -187,7 +182,7 @@
 							</div>
 							<div
 								class="auth-check {email.spf?.ok ? 'success' : 'danger'}"
-								use:tooltip={email.spf?.explanation ?? 'No result found in headers'}
+								use:tooltip={loading(email.spf?.explanation ?? 'No result found in headers', '')}
 							>
 								<div class="icon">
 									{#if email.spf?.ok}
@@ -206,7 +201,7 @@
 										: spamscore > 0.3
 											? 'warning'
 											: 'success'}"
-									use:tooltip={`X-Spam-Level: ${email.spamlevel.at(0)} (${spamscore})`}
+									use:tooltip={`X-Spam-Level: ${loading(email.spamlevel.at(0), '')} (${spamscore})`}
 								>
 									<div class="icon">
 										{#if spamscore > 0.5}
@@ -243,7 +238,7 @@
 			{/if}
 			{#if email.html && loaded(email.attachmentsBaseURL)}
 				<UnwrappingIframe
-					cidSourceUrlTemplate={(cid) => `${email.attachmentsBaseURL}/${cid}`}
+					cidSourceUrlTemplate={(cid) => `${loading(email.attachmentsBaseURL, '')}/${cid}`}
 					html={email.html}
 				/>
 			{:else}

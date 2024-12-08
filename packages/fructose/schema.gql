@@ -323,29 +323,13 @@ type Mutation {
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
 }
 
-union MutationRenameEmailResult = Error | MutationRenameEmailSuccess | ZodError
+union MutationRenameEmailResult = Email | Error | ZodError
 
-type MutationRenameEmailSuccess {
-  data: Email!
-}
+union MutationScreenToResult = Address | Error | ZodError
 
-union MutationScreenToResult = Error | MutationScreenToSuccess | ZodError
+union MutationSendEmailResult = Address | Error | ZodError
 
-type MutationScreenToSuccess {
-  data: Address!
-}
-
-union MutationSendEmailResult = Error | MutationSendEmailSuccess | ZodError
-
-type MutationSendEmailSuccess {
-  data: Boolean!
-}
-
-union MutationUpsertAccountResult = Error | MutationUpsertAccountSuccess | ZodError
-
-type MutationUpsertAccountSuccess {
-  data: Account!
-}
+union MutationUpsertAccountResult = Account | Error | ZodError
 
 interface Node {
   id: ID!

@@ -166,7 +166,7 @@ export const toasts = {
       } else {
         toasts.success(
           typeof successMessage === 'function'
-            ? successMessage(result.data[mutationName].data)
+            ? successMessage(result.data[mutationName])
             : successMessage,
           '',
           options,

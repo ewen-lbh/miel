@@ -1,11 +1,12 @@
 import { GraphQLError } from "graphql"
 import * as mailer from "nodemailer"
 import { builder, prisma } from "../builder"
-import { EmailAddressType, EmailType } from "../schema"
+import { AddressType, EmailAddressType, EmailType } from "../schema"
 import { fieldName } from "../utils"
 
 builder.mutationField(fieldName(), (t) =>
-  t.boolean({
+  t.prismaField({
+    type: AddressType,
     errors: {},
     description: "Send an email",
     args: {
@@ -24,7 +25,7 @@ builder.mutationField(fieldName(), (t) =>
       subject: t.arg.string({ required: true }),
       body: t.arg.string({ required: true }),
     },
-    async resolve(_, args) {
+    async resolve(query, _, args) {
       const { senderAuth, senderServer, address } =
         await prisma.account.findUniqueOrThrow({
           where: { address: args.from },
@@ -82,7 +83,10 @@ builder.mutationField(fieldName(), (t) =>
         inReplyTo: inReplyTo?.messageId ?? undefined,
       })
 
-      return true
+      return prisma.address.findUniqueOrThrow({
+        ...query,
+        where: { address: args.to },
+      })
 
       //   await prisma.email.create({
       //     data: {

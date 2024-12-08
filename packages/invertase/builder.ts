@@ -57,6 +57,7 @@ export const builder = new SchemaBuilder<PothosTypes>({
   defaultFieldNullability: false,
   errors: {
     defaultTypes: [Error, ZodError],
+    directResult: true,
   },
   smartSubscriptions: subscribeOptionsFromIterator((name) =>
     pubsub.subscribe(name)

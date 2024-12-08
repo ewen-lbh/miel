@@ -29,10 +29,8 @@
 		mutation ScreenTo($address: EmailAddress!, $box: ID!) {
 			screenTo(address: $address, box: $box) {
 				...MutationErrors
-				... on MutationScreenToSuccess {
-					data {
-						id
-					}
+				... on Address {
+					id
 				}
 			}
 		}
