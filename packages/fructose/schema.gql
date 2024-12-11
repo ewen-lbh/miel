@@ -318,6 +318,7 @@ enum MailboxType {
 }
 
 type Mutation {
+  moveToInbox(email: ID!, inbox: ID!): MutationMoveToInboxResult!
   """Change an email's subject"""
   renameEmail(email: ID!, subject: String!): MutationRenameEmailResult!
   """
@@ -347,6 +348,8 @@ type Mutation {
     input: MailboxInput!
   ): MutationUpsertMailboxResult!
 }
+
+union MutationMoveToInboxResult = Email | Error | ZodError
 
 union MutationRenameEmailResult = Email | Error | ZodError
 

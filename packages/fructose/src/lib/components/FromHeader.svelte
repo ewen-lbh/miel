@@ -6,11 +6,12 @@
 
 	interface Props {
 		address: FromHeader | null;
+		linkify?: boolean;
 		title: (d: FromHeader$data) => MaybeLoading<string | undefined>;
 		subtitle?: (d: FromHeader$data) => MaybeLoading<string | undefined>;
 	}
 
-	let { address, title, subtitle }: Props = $props();
+	let { address, title, subtitle, linkify }: Props = $props();
 	const Address = $derived(
 		fragment(
 			address,
@@ -30,6 +31,6 @@
 	subtitle={$Address?.address ?? ($Address && allLoaded($Address) ? subtitle?.($Address) : '')}
 >
 	{#snippet avatar()}
-		<Avatar address={$Address} />
+		<Avatar {linkify} address={$Address} />
 	{/snippet}
 </Header>

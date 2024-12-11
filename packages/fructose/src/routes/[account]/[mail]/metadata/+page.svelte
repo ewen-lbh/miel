@@ -19,6 +19,9 @@
 	import IconUnsubscribe from '~icons/msl/unsubscribe-outline';
 	import type { PageData } from './$houdini';
 	import { parseReceivedHeader } from './travelpath';
+	import IconMailboxType from '$lib/components/IconMailboxType.svelte';
+	import { refroute } from '$lib/navigation';
+	import { page } from '$app/stores';
 
 	let { data }: { data: PageData } = $props();
 	let { PageEmailMetadata } = $derived(data);
@@ -65,7 +68,7 @@
 			<p>Email does not exist</p>
 		{:else}
 			<div class="content">
-				<FromHeader address={email.from}>
+				<FromHeader linkify address={email.from}>
 					{#snippet title()}
 						<LoadingText value={email.subject} />
 					{/snippet}
@@ -83,6 +86,18 @@
 				</FromHeader>
 
 				<Submenu>
+					<SubmenuItem
+						href={refroute('/[account]/inboxes/[inbox]', {
+							account: $page.params.account,
+							inbox: loading(email.inbox.id, '')
+						})}
+						subtext="Mailbox"
+					>
+						{#snippet icon()}
+							<IconMailboxType type={email.inbox.type} />
+						{/snippet}
+						<LoadingText value={email.inbox.name}></LoadingText>
+					</SubmenuItem>
 					{#if email.unsubscribe}
 						<SubmenuItem icon={IconUnsubscribe} subtext="Unsubscribe URL">
 							<LoadingText value={mapLoading(email.unsubscribe, (u) => u.toString())}></LoadingText>

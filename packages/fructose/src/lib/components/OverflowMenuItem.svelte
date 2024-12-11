@@ -63,6 +63,11 @@
     padding: 0.5em 1em;
     font-size: 1.2rem;
     cursor: pointer;
+    width: 100%;
+  }
+
+  .item:is(:hover, :focus-visible) {
+    background: var(--bg2);
   }
 
   .label {

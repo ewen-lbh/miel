@@ -131,6 +131,7 @@ export const toasts = {
     Fragments,
     Typename,
     CaveatsKeys extends CaveatKey & keyof SuccessData = never,
+    ToastData = {}
   >(
     result: undefined | MutationResult<MutationName, SuccessData, CaveatsKeys, Fragments, Typename>,
     mutationName: NoInfer<MutationName>,
@@ -139,7 +140,7 @@ export const toasts = {
     caveats:
       | Record<NoInfer<CaveatsKeys>, null | 'info' | 'warning' | 'success' | 'error'>
       | undefined = undefined,
-    options: ToastOptions<{}> | undefined = undefined,
+    options: ToastOptions<ToastData> | undefined = undefined,
   ): result is SucceededMutationResult<
     MutationName,
     SuccessData,

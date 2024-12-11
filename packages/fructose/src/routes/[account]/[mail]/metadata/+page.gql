@@ -13,6 +13,12 @@ query PageEmailMetadata($mail: ID!) @loading {
 			...FromHeader
 		}
 
+		inbox {
+			name
+			id
+			type
+		}
+
 		travelPath: header(key: "Received")
 		dmarc {
 			ok

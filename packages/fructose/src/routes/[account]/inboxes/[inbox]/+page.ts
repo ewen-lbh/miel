@@ -66,7 +66,7 @@ export async function load(event) {
 		error(404, { message: 'Inbox not found' });
 	}
 
-	return needsunroll.data.account.inbox.type === 'FEED'
+	return needsunroll.data.account.inbox.type === 'Feed'
 		? load_PageInboxUnrolled({ event, variables: event.params })
 		: load_PageInbox({ event, variables: event.params });
 }

@@ -20,7 +20,7 @@ export async function openExternal(url: string) {
 export const handleExternalHref = (node: HTMLElement) => {
 	const href = node.getAttribute('href');
 	if (!href) return;
-	const isExternal = /https?:\/\//.test(href);
+	const isExternal = /https?:\/\//.test(href) && !href.startsWith(location.origin);
 	if (isExternal) {
 		node.addEventListener('click', (event) => {
 			event.preventDefault();

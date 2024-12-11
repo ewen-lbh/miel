@@ -16,26 +16,8 @@
 				return '';
 		}
 	};
-</script>
 
-<script lang="ts">
-	import type { MailboxType$options } from '$houdini';
-	import { loaded, onceLoaded, type MaybeLoading } from '$lib/loading';
-	import IconTrash from '~icons/msl/delete-outline';
-	import IconDrafts from '~icons/msl/edit-document-outline';
-	import IconBox from '~icons/msl/markunread-mailbox-outline';
-	import IconFeed from '~icons/msl/newsmode-outline';
-	import IconSent from '~icons/msl/send-outline';
-
-	interface Props {
-		type: MaybeLoading<MailboxType$options>;
-		/** Don't add a color css class to the icon, let the parent decide the icon's color */
-		inheritcolors?: boolean;
-	}
-
-	const { type, inheritcolors = false }: Props = $props();
-
-	let Icon = $derived.by(() => {
+	export const iconinstance = (type: MaybeLoading<MailboxType$options>): undefined | Component => {
 		if (!loaded(type)) return null;
 		switch (type) {
 			case 'Trash':
@@ -51,10 +33,27 @@
 			default:
 				return null;
 		}
-	});
+	};
+</script>
 
-	$inspect(Icon);
-	$inspect(type);
+<script lang="ts">
+	import type { MailboxType$options } from '$houdini';
+	import { loaded, onceLoaded, type MaybeLoading } from '$lib/loading';
+	import type { Component } from 'svelte';
+	import IconTrash from '~icons/msl/delete-outline';
+	import IconDrafts from '~icons/msl/edit-document-outline';
+	import IconBox from '~icons/msl/markunread-mailbox-outline';
+	import IconFeed from '~icons/msl/newsmode-outline';
+	import IconSent from '~icons/msl/send-outline';
+
+	interface Props {
+		type: MaybeLoading<MailboxType$options>;
+		/** Don't add a color css class to the icon, let the parent decide the icon's color */
+		inheritcolors?: boolean;
+	}
+
+	const { type, inheritcolors = false }: Props = $props();
+	let Icon = $derived(iconinstance(type));
 </script>
 
 <div class="mailbox-icon {inheritcolors ? '' : onceLoaded(type, colorclass, '')}">

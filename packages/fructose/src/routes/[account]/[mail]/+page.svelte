@@ -99,17 +99,6 @@
 						<LoadingText class="muted" value={email.from.address} />
 					</div>
 				</div>
-				<a
-					class="inbox"
-					href={refroute('/[account]/inboxes/[inbox]', {
-						account: $page.params.account,
-						inbox: loading(email.inbox.id, '')
-					})}
-				>
-					in
-					<IconMailboxType type={email.inbox.type} />
-					<LoadingText value={email.inbox.name} />
-				</a>
 				{#if !loaded(email.subject)}
 					<LoadingText tag="h1" />
 				{:else}

@@ -9,11 +9,7 @@ query PageEmail($mail: ID!) @loading(cascade: true) {
 		to {
 			address
 		}
-		inbox {
-			type
-			name
-			id
-		}
+		
 		receivedAt
 		unsubscribe
 		subject
