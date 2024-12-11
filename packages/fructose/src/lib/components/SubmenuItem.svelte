@@ -1,48 +1,63 @@
-<script lang="ts">
+<script lang="ts" generics="IconArgs extends Record<string, any>">
 	import { page } from '$app/stores';
 	import LoadingText from '$lib/components/LoadingText.svelte';
 	import type { MaybeLoading } from '$lib/loading';
 	import { tooltip } from '$lib/tooltip';
-	import type { SvelteComponent } from 'svelte';
+	import { isComponent, isSnippet } from '$lib/typing';
+	import type { Component, Snippet } from 'svelte';
+	import { createBubbler, run } from 'svelte/legacy';
 	import IconChevronRight from '~icons/msl/chevron-right';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export let icon: typeof SvelteComponent<any> | null;
 
-	export let subtext: MaybeLoading<string> = '';
+	interface Props {
+		/** Widen the space available to the right slot */
+		wideRightPart?: boolean;
+		/** Whether to allow overflows, could be useful when the icon slot requires so. */
+		overflow?: boolean;
+		/** Whether to show a right chevron icon on the right side of the item. Useful to indicate that the item leads to another page. Defaults to true if href is set. */
+		chevron?: boolean | undefined;
+		/** Where to go when clicking. Set to an empty string (or don't pass it) to not make the item a link. Instead, you can use slotted content to provide interactivity, or listen to on:click events (see `clickable`). */
+		href?: string;
+		/**
+		 * Send click events when clicking the item, and enable hover/focus states
+		 */
+		clickable?: boolean;
+		/**
+		 * Make the wrapper element a label
+		 */
+		label?: boolean;
+		/**
+		 * Add a tooltip
+		 */
+		help?: string;
+		/**
+		 * If the string specified here is used as the hash in the URL, the item will be highlighted as active.
+		 */
+		anchor?: `#${string}` | undefined;
+		iconArgs?: IconArgs;
+		icon?: Component<IconArgs> | Snippet | null;
+		children?: Snippet;
+		subtext?: Component | MaybeLoading<string> | Snippet;
+		right?: Snippet;
+		onclick?: (event: MouseEvent) => void;
+	}
 
-	/** Widen the space available to the right slot */
-	export let wideRightPart = false;
-
-	/** Whether to allow overflows, could be useful when the icon slot requires so. */
-	export let overflow = false;
-
-	/** Whether to show a right chevron icon on the right side of the item. Useful to indicate that the item leads to another page. Defaults to true if href is set. */
-	export let chevron: boolean | undefined = undefined;
-	$: chevron ??= Boolean(href);
-
-	/** Where to go when clicking. Set to an empty string (or don't pass it) to not make the item a link. Instead, you can use slotted content to provide interactivity, or listen to on:click events (see `clickable`). */
-	export let href = '';
-
-	/**
-	 * Send click events when clicking the item, and enable hover/focus states
-	 */
-	export let clickable = false;
-
-	/**
-	 * Make the wrapper element a label
-	 */
-	export let label = false;
-
-	/**
-	 * Add a tooltip
-	 */
-	export let help = '';
-
-	/**
-	 * If the string specified here is used as the hash in the URL, the item will be highlighted as active.
-	 */
-	export let anchor: `#${string}` | undefined = undefined;
+	let {
+		icon,
+		onclick,
+		subtext = '',
+		wideRightPart = false,
+		overflow = false,
+		chevron = $bindable(undefined),
+		href = '',
+		clickable = false,
+		label = false,
+		help = '',
+		anchor = undefined,
+		children,
+		right
+	}: Props = $props();
 
 	function compareHrefs(a: string, b: string) {
 		return (
@@ -50,12 +65,15 @@
 			new URL(b, $page.url).href.replace(/\/$/, '')
 		);
 	}
+	run(() => {
+		chevron ??= Boolean(href);
+	});
 </script>
 
 <svelte:element
 	this={href ? 'a' : label ? 'label' : clickable ? 'button' : 'div'}
 	{href}
-	on:click
+	{onclick}
 	role="menuitem"
 	tabindex="-1"
 	class:wide-right-part={wideRightPart}
@@ -67,20 +85,24 @@
 >
 	<div class="left" class:allow-overflow={overflow}>
 		<div class="icon">
-			{#if icon}
-				<svelte:component this={icon}></svelte:component>
-			{:else}
-				<slot name="icon" />
+			{#if isComponent(icon)}
+				{@const Icon = icon}
+				<Icon></Icon>
+			{:else if isSnippet(icon)}
+				{@render icon()}
 			{/if}
 		</div>
 		<div class="text">
 			<p class="title">
-				<slot></slot>
+				{@render children?.()}
 			</p>
-			{#if subtext || $$slots.subtext}
+			{#if subtext}
 				<p class="subtext">
-					{#if $$slots.subtext}
-						<slot name="subtext"></slot>
+					{#if isSnippet(subtext)}
+						{@render subtext?.()}
+					{:else if isComponent(subtext)}
+						{@const Subtext = subtext}
+						<Subtext></Subtext>
 					{:else}
 						<LoadingText value={subtext} />
 					{/if}
@@ -90,9 +112,9 @@
 	</div>
 	<div class="right" class:chevron class:wider={wideRightPart}>
 		{#if chevron}
-			<svelte:component this={IconChevronRight}></svelte:component>
+			<IconChevronRight></IconChevronRight>
 		{:else}
-			<slot name="right"></slot>
+			{@render right?.()}
 		{/if}
 	</div>
 </svelte:element>

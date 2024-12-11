@@ -9,7 +9,7 @@
 	import { isMobile } from '$lib/mobile';
 	import { scrollableContainer, setupScrollPositionRestorer } from '$lib/scroll';
 	import { setupViewTransition } from '$lib/view-transitions';
-	import { setContext } from 'svelte';
+	import { setContext, type Snippet } from 'svelte';
 	import { writable } from 'svelte/store';
 	import type { PageData } from './$houdini';
 	import ToastsArea from './ToastsArea.svelte';
@@ -17,9 +17,10 @@
 	onNavigate(setupViewTransition);
 
 	const mobile = isMobile();
-	export let data: PageData;
+	const { data, children }: { data: PageData; children: Snippet } = $props();
+	const { LayoutRoot } = $derived(data);
 
-	let scrolled = false;
+	let scrolled = $state(false);
 	setupScrollPositionRestorer(
 		() => scrollableContainer(mobile),
 		(isScrolled) => {
@@ -35,14 +36,18 @@
 	});
 	setContext('navtop', navtop);
 
-	$: if (browser && $page.route.id) document.body.dataset.route = $page.route.id;
+	$effect(() => {
+		if (browser && $page.route.id) document.body.dataset.route = $page.route.id;
+	});
+
+	$inspect({ d: $LayoutRoot?.data });
 </script>
 
 <ToastsArea />
 
 <div class="layout" id="layout" class:mobile>
 	<header class="left">
-		<NavigationSide />
+		<NavigationSide data={$LayoutRoot?.data} />
 	</header>
 
 	<div class="mobile-area">
@@ -95,7 +100,7 @@
 
 		<div id="scrollable-area" class="contents-and-announcements">
 			<div class="page-content">
-				<slot />
+				{@render children()}
 			</div>
 		</div>
 		<div class="nav-bottom">

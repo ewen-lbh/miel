@@ -86,41 +86,48 @@
 					{#if email.unsubscribe}
 						<SubmenuItem icon={IconUnsubscribe} subtext="Unsubscribe URL">
 							<LoadingText value={mapLoading(email.unsubscribe, (u) => u.toString())}></LoadingText>
-							<ButtonGhost
-								slot="right"
-								help="Open in new tab"
-								href={onceLoaded(email.unsubscribe, (u) => u.toString(), '')}
-							>
-								<IconOpenExternal />
-							</ButtonGhost>
+							{#snippet right()}
+								<ButtonGhost
+									help="Open in new tab"
+									href={onceLoaded(email.unsubscribe, (u) => u.toString(), '')}
+								>
+									<IconOpenExternal />
+								</ButtonGhost>
+							{/snippet}
 						</SubmenuItem>
 					{/if}
 					<h3 class="typo-field-label">Authentication</h3>
 
-					<SubmenuItem subtext="SPF" icon={null}>
-						<div slot="icon" class={email.spf?.ok ? 'success' : 'danger'}>
-							{#if email.spf?.ok}<IconPass />{:else}<IconFail />{/if}
-						</div>
+					<SubmenuItem subtext="SPF">
+						{#snippet icon()}
+							<div class={email.spf?.ok ? 'success' : 'danger'}>
+								{#if email.spf?.ok}<IconPass />{:else}<IconFail />{/if}
+							</div>
+						{/snippet}
 						{#if email.spf?.explanation}
 							<LoadingText value={email.spf?.explanation}></LoadingText>
 						{:else}
 							<em>Check result not found in headers</em>
 						{/if}
 					</SubmenuItem>
-					<SubmenuItem subtext="DKIM" icon={null}>
-						<div slot="icon" class={email.dkim?.ok ? 'success' : 'danger'}>
-							{#if email.dkim?.ok}<IconPass />{:else}<IconFail />{/if}
-						</div>
+					<SubmenuItem subtext="DKIM">
+						{#snippet icon()}
+							<div class={email.dkim?.ok ? 'success' : 'danger'}>
+								{#if email.dkim?.ok}<IconPass />{:else}<IconFail />{/if}
+							</div>
+						{/snippet}
 						{#if email.dkim?.explanation}
 							<LoadingText value={email.dkim?.explanation}></LoadingText>
 						{:else}
 							<em>Check result not found in headers</em>
 						{/if}
 					</SubmenuItem>
-					<SubmenuItem subtext="DMARC" icon={null}>
-						<div slot="icon" class={email.dmarc?.ok ? 'success' : 'danger'}>
-							{#if email.dmarc?.ok}<IconPass />{:else}<IconFail />{/if}
-						</div>
+					<SubmenuItem subtext="DMARC">
+						{#snippet icon()}
+							<div class={email.dmarc?.ok ? 'success' : 'danger'}>
+								{#if email.dmarc?.ok}<IconPass />{:else}<IconFail />{/if}
+							</div>
+						{/snippet}
 						{#if email.dmarc?.explanation}
 							<LoadingText value={email.dmarc?.explanation}></LoadingText>
 						{:else}
@@ -159,7 +166,9 @@
 					{#each email.headers as { key, value }}
 						<SubmenuItem icon={null} subtext={key}>
 							<LoadingText tag="code" {value}></LoadingText>
-							<ButtonCopyToClipboard slot="right" text={value} />
+							{#snippet right()}
+								<ButtonCopyToClipboard text={value} />
+							{/snippet}
 						</SubmenuItem>
 					{/each}
 				</Submenu>

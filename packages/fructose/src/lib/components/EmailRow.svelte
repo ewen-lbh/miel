@@ -57,18 +57,17 @@
 </script>
 
 <SubmenuItem
-	icon={null}
 	href={refroute('/[account]/[mail]', {
 		account: $page.params.account,
 		mail: loading(id, '')
 	})}
 >
-	<svelte:fragment slot="icon">
+	{#snippet icon()}
 		{#if !noavatar}
 			<Avatar address={from}></Avatar>
 		{/if}
-	</svelte:fragment>
-	<svelte:fragment slot="subtext">
+	{/snippet}
+	{#snippet subtext()}
 		<LoadingText
 			value={mapAllLoading(
 				[receivedAt, spamLevel?.at(0) ?? null, attachmentsCount],
@@ -82,6 +81,6 @@
 						.join(' · ')
 			)}
 		/>
-	</svelte:fragment>
+	{/snippet}
 	<LoadingText value={subject} />
 </SubmenuItem>

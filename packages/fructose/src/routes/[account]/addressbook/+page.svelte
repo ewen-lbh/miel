@@ -23,10 +23,10 @@
 							account: $page.params.account,
 							address: loading(address.address, '')
 						})}
-						icon={null}
+						icon={Avatar}
+						iconArgs={{ address }}
 						subtext={address.address}
 					>
-						<Avatar slot="icon" {address} />
 						<LoadingText value={address.name} />
 					</SubmenuItem>
 				{/each}

@@ -1,5 +1,5 @@
 query PageCompose {
 	accounts {
-		address
+		emailAddress
 	}
 }

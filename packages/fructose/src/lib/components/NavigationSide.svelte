@@ -1,28 +1,32 @@
 <script lang="ts">
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { fragment, graphql, type NavigationSide } from '$houdini';
+	import Avatar from '$lib/components/Avatar.svelte';
 	import ButtonGhost from '$lib/components/ButtonGhost.svelte';
 	import ButtonNavigation from '$lib/components/ButtonNavigation.svelte';
+	import { loading } from '$lib/loading';
+	import { route } from '$lib/ROUTES';
 	import { theme } from '$lib/theme';
 	import IconBugReport from '~icons/msl/bug-report-outline';
-	import IconHomeFilled from '~icons/msl/home';
-	import IconHome from '~icons/msl/home-outline';
 	import IconComposeFilled from '~icons/msl/ink-pen';
 	import IconCompose from '~icons/msl/ink-pen-outline';
 	import IconAutoTheme from '~icons/msl/night-sight-auto-outline';
 	import IconDarkTheme from '~icons/msl/nightlight-outline';
 	import IconLightTheme from '~icons/msl/sunny-outline';
+	import IconAccountsFilled from '~icons/msl/switch-account';
+	import IconAccounts from '~icons/msl/switch-account-outline';
 
-	let animatingChurrosLogo = false;
-
-	beforeNavigate(() => {
-		animatingChurrosLogo = true;
-	});
-	afterNavigate(() => {
-		setTimeout(() => {
-			animatingChurrosLogo = false;
-		}, 1000);
-	});
+	const Data = graphql(`
+		query NavigationSide {
+			accounts {
+				name
+				address {
+					address
+					...Avatar
+				}
+			}
+		}
+	`);
 
 	let willSwitchThemeTo = $derived(
 		{
@@ -35,28 +39,38 @@
 
 <nav>
 	<div class="top">
-		<ButtonNavigation
-			href="/"
-			routeID="/(app)"
-			on:click={() => {
-				animatingChurrosLogo = true;
-				setTimeout(() => {
-					animatingChurrosLogo = false;
-				}, 1000);
-			}}
-		>
-			Mi
-		</ButtonNavigation>
+		<ButtonNavigation href="/" routeID="/">Mi</ButtonNavigation>
 	</div>
 	<div class="middle">
 		<ButtonNavigation
 			href="/"
 			routeID="/"
-			label="Home"
+			label="Accounts"
 			tooltipsOn="left"
-			icon={IconHome}
-			iconFilled={IconHomeFilled}
+			icon={IconAccounts}
+			iconFilled={IconAccountsFilled}
 		/>
+		{#await Data.fetch() then { data }}
+			{#each data?.accounts ?? [] as acct}
+				<ButtonNavigation
+					routeID={null}
+					href={route('/[account]', loading(acct.address.address, ''))}
+					label={loading(acct.name, '')}
+					tooltipsOn="left"
+				>
+					{#snippet icon()}
+						<div class="avatar">
+							<Avatar address={acct.address} />
+						</div>
+					{/snippet}
+					{#snippet iconFilled()}
+						<div class="avatar outlined">
+							<Avatar address={acct.address} />
+						</div>
+					{/snippet}
+				</ButtonNavigation>
+			{/each}
+		{/await}
 		<ButtonNavigation
 			href="/compose{$page.params.account ? `?as=${$page.params.account}` : ''}"
 			routeID="/compose"
@@ -127,5 +141,17 @@
 
 	nav .middle {
 		gap: 1em;
+	}
+
+	.avatar {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: calc(2 * var(--border-block)) solid transparent;
+		border-radius: 50%;
+	}
+
+	.avatar.outlined {
+		border-color: var(--primary);
 	}
 </style>

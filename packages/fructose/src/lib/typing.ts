@@ -1,10 +1,5 @@
-import type {
-	PaymentMethod$options,
-	PendingValue,
-	VariableFunction,
-	Visibility$options
-} from '$houdini';
-import type { PaymentMethod, Visibility } from '$lib/zeus';
+import type { PendingValue, VariableFunction } from '$houdini';
+import type { Component, Snippet } from 'svelte';
 
 export function hasNoUndefineds<T>(items: T[]): items is NonNullable<T>[] {
 	return items.every(Boolean);
@@ -27,18 +22,6 @@ export function edges<LoadingNode, Node>({
 	Node | LoadingNode
 > {
 	return edges.map((edge) => edge?.node ?? null).filter(notNull);
-}
-
-export function zeusVisibility(houdiniVisibility: Visibility$options): Visibility {
-	return houdiniVisibility as Visibility;
-}
-
-export function houdiniVisibility(zeusVisibility: Visibility): Visibility$options {
-	return zeusVisibility as Visibility$options;
-}
-
-export function zeusPaymentMethod(houdiniPaymentMethod: PaymentMethod$options): PaymentMethod {
-	return houdiniPaymentMethod as PaymentMethod;
 }
 
 export type WithoutRuntimeScalars<T> = Omit<T, 'loggedIn'>;
@@ -77,3 +60,9 @@ export function safeValue<T>(closure: () => T): T | undefined {
 		return undefined;
 	}
 }
+
+export const isComponent = (value: any): value is Component =>
+	value instanceof Function && value.length === 2;
+
+export const isSnippet = (value: any): value is Snippet =>
+	value instanceof Function && value.length === 1;

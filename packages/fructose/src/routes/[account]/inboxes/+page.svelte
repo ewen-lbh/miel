@@ -22,7 +22,8 @@
 				<Submenu>
 					{#each account.inboxes as inbox}
 						<SubmenuItem
-							icon={null}
+							icon={IconMailboxType}
+							iconArgs={inbox}
 							href={route('/[account]/inboxes/[inbox]', {
 								account: $page.params.account,
 								inbox: loading(inbox.id, '')
@@ -32,7 +33,6 @@
 								(count) => `Default inbox for ${countThing('address', count)}`
 							)}
 						>
-							<IconMailboxType slot="icon" type={inbox.type} />
 							<LoadingText value={inbox.name} />
 						</SubmenuItem>
 					{/each}

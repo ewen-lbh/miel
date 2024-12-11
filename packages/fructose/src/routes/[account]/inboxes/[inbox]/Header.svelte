@@ -46,8 +46,9 @@
 		{#each mailboxTypes as type}
 			<SubmenuItem
 				clickable
-				icon={null}
-				on:click={async () => {
+				icon={IconMailboxType}
+				iconArgs={{ type }}
+				onclick={async () => {
 					const result = await UpdateMailboxType.mutate({
 						inbox: $page.params.inbox,
 						type: type
@@ -57,7 +58,6 @@
 					}
 				}}
 			>
-				<IconMailboxType {type} slot="icon" />
 				{type}
 			</SubmenuItem>
 		{/each}

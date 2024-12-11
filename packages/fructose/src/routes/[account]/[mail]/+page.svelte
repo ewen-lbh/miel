@@ -1,5 +1,6 @@
 <script lang="ts">
 	import MailBody from '$lib/components/MailBody.svelte';
+	import IconMailboxType from '$lib/components/IconMailboxType.svelte';
 
 	import { page } from '$app/stores';
 	import { graphql } from '$houdini';
@@ -13,7 +14,7 @@
 	import { formatDateTimeSmart } from '$lib/dates';
 	import { allLoaded, loaded, loading, mapLoading, onceAllLoaded, onceLoaded } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';
-	import { updateTitle } from '$lib/navigation';
+	import { refroute, updateTitle } from '$lib/navigation';
 	import { toasts } from '$lib/toasts';
 	import { tooltip } from '$lib/tooltip';
 	import IconAttachment from '~icons/msl/attachment';
@@ -98,6 +99,17 @@
 						<LoadingText class="muted" value={email.from.address} />
 					</div>
 				</div>
+				<a
+					class="inbox"
+					href={refroute('/[account]/inboxes/[inbox]', {
+						account: $page.params.account,
+						inbox: loading(email.inbox.id, '')
+					})}
+				>
+					in
+					<IconMailboxType type={email.inbox.type} />
+					<LoadingText value={email.inbox.name} />
+				</a>
 				{#if !loaded(email.subject)}
 					<LoadingText tag="h1" />
 				{:else}
@@ -321,6 +333,13 @@
 
 	header .sender .name {
 		font-size: 1.2em;
+	}
+
+	header .inbox {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1ch;
 	}
 
 	header .spam-and-auth {

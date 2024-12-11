@@ -8,7 +8,7 @@ export const AccountType = builder.prismaNode("Account", {
   id: { field: "id" },
   name: typeName(),
   fields: (t) => ({
-    address: t.expose("address", { type: EmailAddressType }),
+    emailAddress: t.expose("address", { type: EmailAddressType }),
     name: t.exposeString("name"),
     inboxes: t.relation("inboxes", {
       args: {

@@ -10,10 +10,11 @@ directive @graphinx(module: String) on OBJECT | FIELD_DEFINITION | SCALAR | ENUM
 Represents a user account with associated mailboxes and server configurations.
 """
 type Account implements Node {
-  """The email address of the account."""
-  address: EmailAddress!
+  address: Address!
   """The drafts mailbox for the account."""
   draftsbox: Mailbox
+  """The email address of the account."""
+  emailAddress: EmailAddress!
   """First maibox of type FEED"""
   feedbox: Mailbox
   id: ID!
@@ -383,7 +384,14 @@ type Query {
   """
   Addresses that are waiting screening (have not been assigned a default inbox yet).
   """
-  screenings(after: String, before: String, first: Int, last: Int): QueryScreeningsConnection!
+  screenings(
+    """Limit to emails received on a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryScreeningsConnection!
 }
 
 type QueryAddressesConnection {
@@ -464,7 +472,14 @@ type Subscription {
   """
   Addresses that are waiting screening (have not been assigned a default inbox yet).
   """
-  screenings(after: String, before: String, first: Int, last: Int): QueryScreeningsConnection!
+  screenings(
+    """Limit to emails received on a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryScreeningsConnection!
 }
 
 """

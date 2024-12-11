@@ -1,6 +1,7 @@
 query PageInboxes($account: EmailAddress!) @loading(cascade: true) {
 	account(address: $account) {
 		inboxes(empty: true) {
+			id
 			name
 			type
 			emails(first: 3) {

@@ -45,7 +45,7 @@
 			) {
 				...MutationErrors
 				... on Account {
-					address
+					emailAddress
 				}
 			}
 		}
@@ -138,7 +138,7 @@
 			on:click={async () => {
 				const result = await CreateAccount.mutate({ ...account, address: account.username });
 				if (toasts.mutation(result, 'upsertAccount', 'Account added', 'Could not add account')) {
-					await goto(route('/[account]', result.data.upsertAccount.address));
+					await goto(route('/[account]', result.data.upsertAccount.emailAddress));
 				}
 			}}
 		>

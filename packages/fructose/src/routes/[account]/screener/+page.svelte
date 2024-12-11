@@ -66,42 +66,46 @@
 		<div class="content" use:infinitescroll={async () => PageScreener.loadNextPage()}>
 			<Submenu>
 				{#each screenings ?? [] as { node: address }}
-					<SubmenuItem wideRightPart icon={null} subtext={address.address}>
+					<SubmenuItem wideRightPart subtext={address.address}>
+						{#snippet icon()}
+							<Avatar {address} linkify />
+						{/snippet}
 						<LoadingText value={address.name} />
-						<Avatar linkify slot="icon" {address} />
-						<div class="actions" slot="right">
-							{#if account?.mainbox}
-								{@render decideButton(
-									account.mainbox.name,
-									account.mainbox.id,
-									'Inbox',
-									'primary',
-									address.address
-								)}
-							{/if}
-							{#if account?.feedbox}
-								{@render decideButton(
-									account.feedbox.name,
-									account.feedbox.id,
-									'Feed',
-									'success',
-									address.address
-								)}
-							{/if}
-							{#if account?.trashbox}
-								{@render decideButton(
-									account.trashbox.name,
-									account.trashbox.id,
-									'Trash',
-									'danger',
-									address.address
-								)}
-							{/if}
-							<button class="to-others" style:--bg="var(--bg2)">
-								<IconMore />
-								Others…
-							</button>
-						</div>
+						{#snippet right()}
+							<div class="actions">
+								{#if account?.mainbox}
+									{@render decideButton(
+										account.mainbox.name,
+										account.mainbox.id,
+										'Inbox',
+										'primary',
+										address.address
+									)}
+								{/if}
+								{#if account?.feedbox}
+									{@render decideButton(
+										account.feedbox.name,
+										account.feedbox.id,
+										'Feed',
+										'success',
+										address.address
+									)}
+								{/if}
+								{#if account?.trashbox}
+									{@render decideButton(
+										account.trashbox.name,
+										account.trashbox.id,
+										'Trash',
+										'danger',
+										address.address
+									)}
+								{/if}
+								<button class="to-others" style:--bg="var(--bg2)">
+									<IconMore />
+									Others…
+								</button>
+							</div>
+						{/snippet}
 					</SubmenuItem>
 
 					{#each address.lastSentEmails.nodes as email}

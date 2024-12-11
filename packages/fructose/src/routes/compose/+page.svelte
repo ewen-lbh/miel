@@ -20,12 +20,12 @@
 	let { PageCompose } = $derived(data);
 	let defaultAccountName = $derived($page.url.searchParams.get('as'));
 	let defaultAccount = $derived.by(() => {
-		return $PageCompose?.data?.accounts.find((a) => a.address === defaultAccountName);
+		return $PageCompose?.data?.accounts.find((a) => a.emailAddress === defaultAccountName);
 	});
 
 	let mail: SendMail$input = $state({
 		// svelte-ignore state_referenced_locally
-		from: defaultAccount?.address || '',
+		from: defaultAccount?.emailAddress || '',
 		to: $page.url.searchParams.get('to') || '',
 		subject: '',
 		body: ''
@@ -49,7 +49,7 @@
 				<InputSelectOneRadios
 					required
 					label=""
-					options={accounts.map((a) => a.address)}
+					options={accounts.map((a) => a.emailAddress)}
 					bind:value={mail.from}
 				/>
 			</SubmenuItem>

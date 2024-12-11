@@ -17,11 +17,11 @@
 	{#snippet children({ accounts })}
 		<Submenu>
 			{#each accounts as account}
-				<SubmenuItem icon={IconMail} href={route('/[account]', loading(account.address, ''))}>
+				<SubmenuItem icon={IconMail} href={route('/[account]', loading(account.emailAddress, ''))}>
 					<LoadingText value={account.name} />
 				</SubmenuItem>
 			{/each}
-			<SubmenuItem icon={IconAdd} href={route('/new-account')}>New account</SubmenuItem>
+			<SubmenuItem icon={IconAdd} href={route('/register')}>New account</SubmenuItem>
 		</Submenu>
 	{/snippet}
 </MaybeError>
