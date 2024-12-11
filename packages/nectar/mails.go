@@ -395,6 +395,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 				db.Email.Trusted.Set(contains(mail.Flags, imap.FlagNotJunk)),
 				db.Email.MessageID.SetOptional(messageidOrNull),
 				db.Email.Headers.Set(mailHeaders),
+				db.Email.Receiver.Link(db.Server.ID.Equals(c.account.ReceiverServerID)),
 			}, linkReferences...)...,
 		).Create(
 			db.Email.InternalUID.Set(int(mail.UID)),
@@ -410,6 +411,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			db.Email.Inbox.Link(db.Mailbox.ID.Equals(box.ID)),
 			db.Email.Trusted.Set(contains(mail.Flags, imap.FlagNotJunk)),
 			append([]db.EmailSetParam{
+				db.Email.Receiver.Link(db.Server.ID.Equals(c.account.ReceiverServerID)),
 				db.Email.MessageID.SetOptional(messageidOrNull),
 			}, linkReferences...)...,
 		).Exec(ctx)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -116,4 +117,64 @@ func (c *LoggedInAccount) ResyncAccount(accountId string) error {
 	defer c.Unlock()
 	c.account = *acct
 	return nil
+}
+
+func CreateAccount(args []string) {
+	// Create account via CLI: account create <host> <sender port> <receiver port> <secure|insecure> <username> <password>
+	if len(args) == 9 && args[1] == "account" && args[2] == "create" {
+		senderPort, err := strconv.Atoi(args[4])
+		if err != nil {
+			ll.ErrorDisplay("invalid sender port number", err)
+			return
+		}
+
+		receiverPort, err := strconv.Atoi(args[5])
+		if err != nil {
+			ll.ErrorDisplay("invalid receiver port number", err)
+			return
+		}
+
+		receiver, err := prisma.Server.CreateOne(
+			db.Server.Host.Set(args[3]),
+			db.Server.Port.Set(receiverPort),
+			db.Server.Secure.Set(args[6] == "secure"),
+			db.Server.Username.Set(args[7]),
+			db.Server.Type.Set(ServerTypeIMAP),
+		).Exec(ctx)
+		if err != nil {
+			ll.ErrorDisplay("couldn't create ReceiverServer", err)
+		}
+
+		sender, err := prisma.Server.CreateOne(
+			db.Server.Host.Set(args[3]),
+			db.Server.Port.Set(senderPort),
+			db.Server.Secure.Set(args[6] == "secure"),
+			db.Server.Username.Set(args[7]),
+			db.Server.Type.Set(ServerTypeSMTP),
+		).Exec(ctx)
+		if err != nil {
+			ll.ErrorDisplay("couldn't create SenderServer", err)
+		}
+
+		auth, err := prisma.ServerAuth.CreateOne(
+			db.ServerAuth.Username.Set(args[7]),
+			db.ServerAuth.Password.Set(args[8]),
+		).Exec(ctx)
+		if err != nil {
+			ll.ErrorDisplay("couldn't create ServerAuth", err)
+		}
+
+		_, err = prisma.Account.CreateOne(
+			db.Account.Address.Set(args[7]),
+			db.Account.Name.Set(args[3]),
+			db.Account.ReceiverServer.Link(db.Server.ID.Equals(receiver.ID)),
+			db.Account.ReceiverAuth.Link(db.ServerAuth.ID.Equals(auth.ID)),
+			db.Account.SenderServer.Link(db.Server.ID.Equals(sender.ID)),
+			db.Account.SenderAuth.Link(db.ServerAuth.ID.Equals(auth.ID)),
+		).Exec(ctx)
+		if err != nil {
+			ll.ErrorDisplay("couldn't create Account", err)
+		}
+
+	}
 }

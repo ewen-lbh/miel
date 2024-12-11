@@ -370,17 +370,10 @@
 		justify-content: center;
 	}
 
-	.main-content.text {
-		max-width: 800px;
-		width: 100%;
-		margin: 0 auto;
-		padding: 1rem;
-		border-radius: var(--radius-block);
-		background-color: var(--bg2);
-	}
-
 	section.replies h2 {
 		text-align: center;
+		margin-top: 2rem;
+		margin-bottom: 0.5rem;
 	}
 
 	section.reply {

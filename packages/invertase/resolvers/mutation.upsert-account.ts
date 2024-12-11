@@ -2,6 +2,16 @@ import { builder, prisma } from "../builder"
 import { AccountType, EmailAddressType } from "../schema"
 import { enforceNonNull, fieldName } from "../utils"
 
+const ServerInput = builder.inputType("ServerInput", {
+  fields: (t) => ({
+    username: t.string({ required: false }),
+    host: t.string({ required: false }),
+    port: t.int({ defaultValue: 993, required: true }),
+    tls: t.boolean({ defaultValue: true, required: true }),
+    password: t.string({ required: false }),
+  }),
+})
+
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
     type: AccountType,
@@ -13,49 +23,94 @@ builder.mutationField(fieldName(), (t) =>
         type: builder.inputType("AccountInput", {
           fields: (t) => ({
             name: t.string({ required: false }),
-            username: t.string({ required: false }),
-            host: t.string({ required: false }),
-            port: t.int({ defaultValue: 993, required: true }),
-            tls: t.boolean({ defaultValue: true, required: true }),
-            password: t.string({ required: false }),
+            sender: t.field({
+              required: false,
+              type: ServerInput,
+            }),
+            receiver: t.field({
+              required: true,
+              type: ServerInput,
+            }),
           }),
         }),
       }),
     },
-    async resolve(query, _, { address, input }) {
+    async resolve(query, _, { address, input: { name, receiver, sender } }) {
       return prisma.account.upsert({
         ...query,
         where: { address },
         update: {
-          name: input.name ?? undefined,
+          name: name ?? undefined,
           receiverServer: {
             update: {
-              host: input.host ?? undefined,
-              port: input.port ?? undefined,
-              secure: input.tls ?? undefined,
-              username: input.username ?? undefined,
-              password: input.password ?? undefined,
+              host: receiver.host ?? undefined,
+              port: receiver.port ?? undefined,
+              secure: receiver.tls ?? undefined,
+              username: receiver.username ?? undefined,
+              password: receiver.password ?? undefined,
             },
           },
+          receiverAuth: {
+            update: {
+              username: receiver.username ?? undefined,
+              password: receiver.password ?? undefined,
+            },
+          },
+          senderServer: {
+            update: {
+              host: sender?.host ?? undefined,
+              port: sender?.port ?? undefined,
+              secure: sender?.tls ?? undefined,
+              username: sender?.username ?? undefined,
+              password: sender?.password ?? undefined,
+            },
+          },
+          senderAuth: sender
+            ? {
+                update: {
+                  username: sender.username ?? undefined,
+                  password: sender.password ?? undefined,
+                },
+              }
+            : undefined,
         },
         create: {
           address,
-          name: enforceNonNull(input.name),
+          name: enforceNonNull(name),
           receiverAuth: {
             create: {
-              username: enforceNonNull(input.username ?? address),
-              password: enforceNonNull(input.password),
+              username: enforceNonNull(receiver.username ?? address),
+              password: enforceNonNull(receiver.password),
             },
           },
+          senderAuth: sender
+            ? {
+                create: {
+                  username: enforceNonNull(sender.username ?? address),
+                  password: enforceNonNull(sender.password),
+                },
+              }
+            : undefined,
           receiverServer: {
             create: {
               type: "IMAP",
-              host: enforceNonNull(input.host),
-              port: input.port,
-              secure: input.tls,
-              username: enforceNonNull(input.username ?? address),
+              host: enforceNonNull(receiver.host),
+              port: receiver.port,
+              secure: receiver.tls,
+              username: enforceNonNull(receiver.username ?? address),
             },
           },
+          senderServer: sender
+            ? {
+                create: {
+                  type: "SMTP",
+                  host: enforceNonNull(sender.host),
+                  port: sender.port,
+                  secure: sender.tls,
+                  username: enforceNonNull(sender.username ?? address),
+                },
+              }
+            : undefined,
         },
       })
     },

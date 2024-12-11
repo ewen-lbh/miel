@@ -22,7 +22,7 @@
     {
       "label": "Develop Fructose",
       "type": "shell",
-      "command": "cd packages/fructose && pnpm dev",
+      "command": "cd packages/fructose && pnpm tauri dev",
       "presentation": {
         "group": "dev"
       },

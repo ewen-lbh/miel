@@ -1,6 +1,7 @@
 import { builder } from "../builder"
 import { typeName } from "../utils"
 import { EmailType } from "./email"
+import { EmailAddressType } from "./email-address"
 import { EmailConnectionType } from "./email-connection"
 
 export const AddressType = builder.prismaNode("Address", {
@@ -22,7 +23,21 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
-        query: { orderBy: { internalUid: "desc" } },
+        args: {
+          account: t.arg({
+            type: EmailAddressType,
+            required: false,
+            description: "Limit to emails received on a specific account",
+          }),
+        },
+        query({ account }) {
+          return {
+            where: account
+              ? { inbox: { account: { address: account } } }
+              : undefined,
+            orderBy: { internalUid: "desc" },
+          }
+        },
       },
       EmailConnectionType
     ),
@@ -31,7 +46,21 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
-        query: { orderBy: { internalUid: "desc" } },
+        args: {
+          account: t.arg({
+            type: EmailAddressType,
+            required: false,
+            description: "Limit to emails received on a specific account",
+          }),
+        },
+        query({ account }) {
+          return {
+            where: account
+              ? { inbox: { account: { address: account } } }
+              : undefined,
+            orderBy: { internalUid: "desc" },
+          }
+        },
       },
       EmailConnectionType
     ),
@@ -40,7 +69,21 @@ export const AddressType = builder.prismaNode("Address", {
       {
         type: EmailType,
         cursor: "id",
-        query: { orderBy: { internalUid: "desc" } },
+        args: {
+          account: t.arg({
+            type: EmailAddressType,
+            required: false,
+            description: "Limit to emails received on a specific account",
+          }),
+        },
+        query({ account }) {
+          return {
+            where: account
+              ? { inbox: { account: { address: account } } }
+              : undefined,
+            orderBy: { internalUid: "desc" },
+          }
+        },
       },
       EmailConnectionType
     ),

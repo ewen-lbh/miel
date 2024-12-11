@@ -6,6 +6,7 @@
 	import { route } from '$lib/ROUTES';
 	import type { PageData } from './$houdini';
 	import IconMail from '~icons/msl/mail-outline';
+	import IconAdd from '~icons/msl/add';
 
 	let { data }: { data: PageData } = $props();
 	let { PageHome } = $derived(data);
@@ -20,6 +21,7 @@
 					<LoadingText value={account.name} />
 				</SubmenuItem>
 			{/each}
+			<SubmenuItem icon={IconAdd} href={route('/new-account')}>New account</SubmenuItem>
 		</Submenu>
 	{/snippet}
 </MaybeError>

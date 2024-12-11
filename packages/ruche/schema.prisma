@@ -173,6 +173,10 @@ model Email {
   /// Emaisl that reference this email as part of their thread.
   threadReplies Email[] @relation("ThreadEmails")
 
+  /// The server that received that email
+  receiver Server? @relation(fields: [receiverId], references: [id])
+  receiverId String?
+
   @@unique([inboxId, internalUid])
 }
 
@@ -347,4 +351,7 @@ model Server {
 
   /// Accounts that use this server for receiving emails.
   receiverAccounts Account[] @relation("ReceiverServer")
+
+  /// Emails received by this server.
+  receivedEmails Email[]
 }

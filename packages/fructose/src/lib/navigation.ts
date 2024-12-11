@@ -73,10 +73,6 @@ const commonActions = {
 			navtopPushState('NAVTOP_DELETING');
 		}
 	},
-	edit: {
-		label: 'Edit subject',
-		icon: IconPen
-	},
 	settings: {
 		label: 'Settings',
 		icon: IconCog
@@ -112,7 +108,6 @@ export const topnavConfigs: {
 				href: route('/[account]/[mail]/metadata', params)
 			},
 			commonActions.delete,
-			commonActions.edit,
 			commonActions.copyID
 		],
 		back: route('/[account]', params.account)
@@ -156,5 +151,10 @@ export const topnavConfigs: {
 		title: `Emails from ${params.address}`,
 		actions: [],
 		back: route('/[account]', params.account)
-	})
+	}),
+	'/new-account': {
+		title: 'Add an account',
+		actions: [],
+		back: route('/')
+	}
 };

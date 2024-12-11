@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { LoadingText, type MaybeLoading } from '$lib/loading';
+	import { handleExternalHref } from '$lib/native';
 	import type { Component, Snippet } from 'svelte';
 
 	type Props = {
@@ -13,7 +14,7 @@
 	let { children, text, class: klass, href, icon: Icon }: Props = $props();
 </script>
 
-<svelte:element this={href ? 'a' : 'div'} class="pill {klass}" {href}>
+<svelte:element this={href ? 'a' : 'div'} use:handleExternalHref class="pill {klass}" {href}>
 	{#if Icon}
 		<div class="icon"><Icon /></div>
 	{/if}

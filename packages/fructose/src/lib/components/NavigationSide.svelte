@@ -1,14 +1,17 @@
 <script lang="ts">
 	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { page } from '$app/stores';
 	import ButtonGhost from '$lib/components/ButtonGhost.svelte';
 	import ButtonNavigation from '$lib/components/ButtonNavigation.svelte';
+	import { theme } from '$lib/theme';
 	import IconBugReport from '~icons/msl/bug-report-outline';
 	import IconHomeFilled from '~icons/msl/home';
 	import IconHome from '~icons/msl/home-outline';
-	import IconLightTheme from '~icons/msl/sunny-outline';
-	import IconDarkTheme from '~icons/msl/nightlight-outline';
+	import IconComposeFilled from '~icons/msl/ink-pen';
+	import IconCompose from '~icons/msl/ink-pen-outline';
 	import IconAutoTheme from '~icons/msl/night-sight-auto-outline';
-	import { theme } from '$lib/theme';
+	import IconDarkTheme from '~icons/msl/nightlight-outline';
+	import IconLightTheme from '~icons/msl/sunny-outline';
 
 	let animatingChurrosLogo = false;
 
@@ -21,12 +24,12 @@
 		}, 1000);
 	});
 
-	let willSwitchThemeTo: typeof $theme.variant = $derived(
+	let willSwitchThemeTo = $derived(
 		{
 			dark: 'auto',
 			auto: 'light',
 			light: 'dark'
-		}[$theme.variant]
+		}[$theme.variant] as typeof $theme.variant
 	);
 </script>
 
@@ -49,10 +52,18 @@
 		<ButtonNavigation
 			href="/"
 			routeID="/"
-			label="Accueil"
+			label="Home"
 			tooltipsOn="left"
 			icon={IconHome}
 			iconFilled={IconHomeFilled}
+		/>
+		<ButtonNavigation
+			href="/compose{$page.params.account ? `?as=${$page.params.account}` : ''}"
+			routeID="/compose"
+			label="Compose"
+			tooltipsOn="left"
+			icon={IconCompose}
+			iconFilled={IconComposeFilled}
 		/>
 	</div>
 

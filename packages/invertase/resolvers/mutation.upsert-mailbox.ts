@@ -16,14 +16,18 @@ builder.mutationField(fieldName(), (t) =>
       input: t.arg({ type: MailboxInputType, required: true }),
     },
     async resolve(query, _, { id, input }) {
-      return prisma.mailbox.upsert({
+      if (id)
+        return prisma.mailbox.update({
+          where: { id: id.id },
+          data: {
+            type: input.type ?? undefined,
+            name: input.name ?? undefined,
+          },
+        })
+
+      return prisma.mailbox.create({
         ...query,
-        where: { id: id?.id ?? "" },
-        update: {
-          type: input.type ?? undefined,
-          name: input.name ?? undefined,
-        },
-        create: {
+        data: {
           account: { connect: { address: enforceNonNull(input.account) } },
           type: enforceNonNull(input.type),
           internalUidValidity: 0,

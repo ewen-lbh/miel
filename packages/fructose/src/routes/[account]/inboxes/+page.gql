@@ -1,4 +1,4 @@
-query PageInboxes($account: EmailAddress!) {
+query PageInboxes($account: EmailAddress!) @loading(cascade: true) {
 	account(address: $account) {
 		inboxes(empty: true) {
 			name

@@ -74,7 +74,7 @@
 								{@render decideButton(
 									account.mainbox.name,
 									account.mainbox.id,
-									'INBOX',
+									'Inbox',
 									'primary',
 									address.address
 								)}
@@ -83,7 +83,7 @@
 								{@render decideButton(
 									account.feedbox.name,
 									account.feedbox.id,
-									'FEED',
+									'Feed',
 									'success',
 									address.address
 								)}
@@ -92,7 +92,7 @@
 								{@render decideButton(
 									account.trashbox.name,
 									account.trashbox.id,
-									'TRASHBOX',
+									'Trash',
 									'danger',
 									address.address
 								)}

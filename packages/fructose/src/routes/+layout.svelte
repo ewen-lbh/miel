@@ -2,19 +2,17 @@
 	import { browser } from '$app/environment';
 	import { onNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { env } from '$env/dynamic/public';
 	import { CURRENT_VERSION } from '$lib/buildinfo';
 	import NavigationBottom from '$lib/components/NavigationBottom.svelte';
 	import NavigationSide from '$lib/components/NavigationSide.svelte';
 	import NavigationTop, { type NavigationContext } from '$lib/components/NavigationTop.svelte';
 	import { isMobile } from '$lib/mobile';
 	import { scrollableContainer, setupScrollPositionRestorer } from '$lib/scroll';
-	import { isDark } from '$lib/theme';
 	import { setupViewTransition } from '$lib/view-transitions';
-	import ToastsArea from './ToastsArea.svelte';
 	import { setContext } from 'svelte';
 	import { writable } from 'svelte/store';
 	import type { PageData } from './$houdini';
+	import ToastsArea from './ToastsArea.svelte';
 
 	onNavigate(setupViewTransition);
 
@@ -108,25 +106,8 @@
 	<aside class="right">
 		<footer class="muted">
 			<p>
-				Churros v{CURRENT_VERSION}
-				· <wbr />Made by <a href="https://net7.dev">net7</a>
-				· <wbr /><a href="/credits">À propos</a>
-				· <wbr /><a href={env.PUBLIC_REPOSITORY_URL}>Code source</a>
-				· <wbr /><a href="https://www.gnu.org/licenses/agpl-3.0.en.html#license-text"
-					>Licensed under AGPL-v3.0</a
-				>
-				· <wbr />&copy;&nbsp;{new Date().getFullYear()}&nbsp;<a href="https://churros.app/@devs"
-					>Churros DevTeam</a
-				>
+				Miel v{CURRENT_VERSION}
 			</p>
-			<a href="https://net7.dev" class="net7-logo">
-				<img
-					height="50px"
-					width="100px"
-					src="https://net7.dev/images/net7_{$isDark ? 'white' : 'dark'}.svg"
-					alt="net7"
-				/>
-			</a>
 		</footer>
 	</aside>
 </div>
@@ -291,21 +272,6 @@
 	footer p {
 		margin-bottom: 2rem;
 		font-size: 0.8rem;
-	}
-
-	footer p a {
-		color: var(--text);
-		text-decoration: underline;
-		text-decoration-thickness: unset;
-		text-underline-offset: unset;
-	}
-
-	footer .net7-logo {
-		opacity: 0.5;
-	}
-
-	footer .net7-logo:hover {
-		opacity: 1;
 	}
 
 	@media (min-width: 900px) {

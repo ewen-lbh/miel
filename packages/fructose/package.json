@@ -32,6 +32,7 @@
         "@sveltejs/adapter-auto": "^3.0.0",
         "@sveltejs/kit": "^2.0.0",
         "@sveltejs/vite-plugin-svelte": "^4.0.0",
+        "@tauri-apps/cli": "^2.1.0",
         "eslint": "^9.7.0",
         "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-svelte": "^2.36.0",
@@ -52,6 +53,7 @@
     "dependencies": {
         "@ewen-lbh/houdini": "^1.6.0",
         "@iconify-json/material-symbols-light": "^1.2.8",
+        "@tauri-apps/plugin-shell": "~2",
         "bits-ui": "^0.21.16",
         "colord": "^2.9.3",
         "date-fns": "^4.1.0",

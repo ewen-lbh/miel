@@ -120,6 +120,10 @@
 		}
 	}
 
+	label.submenu-item:focus-within .subtext {
+		color: var(--primary);
+	}
+
 	.submenu-item.current {
 		color: var(--primary);
 		background-color: var(--bg2);

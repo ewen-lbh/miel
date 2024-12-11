@@ -33,7 +33,9 @@ const PAGES = {
   },
   "/[account]/screener": (account: (string | number), params?: {  }) => {
     return `/${account}/screener`
-  }
+  },
+  "/compose": `/compose`,
+  "/register": `/register`
 }
 
 /**
@@ -154,7 +156,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail', '/[account]/[mail]/metadata': 'account' | 'mail', '/[account]/addressbook': 'account', '/[account]/from/[address]': 'account' | 'address', '/[account]/inboxes': 'account', '/[account]/inboxes/[inbox]': 'account' | 'inbox', '/[account]/screener': 'account' }
+  PAGES: { '/': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail', '/[account]/[mail]/metadata': 'account' | 'mail', '/[account]/addressbook': 'account', '/[account]/from/[address]': 'account' | 'address', '/[account]/inboxes': 'account', '/[account]/inboxes/[inbox]': 'account' | 'inbox', '/[account]/screener': 'account', '/compose': never, '/register': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: Record<string, never>

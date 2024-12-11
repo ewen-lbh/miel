@@ -41,12 +41,9 @@ type Account implements Node {
 }
 
 input AccountInput {
-  host: String
   name: String
-  password: String
-  port: Int! = 993
-  tls: Boolean! = true
-  username: String
+  receiver: ServerInput!
+  sender: ServerInput
 }
 
 """Represents an email address with optional metadata."""
@@ -56,7 +53,14 @@ type Address implements Node {
   """A avatar URL for this address"""
   avatarURL: URL
   """Emails where this address is in the CC field."""
-  ccEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
+  ccEmails(
+    """Limit to emails received on a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EmailConnection!
   id: ID!
   """Indicates whether the address is known (for recipients)."""
   known: Boolean
@@ -64,9 +68,23 @@ type Address implements Node {
   name: String!
   probablyAPerson: Boolean!
   """Emails received by this address."""
-  receivedEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
+  receivedEmails(
+    """Limit to emails received on a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EmailConnection!
   """Emails sent by this address."""
-  sentEmails(after: String, before: String, first: Int, last: Int): EmailConnection!
+  sentEmails(
+    """Limit to emails received on a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): EmailConnection!
   """Indicates whether the address is verified (for senders)."""
   verified: Boolean
 }
@@ -423,6 +441,14 @@ type Server implements Node {
   type: ServerType!
   """The username used to authenticate with the server."""
   username: String!
+}
+
+input ServerInput {
+  host: String
+  password: String
+  port: Int! = 993
+  tls: Boolean! = true
+  username: String
 }
 
 enum ServerType {

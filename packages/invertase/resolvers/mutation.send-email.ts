@@ -83,9 +83,22 @@ builder.mutationField(fieldName(), (t) =>
         inReplyTo: inReplyTo?.messageId ?? undefined,
       })
 
-      return prisma.address.findUniqueOrThrow({
+      return prisma.address.upsert({
         ...query,
         where: { address: args.to },
+        update: {},
+        create: {
+          name: "",
+          address: args.to,
+          defaultInboxId:
+            (
+              await prisma.account
+                .findUnique({
+                  where: { address: args.from },
+                })
+                .mainbox()
+            )?.id ?? null,
+        },
       })
 
       //   await prisma.email.create({

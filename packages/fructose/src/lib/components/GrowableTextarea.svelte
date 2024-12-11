@@ -1,11 +1,13 @@
 <script lang="ts">
 	interface Props {
 		value: string;
+		/** minimum number of columns to show */
+		cols?: number;
 	}
 
-	let { value = $bindable() }: Props = $props();
+	let { value = $bindable(), cols = 1 }: Props = $props();
 
-	let rows = $derived(Math.max(1, value.split('\n').length));
+	let rows = $derived(Math.max(cols, value.split('\n').length));
 </script>
 
 <textarea {rows} bind:value class="growable"></textarea>

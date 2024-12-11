@@ -2,6 +2,7 @@ query PageAccount($account: EmailAddress!) @loading(cascade: true) {
 	account(address: $account) {
 		name
 		inboxes {
+			id
 			name
 		}
 		mainbox {
