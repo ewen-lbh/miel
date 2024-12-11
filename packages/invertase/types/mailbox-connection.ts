@@ -1,6 +1,6 @@
 import { builder } from "../builder"
-import { MailboxType } from "../prisma"
-import { graphinx, typeName } from "../utils"
+import { typeName } from "../utils"
+import { MailboxType } from "./mailbox"
 
 export const MailboxConnectionType = builder.connectionObject({
   name: typeName(),

@@ -196,7 +196,6 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			a, err := prisma.Address.CreateOne(
 				db.Address.Address.Set(cc.Addr()),
 				db.Address.Name.Set(cc.Name),
-				db.Address.Type.Set(db.AddressTypeRecipient),
 			).Exec(ctx)
 			if err != nil {
 				return fmt.Errorf("while creating db-address for cc %s: %w", cc.Addr(), err)
@@ -215,7 +214,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	}
 
 	if len(envelope.To) == 0 || len(envelope.From) == 0 {
-		if box.Type != db.MailboxTypeTrashbox {
+		if box.Type != MailboxTypeTrash {
 			ll.Warn("email %+v has no sender or recipient, deleting", mail.Envelope)
 			c.Trash(imap.SeqSetNum(mail.SeqNum))
 		}
@@ -228,7 +227,6 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	).Create(
 		db.Address.Address.Set(envelope.From[0].Addr()),
 		db.Address.Name.Set(envelope.From[0].Name),
-		db.Address.Type.Set(db.AddressTypeSender),
 		db.Address.LastEmailSentAt.Set(envelope.Date),
 	).Update(
 		db.Address.Name.Set(envelope.From[0].Name),
@@ -244,7 +242,6 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	).Create(
 		db.Address.Address.Set(envelope.To[0].Addr()),
 		db.Address.Name.Set(envelope.To[0].Name),
-		db.Address.Type.Set(db.AddressTypeRecipient),
 	).Update(
 		db.Address.Name.Set(envelope.To[0].Name),
 	).Exec(ctx)
@@ -277,7 +274,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	}
 
 	mailReferences := make([]string, 0)
-	mailHeaders := make([]string, 0)
+	mailHeaders := ""
 	type Attachment struct {
 		Filename string
 		Content  []byte
@@ -340,7 +337,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		mailReferences = append(mailReferences, parsed.InReplyTo...)
 		for k, vs := range parsed.Header {
 			for _, v := range vs {
-				mailHeaders = append(mailHeaders, k, v)
+				mailHeaders = fmt.Sprintf("%s%s: %s\n", mailHeaders, k, v)
 			}
 		}
 	}
@@ -409,10 +406,10 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			db.Email.TextBody.Set(bodyText),
 			db.Email.HTMLBody.Set(bodyHTML),
 			db.Email.RawBody.Set(bodyRaw),
+			db.Email.Headers.Set(mailHeaders),
 			db.Email.Inbox.Link(db.Mailbox.ID.Equals(box.ID)),
 			db.Email.Trusted.Set(contains(mail.Flags, imap.FlagNotJunk)),
 			append([]db.EmailSetParam{
-				db.Email.Headers.Set(mailHeaders),
 				db.Email.MessageID.SetOptional(messageidOrNull),
 			}, linkReferences...)...,
 		).Exec(ctx)

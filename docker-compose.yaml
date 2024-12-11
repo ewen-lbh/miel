@@ -1,10 +1,4 @@
 services:
-  db:
-    image: postgres:16
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_PASSWORD=dev
   smtp:
     image: mailhog/mailhog
     ports:
@@ -15,4 +9,3 @@ services:
     ports:
       - 6379:6379
       - 8001:8001
-

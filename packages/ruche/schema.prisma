@@ -1,7 +1,6 @@
 generator invertase_prisma {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "postgresqlExtensions", "deno"]
-  output          = "../invertase/prisma"
+  provider = "prisma-client-js"
+  output   = "../invertase/prisma"
 }
 
 generator invertase_pothos {
@@ -15,7 +14,7 @@ generator nectar {
 }
 
 datasource db {
-  provider = "postgresql" // Use your preferred database provider
+  provider = "sqlite" // Use your preferred database provider
   url      = env("DATABASE_URL")
 }
 
@@ -82,7 +81,7 @@ model Mailbox {
   accountId String
 
   /// The type of mailbox (e.g., Inbox, Trashbox, Sentbox).
-  type MailboxType
+  type String
 
   /// Optional name for the mailbox.
   name String
@@ -94,36 +93,18 @@ model Mailbox {
   emails Email[]
 
   /// Account that uses this mailbox as the main mailbox.
-  mainbox     Account[] @relation("AccountMainBox")
+  mainbox   Account[] @relation("AccountMainBox")
   /// Account that uses this mailbox as the trash mailbox.
-  trashbox    Account[] @relation("AccountTrashBox")
+  trashbox  Account[] @relation("AccountTrashBox")
   /// Account that uses this mailbox as the sent mailbox.
-  sentbox     Account[] @relation("AccountSentBox")
+  sentbox   Account[] @relation("AccountSentBox")
   /// Account that uses this mailbox as the drafts mailbox.
-  draftsbox   Account[] @relation("AccountDraftsBox")
+  draftsbox Account[] @relation("AccountDraftsBox")
 
   /// Senders that get sent here by default
   defaultBoxOf Address[] @relation("DefaultInbox")
 
   @@unique([accountId, name, internalUidValidity])
-}
-
-/// Defines the types of mailboxes available.
-enum MailboxType {
-  /// The primary mailbox for incoming emails.
-  INBOX
-
-  /// The mailbox for deleted emails.
-  TRASHBOX
-
-  /// The mailbox for sent emails.
-  SENTBOX
-
-  /// The mailbox for drafts.
-  DRAFTS
-
-  /// A feed-style mailbox for newsletters.
-  FEED
 }
 
 /// Represents an email message.
@@ -172,8 +153,8 @@ model Email {
   /// Clips extracted from the email.
   clips Clip[]
 
-  /// List of headers in the email. Array of [key, value, key, value, ...]
-  headers String[]
+  /// String with all headers (raw).
+  headers String
 
   /// Labels applied to the email.
   labels Label[]
@@ -257,9 +238,6 @@ model Address {
   /// Indicates whether the address is verified (for senders).
   verified Boolean?
 
-  /// The type of address (sender or recipient).
-  type AddressType
-
   /// Bundle all emails sent by this address to a single row
   bundled Boolean @default(false)
 
@@ -280,15 +258,6 @@ model Address {
   lastEmailSentAt DateTime?
 }
 
-/// Defines the types of addresses.
-enum AddressType {
-  /// Represents a sender address.
-  SENDER
-
-  /// Represents a recipient address.
-  RECIPIENT
-}
-
 /// Represents a signature that can be applied to an email.
 model Signature {
   /// Unique identifier for the signature.
@@ -297,11 +266,11 @@ model Signature {
   /// The name of the signature.
   name String
 
-  /// The static content parts
-  staticParts String[]
+  /// The static content parts. JSON-encoded string array
+  staticParts String
 
-  /// The keys of dynamic parts
-  dynamicPartsKeys String[]
+  /// The keys of dynamic parts. JSON-encoded string array
+  dynamicPartsKeys String
 
   /// The account that uses this signature.
   account   Account @relation(fields: [accountId], references: [id])
@@ -371,23 +340,11 @@ model Server {
   token String?
 
   /// The type of server (SMTP, IMAP, etc.).
-  type ServerType
+  type String
 
   /// Accounts that use this server for sending emails.
   senderAccounts Account[] @relation("SenderServer")
 
   /// Accounts that use this server for receiving emails.
   receiverAccounts Account[] @relation("ReceiverServer")
-}
-
-/// Defines the types of email servers.
-enum ServerType {
-  /// Represents an SMTP server for sending emails.
-  SMTP
-
-  /// Represents an IMAP server for receiving emails.
-  IMAP
-
-  /// Represents a Google server (IMAP or custom).
-  Google
 }

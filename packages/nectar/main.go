@@ -19,6 +19,11 @@ var redisClient *redis.Client
 
 var ctx = context.Background()
 
+const (
+	ServerTypeIMAP = "IMAP"
+	ServerTypeSMTP = "SMTP"
+)
+
 func init() {
 	err := godotenv.Load()
 	if err != nil {
@@ -64,7 +69,7 @@ func main() {
 			db.Server.Port.Set(receiverPort),
 			db.Server.Secure.Set(os.Args[6] == "secure"),
 			db.Server.Username.Set(os.Args[7]),
-			db.Server.Type.Set(db.ServerTypeImap),
+			db.Server.Type.Set(ServerTypeIMAP),
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create ReceiverServer", err)
@@ -75,7 +80,7 @@ func main() {
 			db.Server.Port.Set(senderPort),
 			db.Server.Secure.Set(os.Args[6] == "secure"),
 			db.Server.Username.Set(os.Args[7]),
-			db.Server.Type.Set(db.ServerTypeSMTP),
+			db.Server.Type.Set(ServerTypeSMTP),
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create SenderServer", err)

@@ -10,8 +10,6 @@
 	import GrowableTextarea from '$lib/components/GrowableTextarea.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
 	import Pill from '$lib/components/Pill.svelte';
-	import Submenu from '$lib/components/Submenu.svelte';
-	import UnwrappingIframe from '$lib/components/UnwrappingIframe.svelte';
 	import { formatDateTimeSmart } from '$lib/dates';
 	import { allLoaded, loaded, loading, mapLoading, onceAllLoaded, onceLoaded } from '$lib/loading';
 	import LoadingText from '$lib/LoadingText.svelte';

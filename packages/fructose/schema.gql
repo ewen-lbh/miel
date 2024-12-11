@@ -71,11 +71,6 @@ type Address implements Node {
   verified: Boolean
 }
 
-enum AddressType {
-  RECIPIENT
-  SENDER
-}
-
 type Attachment implements Node {
   """The MIME type of the attachment."""
   contentType: String!
@@ -267,7 +262,7 @@ type Mailbox implements Node {
 
 type MailboxConnection {
   edges: [MailboxEdge!]!
-  nodes: [MailboxType!]!
+  nodes: [Mailbox!]!
   pageInfo: PageInfo!
 }
 
@@ -285,15 +280,22 @@ type MailboxDefaultOfConnectionEdge {
 
 type MailboxEdge {
   cursor: String!
-  node: MailboxType!
+  node: Mailbox!
+}
+
+"""Input type for creating or updating a mailbox"""
+input MailboxInput {
+  account: EmailAddress
+  name: String
+  type: MailboxType
 }
 
 enum MailboxType {
-  DRAFTS
-  FEED
-  INBOX
-  SENTBOX
-  TRASHBOX
+  Drafts
+  Feed
+  Inbox
+  Sent
+  Trash
 }
 
 type Mutation {
@@ -320,6 +322,11 @@ type Mutation {
     to: EmailAddress!
   ): MutationSendEmailResult!
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
+  upsertMailbox(
+    """Leave empty to create a new mailbox"""
+    id: ID
+    input: MailboxInput!
+  ): MutationUpsertMailboxResult!
 }
 
 union MutationRenameEmailResult = Email | Error | ZodError
@@ -329,6 +336,8 @@ union MutationScreenToResult = Address | Error | ZodError
 union MutationSendEmailResult = Address | Error | ZodError
 
 union MutationUpsertAccountResult = Account | Error | ZodError
+
+union MutationUpsertMailboxResult = Error | Mailbox | ZodError
 
 interface Node {
   id: ID!

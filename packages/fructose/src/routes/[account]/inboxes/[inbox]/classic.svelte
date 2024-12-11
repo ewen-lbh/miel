@@ -6,6 +6,7 @@
 	import Submenu from '$lib/components/Submenu.svelte';
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import { infinitescroll } from '$lib/scroll';
+	import Header from './Header.svelte';
 
 	interface Props {
 		data: PageInboxStore;
@@ -20,6 +21,7 @@
 			{#if !account?.inbox}
 				<p>Oops! No inbox with ID {$page.params.inbox} exists for this account.</p>
 			{:else}
+				<Header inbox={account.inbox} />
 				<main use:infinitescroll={async () => PageInbox.loadNextPage()}>
 					<Submenu>
 						{#each account.inbox.emails.edges as { node: email }}

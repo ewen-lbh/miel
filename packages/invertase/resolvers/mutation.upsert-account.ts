@@ -41,6 +41,12 @@ builder.mutationField(fieldName(), (t) =>
         create: {
           address,
           name: enforceNonNull(input.name),
+          receiverAuth: {
+            create: {
+              username: enforceNonNull(input.username ?? address),
+              password: enforceNonNull(input.password),
+            },
+          },
           receiverServer: {
             create: {
               type: "IMAP",
@@ -48,7 +54,6 @@ builder.mutationField(fieldName(), (t) =>
               port: input.port,
               secure: input.tls,
               username: enforceNonNull(input.username ?? address),
-              password: enforceNonNull(input.password),
             },
           },
         },

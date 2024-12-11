@@ -5,6 +5,7 @@ const NeedsUnroll = graphql(`
 	query PageInboxNeedsUnrolling($account: EmailAddress!, $inbox: ID!) {
 		account(address: $account) {
 			inbox(id: $inbox) {
+				...InboxHeader
 				type
 			}
 		}
@@ -15,6 +16,7 @@ graphql(`
 	query PageInbox($account: EmailAddress!, $inbox: ID!) @loading(cascade: true) {
 		account(address: $account) {
 			inbox(id: $inbox) {
+				...InboxHeader
 				id
 				name
 				type

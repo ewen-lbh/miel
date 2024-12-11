@@ -7,6 +7,7 @@
 	import { infinitescroll } from '$lib/scroll';
 	import type { PageData } from './$houdini';
 	import Classic from './classic.svelte';
+	import Header from './Header.svelte';
 	import Unrolled from './unrolled.svelte';
 
 	let { data }: { data: PageData } = $props();

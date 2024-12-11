@@ -10,6 +10,14 @@ import (
 	"github.com/emersion/go-imap/v2"
 )
 
+const (
+	MailboxTypeInbox  = "INBOX"
+	MailboxTypeTrash  = "TRASH"
+	MailboxTypeDrafts = "DRAFTS"
+	MailboxTypeSent   = "SENT"
+	MailboxTypeFeed   = "FEED"
+)
+
 func (c *LoggedInAccount) SyncInboxes() (err error) {
 	acct, err := prisma.Account.FindUnique(db.Account.ID.Equals(c.account.ID)).With(
 		db.Account.ReceiverServer.Fetch(),
@@ -66,7 +74,7 @@ func (c *LoggedInAccount) SyncInboxes() (err error) {
 			}
 		}
 
-		if _, ok := acct.Trashbox(); !ok && dbBox.Type == db.MailboxTypeTrashbox {
+		if _, ok := acct.Trashbox(); !ok && dbBox.Type == MailboxTypeTrash {
 			_, err = prisma.Account.FindUnique(db.Account.ID.Equals(c.account.ID)).Update(
 				db.Account.Trashbox.Link(db.Mailbox.ID.Equals(dbBox.ID)),
 			).Exec(ctx)
@@ -76,7 +84,7 @@ func (c *LoggedInAccount) SyncInboxes() (err error) {
 			}
 		}
 
-		if _, ok := acct.Draftsbox(); !ok && dbBox.Type == db.MailboxTypeDrafts {
+		if _, ok := acct.Draftsbox(); !ok && dbBox.Type == MailboxTypeDrafts {
 			_, err = prisma.Account.FindUnique(db.Account.ID.Equals(c.account.ID)).Update(
 				db.Account.Draftsbox.Link(db.Mailbox.ID.Equals(dbBox.ID)),
 			).Exec(ctx)
@@ -86,7 +94,7 @@ func (c *LoggedInAccount) SyncInboxes() (err error) {
 			}
 		}
 
-		if _, ok := acct.Sentbox(); !ok && dbBox.Type == db.MailboxTypeSentbox {
+		if _, ok := acct.Sentbox(); !ok && dbBox.Type == MailboxTypeSent {
 			_, err = prisma.Account.FindUnique(db.Account.ID.Equals(c.account.ID)).Update(
 				db.Account.Sentbox.Link(db.Mailbox.ID.Equals(dbBox.ID)),
 			).Exec(ctx)
@@ -109,15 +117,15 @@ func inferIsMainInbox(mailbox *imap.ListData) bool {
 	return mailbox.Mailbox == "INBOX"
 }
 
-func inferMailboxType(mailbox *imap.ListData) db.MailboxType {
+func inferMailboxType(mailbox *imap.ListData) string {
 	switch mailbox.Mailbox {
 	case "Trash", "Junk", "Archive":
-		return db.MailboxTypeTrashbox
+		return MailboxTypeTrash
 	case "Drafts":
-		return db.MailboxTypeDrafts
+		return MailboxTypeDrafts
 	case "Sent":
-		return db.MailboxTypeSentbox
+		return MailboxTypeSent
 	default:
-		return db.MailboxTypeInbox
+		return MailboxTypeInbox
 	}
 }

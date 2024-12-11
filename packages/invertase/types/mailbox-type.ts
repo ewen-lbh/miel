@@ -1,7 +1,14 @@
 import { builder } from "../builder"
-import * as Prisma from "../prisma"
-import { graphinx, typeName } from "../utils"
+import { typeName } from "../utils"
 
-export const MailboxTypeType = builder.enumType(Prisma.MailboxType, {
+export enum MailboxTypeEnum {
+  Inbox = "INBOX",
+  Trash = "TRASH",
+  Drafts = "DRAFTS",
+  Sent = "SENT",
+  Feed = "FEED",
+}
+
+export const MailboxTypeType = builder.enumType(MailboxTypeEnum, {
   name: typeName(),
 })

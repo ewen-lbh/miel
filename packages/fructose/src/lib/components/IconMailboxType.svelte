@@ -1,12 +1,31 @@
+<script lang="ts" module>
+	export const colorclass = (type: MailboxType$options) => {
+		if (!loaded(type)) return '';
+		switch (type) {
+			case 'Trash':
+				return 'danger';
+			case 'Inbox':
+				return '';
+			case 'Feed':
+				return 'primary';
+			case 'Sent':
+				return 'success';
+			case 'Drafts':
+				return 'warning';
+			default:
+				return '';
+		}
+	};
+</script>
+
 <script lang="ts">
 	import type { MailboxType$options } from '$houdini';
+	import { loaded, onceLoaded, type MaybeLoading } from '$lib/loading';
 	import IconTrash from '~icons/msl/delete-outline';
+	import IconDrafts from '~icons/msl/edit-document-outline';
 	import IconBox from '~icons/msl/markunread-mailbox-outline';
 	import IconFeed from '~icons/msl/newsmode-outline';
 	import IconSent from '~icons/msl/send-outline';
-	import IconDrafts from '~icons/msl/edit-document-outline';
-	import IconScreener from '~icons/msl/thumbs-up-down-outline';
-	import { loaded, type MaybeLoading } from '$lib/loading';
 
 	interface Props {
 		type: MaybeLoading<MailboxType$options>;
@@ -19,40 +38,18 @@
 	let Icon = $derived.by(() => {
 		if (!loaded(type)) return null;
 		switch (type) {
-			case 'TRASHBOX':
+			case 'Trash':
 				return IconTrash;
-			case 'INBOX':
+			case 'Inbox':
 				return IconBox;
-			case 'FEED':
+			case 'Feed':
 				return IconFeed;
-			case 'SENTBOX':
+			case 'Sent':
 				return IconSent;
-			case 'DRAFTS':
+			case 'Drafts':
 				return IconDrafts;
-			case 'SCREENER':
-				return IconScreener;
 			default:
 				return null;
-		}
-	});
-
-	let colorclass = $derived.by(() => {
-		if (!loaded(type)) return '';
-		switch (type) {
-			case 'TRASHBOX':
-				return 'danger';
-			case 'INBOX':
-				return '';
-			case 'FEED':
-				return 'primary';
-			case 'SENTBOX':
-				return 'success';
-			case 'DRAFTS':
-				return 'warning';
-			case 'SCREENER':
-				return 'muted';
-			default:
-				return '';
 		}
 	});
 
@@ -60,7 +57,7 @@
 	$inspect(type);
 </script>
 
-<div class="mailbox-icon {inheritcolors ? '' : colorclass}">
+<div class="mailbox-icon {inheritcolors ? '' : onceLoaded(type, colorclass, '')}">
 	{#if Icon}
 		<Icon />
 	{/if}

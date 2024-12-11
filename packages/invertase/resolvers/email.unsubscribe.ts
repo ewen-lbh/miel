@@ -21,7 +21,7 @@ builder.prismaObjectField(EmailType, fieldName(), (t) =>
   })
 )
 
-export function unsubscribeLinkFromHeaders(headers: string[]) {
+export function unsubscribeLinkFromHeaders(headers: string) {
   const listUnsubscribe = firstHeaderValue(headers, "List-Unsubscribe")
   if (!listUnsubscribe) return undefined
 

@@ -3,3 +3,5 @@ packages/invertase/prisma
 packages/invertase/pothos-types.d.ts
 .env
 packages/nectar/attachments
+*.sqlite3
+*.sqlite3-journal
