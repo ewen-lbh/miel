@@ -129,7 +129,7 @@ export function storageUrl(storagePath: string) {
     path
       .relative(diskLocation, path.resolve(storagePath))
       .replace("invertase/", "storage/"),
-    "http://localhost:4000"
+    "https://miel.gwen.works"
   ).toString()
 }
 

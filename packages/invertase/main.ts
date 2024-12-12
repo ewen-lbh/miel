@@ -7,6 +7,9 @@ import helmet from "helmet"
 import { WebSocketServer } from "ws"
 import { schema } from "./write-schema.ts"
 import { context } from "./builder.ts"
+import * as dotenv from 'dotenv'
+
+dotenv.config()
 
 const yoga = createYoga({
   schema,
@@ -28,7 +31,7 @@ server.use(
 )
 
 server.use("/graphql", yoga.handle)
-const apiServer = server.listen(4000, () => {
+const apiServer = server.listen(4111, () => {
   console.info("Server is running on http://localhost:4000/graphql")
   const apiWS = new WebSocketServer({ server: apiServer, path: "/graphql" })
   GraphQLWS.useServer({ schema, context }, apiWS)

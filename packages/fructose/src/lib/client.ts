@@ -53,7 +53,7 @@ const subscriptionPlugin = subscription(({ session }) =>
 );
 
 export default new HoudiniClient({
-	url: 'http://localhost:4000/graphql',
+	url: env.PUBLIC_API_URL,
 	plugins: [logger, subscriptionPlugin],
 	fetchParams({ session }) {
 		console.log('fetchParams ogrejoigjreoigjr    ');

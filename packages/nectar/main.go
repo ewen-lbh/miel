@@ -47,6 +47,7 @@ func main() {
 		prisma.Email.FindMany().Delete().Exec(ctx)
 		prisma.Address.FindMany().Delete().Exec(ctx)
 		prisma.Mailbox.FindMany().Delete().Exec(ctx)
+		prisma.Account.FindMany().Delete().Exec(ctx)
 	}
 
 	CreateAccount(os.Args)

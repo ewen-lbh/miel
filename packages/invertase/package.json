@@ -39,6 +39,7 @@
     "@types/node": "^22.10.1",
     "@types/nodemailer": "^6.4.17",
     "@types/ws": "^8.5.13",
+    "dotenv": "^16.4.7",
     "graphinx": "^0.12.2",
     "nodemon": "^3.1.7",
     "tsx": "^4.19.2"
