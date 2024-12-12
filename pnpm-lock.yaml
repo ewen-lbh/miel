@@ -1,16 +1,19 @@
-lockfileVersion: '6.0'
+lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  fructose:
-    specifier: link:packages/fructose
-    version: link:packages/fructose
-  invertase:
-    specifier: link:packages/invertase
-    version: link:packages/invertase
-  ruche:
-    specifier: link:packages/ruche
-    version: link:packages/ruche
+importers:
+
+  .:
+    dependencies:
+      fructose:
+        specifier: link:packages/fructose
+        version: link:packages/fructose
+      invertase:
+        specifier: link:packages/invertase
+        version: link:packages/invertase
+      ruche:
+        specifier: link:packages/ruche
+        version: link:packages/ruche
