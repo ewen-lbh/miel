@@ -1,6 +1,6 @@
 import { builder, prisma } from "../builder"
 import { AccountType, EmailAddressType } from "../schema"
-import { enforceNonNull, fieldName } from "../utils"
+import { enforceNonNull, ensureLoggedIn, fieldName } from "../utils"
 
 const ServerInput = builder.inputType("ServerInput", {
   fields: (t) => ({
@@ -35,10 +35,15 @@ builder.mutationField(fieldName(), (t) =>
         }),
       }),
     },
-    async resolve(query, _, { address, input: { name, receiver, sender } }) {
+    async resolve(
+      query,
+      _,
+      { address, input: { name, receiver, sender } },
+      { session }
+    ) {
       return prisma.account.upsert({
         ...query,
-        where: { address },
+        where: { address, userId: ensureLoggedIn(session).userId },
         update: {
           name: name ?? undefined,
           receiverServer: {
@@ -76,6 +81,7 @@ builder.mutationField(fieldName(), (t) =>
         },
         create: {
           address,
+          user: { connect: { id: ensureLoggedIn(session).userId } },
           name: enforceNonNull(name),
           receiverAuth: {
             create: {

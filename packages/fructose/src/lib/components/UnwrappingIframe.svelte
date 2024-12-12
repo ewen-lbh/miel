@@ -10,6 +10,7 @@
 
 	let mailContentFrame: HTMLIFrameElement | undefined = $state();
 	let unwrapInterval: number | NodeJS.Timeout | undefined = $state();
+	let unwraps = $state(0);
 
 	const { html: htmlContent, cidSourceUrlTemplate }: Props = $props();
 
@@ -35,6 +36,11 @@
 	});
 
 	async function unwrapFrame() {
+		unwraps++;
+		if (unwraps > 10) {
+			clearInterval(unwrapInterval as number);
+			return;
+		}
 		if (!mailContentFrame?.contentDocument?.body) return;
 		const frameBody = mailContentFrame.contentDocument.body;
 

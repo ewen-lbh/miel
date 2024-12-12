@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql"
 import * as mailer from "nodemailer"
 import { builder, prisma } from "../builder"
 import { AddressType, EmailAddressType, EmailType } from "../schema"
-import { fieldName } from "../utils"
+import { ensureLoggedIn, fieldName } from "../utils"
 
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
@@ -25,10 +25,10 @@ builder.mutationField(fieldName(), (t) =>
       subject: t.arg.string({ required: true }),
       body: t.arg.string({ required: true }),
     },
-    async resolve(query, _, args) {
+    async resolve(query, _, args, { session }) {
       const { senderAuth, senderServer, address } =
         await prisma.account.findUniqueOrThrow({
-          where: { address: args.from },
+          where: { address: args.from, userId: ensureLoggedIn(session).userId },
           include: {
             senderServer: true,
             senderAuth: true,
@@ -53,6 +53,7 @@ builder.mutationField(fieldName(), (t) =>
       console.log({ senderServer })
 
       const transport = mailer.createTransport({
+        // @ts-expect-error host is not in the types
         host: senderServer.host,
         port: senderServer.port,
         secureConnection: !senderServer.secure,

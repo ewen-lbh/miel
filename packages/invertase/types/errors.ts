@@ -1,5 +1,6 @@
 import { ZodError, type ZodFormattedError } from "zod"
 import { builder } from "../builder"
+import { UnauthorizedError } from "../lib/auth"
 
 const ErrorInterface = builder.interfaceRef<Error>("ErrorInterface").implement({
   description: "Basic interface for all error types to implement.",
@@ -61,4 +62,10 @@ export const ZodErrorType = builder.objectType(ZodError, {
       resolve: (error) => flattenErrors(error.format(), []),
     }),
   }),
+})
+
+builder.objectType(UnauthorizedError, {
+  name: "UnauthorizedError",
+  description: "An error representing an unauthorized request.",
+  interfaces: [ErrorInterface],
 })

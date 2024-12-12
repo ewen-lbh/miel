@@ -18,10 +18,41 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// Represents a user of the application. One user can have multiple (mail) accounts, but a user represents a single Miel account.
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  sessions     Session[]
+  Account      Account[]
+
+  /// Emails this user can see 
+  emails Email[] @relation("EmailUsers")
+
+  /// Addresses this user can see
+  addresses Address[] @relation("AddressUsers")
+
+  /// Labels this user has created
+  labels Label[]
+}
+
+/// Represents a session for a user.
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+
+  user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
 /// Represents a user account with associated mailboxes and server configurations.
 model Account {
   /// Unique identifier for the account.
   id String @id @default(cuid())
+
+  /// User associated with the account.
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
 
   /// The email address of the account.
   address String @unique
@@ -174,8 +205,11 @@ model Email {
   threadReplies Email[] @relation("ThreadEmails")
 
   /// The server that received that email
-  receiver Server? @relation(fields: [receiverId], references: [id])
+  receiver   Server? @relation(fields: [receiverId], references: [id])
   receiverId String?
+
+  /// Users that can view this email
+  users User[] @relation("EmailUsers")
 
   @@unique([inboxId, internalUid])
 }
@@ -260,6 +294,9 @@ model Address {
 
   /// Last email sent at date. Used for sorting
   lastEmailSentAt DateTime?
+
+  /// Users that can view this address
+  users User[] @relation("AddressUsers")
 }
 
 /// Represents a signature that can be applied to an email.
@@ -297,9 +334,13 @@ model Label {
 
   /// Emails with this label.
   emails Email[]
+
+  /// User that created this label.
+  user   User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId String
 }
 
-///:Credentials to authenticate against a server
+/// Credentials to authenticate against a server
 model ServerAuth {
   /// Unique identifier for the server auth.
   id String @id @default(cuid())

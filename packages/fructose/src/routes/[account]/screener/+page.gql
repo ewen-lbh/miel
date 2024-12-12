@@ -17,7 +17,7 @@ query PageScreener($account: EmailAddress!) @loading(cascade: true) {
 			id
 		}
 	}
-	screenings(first: 5) @paginate {
+	screenings(first: 5, account: $account) @paginate {
 		edges {
 			node {
 				id

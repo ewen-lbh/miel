@@ -120,8 +120,8 @@ func (c *LoggedInAccount) ResyncAccount(accountId string) error {
 }
 
 func CreateAccount(args []string) {
-	// Create account via CLI: account create <host> <sender port> <receiver port> <secure|insecure> <username> <password>
-	if len(args) == 9 && args[1] == "account" && args[2] == "create" {
+	// Create account via CLI: account create <host> <sender port> <receiver port> <secure|insecure> <username> <password> <user id>
+	if len(args) == 10 && args[1] == "account" && args[2] == "create" {
 		senderPort, err := strconv.Atoi(args[4])
 		if err != nil {
 			ll.ErrorDisplay("invalid sender port number", err)
@@ -143,6 +143,7 @@ func CreateAccount(args []string) {
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create ReceiverServer", err)
+			return
 		}
 
 		sender, err := prisma.Server.CreateOne(
@@ -154,6 +155,7 @@ func CreateAccount(args []string) {
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create SenderServer", err)
+			return
 		}
 
 		auth, err := prisma.ServerAuth.CreateOne(
@@ -162,9 +164,11 @@ func CreateAccount(args []string) {
 		).Exec(ctx)
 		if err != nil {
 			ll.ErrorDisplay("couldn't create ServerAuth", err)
+			return
 		}
 
 		_, err = prisma.Account.CreateOne(
+			db.Account.User.Link(db.User.Email.Equals(args[9])),
 			db.Account.Address.Set(args[7]),
 			db.Account.Name.Set(args[3]),
 			db.Account.ReceiverServer.Link(db.Server.ID.Equals(receiver.ID)),

@@ -1,6 +1,8 @@
+import { browser } from '$app/environment';
 import { env } from '$env/dynamic/public';
 import type { ClientPlugin } from '$houdini';
 import { HoudiniClient, subscription } from '$houdini';
+import { parse } from 'cookie';
 import { createClient } from 'graphql-ws';
 
 const logger: ClientPlugin = () => ({
@@ -52,5 +54,17 @@ const subscriptionPlugin = subscription(({ session }) =>
 
 export default new HoudiniClient({
 	url: 'http://localhost:4000/graphql',
-	plugins: [logger, subscriptionPlugin]
+	plugins: [logger, subscriptionPlugin],
+	fetchParams({ session }) {
+		console.log('fetchParams ogrejoigjreoigjr    ');
+		const cookies = browser ? parse(document.cookie) : {};
+		const token = session?.token ?? cookies.token;
+		console.log({ cookies, session, token });
+		return {
+			credentials: 'include',
+			headers: {
+				Authorization: token ? `Bearer ${token}` : ''
+			}
+		};
+	}
 });

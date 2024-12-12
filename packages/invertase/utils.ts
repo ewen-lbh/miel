@@ -1,9 +1,10 @@
 import { DirectiveLocation } from "@graphql-tools/utils"
-import * as cheerio from "cheerio"
 import { GraphQLDirective, GraphQLError, GraphQLString } from "graphql"
 import { camelCase, upperFirst } from "lodash-es"
 import path from "node:path"
 import * as util from "node:util"
+import { PothosTypes } from "./builder"
+import { UnauthorizedError } from "./lib/auth"
 
 /**
  * Return the name to use as the GraphQL field name from the file's name.
@@ -130,4 +131,12 @@ export function storageUrl(storagePath: string) {
       .replace("invertase/", "storage/"),
     "http://localhost:4000"
   ).toString()
+}
+
+export function ensureLoggedIn(
+  session: PothosTypes["Context"]["session"],
+  errorMessage = "You must be logged in"
+): NonNullable<PothosTypes["Context"]["session"]> {
+  if (!session) throw new UnauthorizedError(errorMessage)
+  return session
 }

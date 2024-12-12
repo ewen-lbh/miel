@@ -11,10 +11,13 @@ import RelayPlugin from "@pothos/plugin-relay"
 import type PrismaTypes from "./pothos-types.d.ts"
 import { GraphinxDirective } from "./utils.ts"
 import { pubsub } from "./lib/pubsub.ts"
+import { YogaInitialContext } from "graphql-yoga"
+import { UnauthorizedError, validateSessionToken } from "./lib/auth.ts"
 
 export const prisma = new PrismaClient({})
 
 export type PothosTypes = {
+  Context: Awaited<ReturnType<typeof context>>
   PrismaTypes: PrismaTypes
   DefaultFieldNullability: false
   DefaultNodeNullability: false
@@ -56,7 +59,7 @@ export const builder = new SchemaBuilder<PothosTypes>({
   ],
   defaultFieldNullability: false,
   errors: {
-    defaultTypes: [Error, ZodError],
+    defaultTypes: [Error, ZodError, UnauthorizedError],
     directResult: true,
   },
   smartSubscriptions: subscribeOptionsFromIterator((name) =>
@@ -89,3 +92,12 @@ export const builder = new SchemaBuilder<PothosTypes>({
 builder.queryType({})
 builder.mutationType({})
 builder.subscriptionType({})
+
+export async function context({ request }: YogaInitialContext) {
+  const match = /^\s*[Bb]earer (.+)$/.exec(
+    request.headers.get("Authorization") || ""
+  )
+  const token = match ? match[1] : null
+  if (!token) return { session: undefined }
+  return await validateSessionToken(token)
+}

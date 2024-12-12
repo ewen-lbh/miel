@@ -318,6 +318,8 @@ enum MailboxType {
 }
 
 type Mutation {
+  login(email: String!, password: String!): MutationLoginResult!
+  logout(token: String): MutationLogoutResult!
   moveToInbox(email: ID!, inbox: ID!): MutationMoveToInboxResult!
   """Change an email's subject"""
   renameEmail(email: ID!, subject: String!): MutationRenameEmailResult!
@@ -341,6 +343,10 @@ type Mutation {
     subject: String!
     to: EmailAddress!
   ): MutationSendEmailResult!
+  """
+  Can also be used to change a password, by being logged-in and providing the new password and the email
+  """
+  signup(email: String!, password: String!): MutationSignupResult!
   upsertAccount(address: EmailAddress!, input: AccountInput!): MutationUpsertAccountResult!
   upsertMailbox(
     """Leave empty to create a new mailbox"""
@@ -349,17 +355,28 @@ type Mutation {
   ): MutationUpsertMailboxResult!
 }
 
-union MutationMoveToInboxResult = Email | Error | ZodError
+union MutationLoginResult = Error | NewSession | UnauthorizedError | ZodError
 
-union MutationRenameEmailResult = Email | Error | ZodError
+union MutationLogoutResult = Error | Session | UnauthorizedError | ZodError
 
-union MutationScreenToResult = Address | Error | ZodError
+union MutationMoveToInboxResult = Email | Error | UnauthorizedError | ZodError
 
-union MutationSendEmailResult = Address | Error | ZodError
+union MutationRenameEmailResult = Email | Error | UnauthorizedError | ZodError
 
-union MutationUpsertAccountResult = Account | Error | ZodError
+union MutationScreenToResult = Address | Error | UnauthorizedError | ZodError
 
-union MutationUpsertMailboxResult = Error | Mailbox | ZodError
+union MutationSendEmailResult = Address | Error | UnauthorizedError | ZodError
+
+union MutationSignupResult = Error | NewSession | UnauthorizedError | ZodError
+
+union MutationUpsertAccountResult = Account | Error | UnauthorizedError | ZodError
+
+union MutationUpsertMailboxResult = Error | Mailbox | UnauthorizedError | ZodError
+
+type NewSession {
+  token: String!
+  userId: ID!
+}
 
 interface Node {
   id: ID!
@@ -468,6 +485,12 @@ enum ServerType {
   SMTP
 }
 
+"""Represents a session for a user."""
+type Session implements Node {
+  id: ID!
+  userId: ID!
+}
+
 type Subscription {
   emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
   """Check if the daemon listening for new mail is running."""
@@ -489,6 +512,30 @@ type Subscription {
 Une adresse internet (URL). Les protocoles autorisés sont: http:, https:, mailto:, tel:
 """
 scalar URL
+
+"""An error representing an unauthorized request."""
+type UnauthorizedError implements ErrorInterface {
+  message: String!
+}
+
+"""
+Represents a user of the application. One user can have multiple (mail) accounts, but a user represents a single Miel account.
+"""
+type User implements Node {
+  id: ID!
+  sessions(after: String, before: String, first: Int, last: Int): UserSessionsConnection!
+}
+
+type UserSessionsConnection {
+  edges: [UserSessionsConnectionEdge!]!
+  nodes: [Session!]!
+  pageInfo: PageInfo!
+}
+
+type UserSessionsConnectionEdge {
+  cursor: String!
+  node: Session!
+}
 
 """A validation error, as a list of field errors."""
 type ZodError implements ErrorInterface {

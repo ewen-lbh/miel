@@ -413,6 +413,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			append([]db.EmailSetParam{
 				db.Email.Receiver.Link(db.Server.ID.Equals(c.account.ReceiverServerID)),
 				db.Email.MessageID.SetOptional(messageidOrNull),
+				db.Email.Users.Link(db.User.ID.Equals(c.account.UserID)),
 			}, linkReferences...)...,
 		).Exec(ctx)
 

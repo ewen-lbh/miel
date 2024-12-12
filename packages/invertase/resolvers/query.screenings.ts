@@ -24,14 +24,34 @@ builder.queryField(fieldName(), (t) =>
     async totalCount(_, { account }) {
       return await prisma.address.count({
         where: {
+          sentEmails: account
+            ? {
+                some: {
+                  receiver: {
+                    receiverAccounts: { some: { address: account } },
+                  },
+                },
+              }
+            : undefined,
           defaultInbox: null,
         },
       })
     },
-    async resolve(query) {
+    async resolve(query, _, { account }) {
       return prisma.address.findMany({
         ...query,
-        where: { defaultInbox: null, sentEmails: { some: {} } },
+        where: {
+          defaultInbox: null,
+          sentEmails: {
+            some: account
+              ? {
+                  receiver: {
+                    receiverAccounts: { some: { address: account } },
+                  },
+                }
+              : {},
+          },
+        },
         orderBy: { lastEmailSentAt: "desc" },
       })
     },

@@ -8,6 +8,9 @@ graphql(`
 		... on Error {
 			message
 		}
+		... on UnauthorizedError {
+			message
+		}
 		... on ZodError {
 			fieldErrors {
 				path
@@ -49,6 +52,10 @@ type OperationResult<SuccessData, CaveatsKeys extends CaveatKey, Fragments, Type
 	| SuccessWithCaveats<CaveatsKeys, SuccessData, Fragments, Typename>
 	| {
 			__typename: 'Error';
+			message: string;
+	  }
+	| {
+			__typename: 'UnauthorizedError';
 			message: string;
 	  }
 	| {
@@ -131,6 +138,7 @@ export function operationErrorMessages<T, CaveatsKeys extends CaveatKey, Fragmen
 	operationResult: undefined | OperationResult<T, CaveatsKeys, Fragments, Typename>,
 	recursing = false
 ): string[] {
+	console.log({ result, operationResult });
 	if (operationResult) {
 		// @ts-expect-error weird dark magic to get mutation error when it's behind a fragment -- flemme de foutre des @mask_disable partout
 		if ('MutationErrors' in (operationResult[' $fragments']?.values ?? {})) {
@@ -139,8 +147,11 @@ export function operationErrorMessages<T, CaveatsKeys extends CaveatKey, Fragmen
 			const operationResultData = get(
 				fragment(operationResult as MutationErrors, new MutationErrorsStore())
 			);
+			// @ts-expect-error
+			delete operationResultData[' $fragments'];
 			return operationErrorMessages(result, operationResultData, true);
 		} else {
+			console.log({ operationResult });
 			return operationResult && 'fieldErrors' in operationResult
 				? operationResult.fieldErrors.map(
 						({ path, message }) =>
