@@ -208,6 +208,9 @@ model Email {
   receiver   Server? @relation(fields: [receiverId], references: [id])
   receiverId String?
 
+  /// Email was screened into a box
+  processed Boolean @default(false)
+
   /// Users that can view this email
   users User[] @relation("EmailUsers")
 

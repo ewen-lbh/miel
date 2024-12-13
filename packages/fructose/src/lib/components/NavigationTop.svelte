@@ -67,7 +67,7 @@
 
 	$: backHref = $page.url.searchParams.get('from') ?? back;
 
-	const mobile = isMobile();
+	const mobile = $derived($isMobile);
 </script>
 
 <svelte:window

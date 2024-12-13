@@ -26,7 +26,7 @@
 
 	export let theme: 'default' | 'primary' | 'success' | 'danger' | 'warning' = 'default';
 
-	const mobile = isMobile();
+	const mobile = $derived($isMobile);
 
 	let element: HTMLDivElement;
 

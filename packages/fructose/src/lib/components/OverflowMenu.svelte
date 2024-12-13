@@ -34,7 +34,7 @@
 	// eslint-disable-next-line no-undef
 	export let actions: OverflowMenuAction<IconType>[];
 	export let label = '';
-	const mobile = isMobile();
+	const mobile = $derived($isMobile);
 
 	type FlyAndScaleParams = {
 		y?: number;

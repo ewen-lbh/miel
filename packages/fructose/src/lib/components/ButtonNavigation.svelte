@@ -32,7 +32,7 @@
 		children
 	}: Props = $props();
 
-	const mobile = isMobile();
+	const mobile = $derived($isMobile);
 
 	function isPathwiseEqual(a: URL, b: URL) {
 		return a.pathname.replace(/\/$/, '') === b.pathname.replace(/\/$/, '');

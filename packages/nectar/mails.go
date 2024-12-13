@@ -237,6 +237,15 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		return fmt.Errorf("while upserting db-address for sender %s: %w", envelope.From, err)
 	}
 
+	sender, err = prisma.Address.FindUnique(
+		db.Address.ID.Equals(sender.ID),
+	).With(
+		db.Address.DefaultInbox.Fetch(),
+	).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("could not find db-address for sender after upserting: %w", err)
+	}
+
 	recipient, err := prisma.Address.UpsertOne(
 		db.Address.Address.Equals(envelope.To[0].Addr()),
 	).Create(
@@ -459,6 +468,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			}
 		}
 	} else {
+
 		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(
 			append([]db.EmailSetParam{
 				db.Email.Inbox.Link(db.Mailbox.ID.Equals(box.ID)),
@@ -467,6 +477,18 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		).Exec(ctx)
 		if err != nil {
 			return fmt.Errorf("could not update email %q: %w", envelope.Subject, err)
+		}
+	}
+
+	if defaultbox, ok := sender.DefaultInbox(); ok && !dbEmail.Processed {
+		c.Move(imap.SeqSetNum(mail.SeqNum), defaultbox.Name, 3*time.Second)
+
+		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(
+			db.Email.Inbox.Link(db.Mailbox.ID.Equals(defaultbox.ID)),
+			db.Email.Processed.Set(true),
+		).Exec(ctx)
+		if err != nil {
+			return fmt.Errorf("could not mark email %q as processed: %w", envelope.Subject, err)
 		}
 	}
 

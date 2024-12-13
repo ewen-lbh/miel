@@ -6,7 +6,7 @@
 	import NavigationBottom from '$lib/components/NavigationBottom.svelte';
 	import NavigationSide from '$lib/components/NavigationSide.svelte';
 	import NavigationTop, { type NavigationContext } from '$lib/components/NavigationTop.svelte';
-	import { isMobile } from '$lib/mobile';
+	import { inferIsMobile, isMobile } from '$lib/mobile';
 	import { scrollableContainer, setupScrollPositionRestorer } from '$lib/scroll';
 	import { setupViewTransition } from '$lib/view-transitions';
 	import { setContext, type Snippet } from 'svelte';
@@ -16,7 +16,7 @@
 
 	onNavigate(setupViewTransition);
 
-	const mobile = isMobile();
+	const mobile = $derived($isMobile);
 	const { data, children }: { data: PageData; children: Snippet } = $props();
 	const { LayoutRoot } = $derived(data);
 
@@ -40,7 +40,11 @@
 		if (browser && $page.route.id) document.body.dataset.route = $page.route.id;
 	});
 
-	$inspect({ d: $LayoutRoot?.data });
+	$effect(() => {
+		if (!navigator) return false;
+
+		$isMobile = inferIsMobile(navigator.userAgent);
+	});
 </script>
 
 <ToastsArea />
