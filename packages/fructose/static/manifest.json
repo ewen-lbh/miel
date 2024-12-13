@@ -1,0 +1,12 @@
+{
+	"theme_color": "#8936FF",
+	"background_color": "#2EC6FE",
+	"orientation": "any",
+	"display": "standalone",
+	"dir": "auto",
+	"lang": "en-US",
+	"name": "Miel",
+	"short_name": "miel",
+	"start_url": "https://miel.gwen.works",
+	"scope": "https://miel.gwen.works"
+}
