@@ -11,7 +11,7 @@
 	import type { LayoutRouteId } from '../../routes/$types';
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	export type NavigationQuickAction = Omit<ActionData<any>, 'label' | 'icon'| 'overflow'> & {
+	export type NavigationQuickAction = Omit<ActionData<any>, 'label' | 'icon' | 'overflow'> & {
 		mobileOnly?: boolean;
 	} & (
 			| {
@@ -67,7 +67,7 @@
 
 	$: backHref = $page.url.searchParams.get('from') ?? back;
 
-	const mobile = $derived($isMobile);
+	$: mobile = $isMobile;
 </script>
 
 <svelte:window
