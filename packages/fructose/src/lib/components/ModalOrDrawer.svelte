@@ -23,7 +23,7 @@
   /** Signals that the drawer (mobile) should not have bottom padding */
   export let removeBottomPadding = false;
 
-  const mobile = $derived($isMobile);
+  $: mobile = $isMobile;
 
   /** Close the modal without triggering a close event */
   export const implicitClose = () => {
