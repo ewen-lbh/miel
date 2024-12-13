@@ -34,7 +34,7 @@
 	// eslint-disable-next-line no-undef
 	export let actions: OverflowMenuAction<IconType>[];
 	export let label = '';
-	const mobile = $derived($isMobile);
+	$: mobile = $isMobile;
 
 	type FlyAndScaleParams = {
 		y?: number;
@@ -153,7 +153,7 @@
 		background-color: var(--bg);
 		border-radius: var(--radius-block);
 		box-shadow: var(--shadow);
-    user-select: none;
+		user-select: none;
 	}
 
 	:global([data-dialog-trigger]) {
@@ -163,8 +163,8 @@
 		font-size: 1em;
 	}
 
-  :global([data-menu-label]) {
-    padding: 0.5em 1em;
-    color: var(--shy);
-  }
+	:global([data-menu-label]) {
+		padding: 0.5em 1em;
+		color: var(--shy);
+	}
 </style>
