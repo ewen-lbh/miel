@@ -3,8 +3,12 @@ import { GraphQLDirective, GraphQLError, GraphQLString } from "graphql"
 import { camelCase, upperFirst } from "lodash-es"
 import path from "node:path"
 import * as util from "node:util"
-import { PothosTypes } from "./builder"
-import { UnauthorizedError } from "./lib/auth"
+import { PothosTypes } from "./builder.js"
+import {
+  SessionTokenValidateResult as Context,
+  SessionTokenValidateResult,
+  UnauthorizedError,
+} from "./lib/auth.js"
 
 /**
  * Return the name to use as the GraphQL field name from the file's name.
@@ -71,11 +75,28 @@ export function graphinx<T extends string>(module: T) {
   } as const
 }
 
-export function enforceNonNull<T>(value: T | null | undefined): T {
+/**
+ * Enforce that a value is not null or undefined.
+ * @param value the value to check for null or undefined
+ * @param varname a descriptive name for the value
+ * @returns the value if it's not null or undefined
+ * @throws a GraphQLError "${varname} is required" if the value is null or undefined
+ */
+export function enforceNonNull<T>(value: T, varname: string): NonNullable<T> {
   if (value === null || value === undefined) {
-    throw new GraphQLError("This is required")
+    throw new GraphQLError(
+      varname ? `${varname} is required` : "This is required"
+    )
   }
   return value
+}
+
+export function enforceNonNullMember<
+  V,
+  K extends string,
+  O extends { [key in K]?: V }
+>(object: O, key: K) {
+  return enforceNonNull(object[key], key)
 }
 
 /**
@@ -134,9 +155,9 @@ export function storageUrl(storagePath: string) {
 }
 
 export function ensureLoggedIn(
-  session: PothosTypes["Context"]["session"],
+  session: SessionTokenValidateResult["session"],
   errorMessage = "You must be logged in"
-): NonNullable<PothosTypes["Context"]["session"]> {
+): NonNullable<SessionTokenValidateResult["session"]> {
   if (!session) throw new UnauthorizedError(errorMessage)
   return session
 }

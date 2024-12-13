@@ -1,16 +1,19 @@
-import { builder } from "../builder"
-import { typeName } from "../utils"
-import { AddressType } from "./address"
-import { EmailType } from "./email"
-import { EmailConnectionType } from "./email-connection"
-import { MailboxTypeType } from "./mailbox-type"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
+import { AddressType } from "./address.js"
+import { EmailType } from "./email.js"
+import { EmailConnectionType } from "./email-connection.js"
+import { MailboxTypeEnum, MailboxTypeType } from "./mailbox-type.js"
 
 export const MailboxType = builder.prismaNode("Mailbox", {
   id: { field: "id" },
   name: typeName(),
   fields: (t) => ({
     account: t.relation("account"),
-    type: t.expose("type", { type: MailboxTypeType }),
+    type: t.field({
+      type: MailboxTypeType,
+      resolve: (m) => m.type as MailboxTypeEnum,
+    }),
     name: t.string({
       description:
         "The mailbox's name. The special inbox name 'INBOX' is replaced with 'Main'",

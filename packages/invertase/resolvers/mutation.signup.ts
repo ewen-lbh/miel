@@ -1,9 +1,9 @@
 import { hash } from "argon2"
-import { builder, prisma } from "../builder"
-import { SessionType } from "../schema"
-import { fieldName } from "../utils"
-import { generateSessionToken, newSession } from "../lib/auth"
-import { NewSessionType } from "../types/new-session"
+import { builder, prisma } from "../builder.js"
+import { SessionType } from "../schema.js"
+import { fieldName } from "../utils.js"
+import { generateSessionToken, newSession } from "../lib/auth.js"
+import { NewSessionType } from "../types/new-session.js"
 
 builder.mutationField(fieldName(), (t) =>
   t.field({

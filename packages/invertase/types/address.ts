@@ -1,8 +1,8 @@
-import { builder } from "../builder"
-import { typeName } from "../utils"
-import { EmailType } from "./email"
-import { EmailAddressType } from "./email-address"
-import { EmailConnectionType } from "./email-connection"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
+import { EmailType } from "./email.js"
+import { EmailAddressType } from "./email-address.js"
+import { EmailConnectionType } from "./email-connection.js"
 
 export const AddressType = builder.prismaNode("Address", {
   id: { field: "id" },

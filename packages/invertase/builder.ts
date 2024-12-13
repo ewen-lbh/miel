@@ -1,18 +1,18 @@
 import SchemaBuilder from "@pothos/core"
-import { PrismaClient } from "./prisma/index.js"
-import { ZodError } from "zod"
-import PrismaPlugin from "@pothos/plugin-prisma"
 import ErrorsPlugin from "@pothos/plugin-errors"
+import PrismaPlugin from "@pothos/plugin-prisma"
+import RelayPlugin from "@pothos/plugin-relay"
 import SmartSubscriptionsPlugin, {
   subscribeOptionsFromIterator,
 } from "@pothos/plugin-smart-subscriptions"
 import ZodPlugin from "@pothos/plugin-zod"
-import RelayPlugin from "@pothos/plugin-relay"
-import type PrismaTypes from "./pothos-types.d.ts"
-import { GraphinxDirective } from "./utils.ts"
-import { pubsub } from "./lib/pubsub.ts"
 import { YogaInitialContext } from "graphql-yoga"
-import { UnauthorizedError, validateSessionToken } from "./lib/auth.ts"
+import { ZodError } from "zod"
+import { UnauthorizedError, validateSessionToken } from "./lib/auth.js"
+import { pubsub } from "./lib/pubsub.js"
+import type PrismaTypes from "./pothos-types.d.ts"
+import { PrismaClient } from "./prisma/index.js"
+import { ensureLoggedIn, GraphinxDirective } from "./utils.js"
 
 export const prisma = new PrismaClient({})
 
@@ -97,7 +97,12 @@ export async function context({ request }: YogaInitialContext) {
   const match = /^\s*[Bb]earer (.+)$/.exec(
     request.headers.get("Authorization") || ""
   )
-  const token = match ? match[1] : null
-  if (!token) return { session: undefined }
-  return await validateSessionToken(token)
+  const session = await validateSessionToken(match?.[1])
+  return {
+    ...session,
+    get ensuredUserId(): string {
+      console.log({ getEnsuredUserId: this.session })
+      return ensureLoggedIn(this.session).userId
+    },
+  }
 }

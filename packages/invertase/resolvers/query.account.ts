@@ -1,6 +1,6 @@
-import { builder, prisma } from "../builder"
-import { AccountType, EmailAddressType } from "../schema"
-import { fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { AccountType, EmailAddressType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.queryField(fieldName(), (t) =>
   t.prismaField({

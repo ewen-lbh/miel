@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { parseComplexHeader, typeName } from "../utils"
-import { firstHeaderValue } from "./header"
+import { builder } from "../builder.js"
+import { parseComplexHeader, typeName } from "../utils.js"
+import { firstHeaderValue } from "./header.js"
 
 type EmailAuthenticationResult = {
   ok: boolean

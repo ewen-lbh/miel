@@ -1,6 +1,6 @@
-import { builder, prisma } from "../builder"
-import { AddressType } from "../schema"
-import { fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { AddressType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.queryField(fieldName(), (t) =>
   t.prismaConnection({

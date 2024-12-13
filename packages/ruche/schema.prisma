@@ -30,10 +30,11 @@ model User {
   emails Email[] @relation("EmailUsers")
 
   /// Addresses this user can see
-  addresses Address[] @relation("AddressUsers")
+  addresses Address[]
 
   /// Labels this user has created
-  labels Label[]
+  labels  Label[]
+  devices Device[]
 }
 
 /// Represents a session for a user.
@@ -268,7 +269,7 @@ model Address {
   avatarURL String?
 
   /// The email address.
-  address String @unique
+  address String
 
   /// The name associated with the email address.
   name String
@@ -298,8 +299,11 @@ model Address {
   /// Last email sent at date. Used for sorting
   lastEmailSentAt DateTime?
 
-  /// Users that can view this address
-  users User[] @relation("AddressUsers")
+  /// User that can view this address
+  user   User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId String
+
+  @@unique([address, userId])
 }
 
 /// Represents a signature that can be applied to an email.
@@ -398,4 +402,14 @@ model Server {
 
   /// Emails received by this server.
   receivedEmails Email[]
+}
+
+/// A device owned by a user. Holds device-specific information, notably push notification tokens
+model Device {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  notificationsToken String
 }

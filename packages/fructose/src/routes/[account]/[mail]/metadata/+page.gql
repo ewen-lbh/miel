@@ -1,4 +1,7 @@
-query PageEmailMetadata($mail: ID!) @loading {
+query PageEmailMetadata($account: EmailAddress!, $mail: ID!) @loading {
+	account(address: $account) {
+		...FromHeader_Inboxes
+	}
 	email(id: $mail) {
 		subject
 

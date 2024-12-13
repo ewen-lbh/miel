@@ -1,7 +1,7 @@
-import { builder } from "../builder"
-import { typeName } from "../utils"
-import { EmailAddressType } from "./email-address"
-import { MailboxTypeType } from "./mailbox-type"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
+import { EmailAddressType } from "./email-address.js"
+import { MailboxTypeType } from "./mailbox-type.js"
 
 export const MailboxInputType = builder.inputType(typeName(), {
   description: "Input type for creating or updating a mailbox",

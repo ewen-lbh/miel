@@ -1,4 +1,4 @@
-import { builder } from "../builder"
+import { builder } from "../builder.js"
 import { GraphQLError } from "graphql"
 
 export const ALLOWED_URL_PROTOCOLS = ["http:", "https:", "mailto:", "tel:"]

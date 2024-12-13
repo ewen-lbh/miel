@@ -1,6 +1,6 @@
-import { builder, prisma } from "../builder"
-import { typeName } from "../utils"
-import { EmailType } from "./email"
+import { builder, prisma } from "../builder.js"
+import { typeName } from "../utils.js"
+import { EmailType } from "./email.js"
 
 export const HeaderType = builder.objectRef<Header>(typeName()).implement({
   fields: (t) => ({

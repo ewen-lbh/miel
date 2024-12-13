@@ -66,3 +66,7 @@ export const isComponent = (value: any): value is Component =>
 
 export const isSnippet = (value: any): value is Snippet =>
 	value instanceof Function && value.length === 1;
+
+export async function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}

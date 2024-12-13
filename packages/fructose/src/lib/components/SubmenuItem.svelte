@@ -1,4 +1,4 @@
-<script lang="ts" generics="IconArgs extends Record<string, any>">
+<script lang="ts">
 	import { page } from '$app/stores';
 	import LoadingText from '$lib/components/LoadingText.svelte';
 	import type { MaybeLoading } from '$lib/loading';
@@ -35,8 +35,7 @@
 		 * If the string specified here is used as the hash in the URL, the item will be highlighted as active.
 		 */
 		anchor?: `#${string}` | undefined;
-		iconArgs?: IconArgs;
-		icon?: Component<IconArgs> | Snippet | null;
+		icon?: Component | Snippet | null;
 		children?: Snippet;
 		subtext?: Component | MaybeLoading<string> | Snippet;
 		right?: Snippet;

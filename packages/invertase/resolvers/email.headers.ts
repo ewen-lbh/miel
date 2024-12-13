@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { EmailType } from "../types/email"
-import { headersToEntries, HeaderType } from "../types/header"
+import { builder } from "../builder.js"
+import { EmailType } from "../types/email.js"
+import { headersToEntries, HeaderType } from "../types/header.js"
 
 builder.prismaObjectField(EmailType, "headers", (t) =>
   t.field({

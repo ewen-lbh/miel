@@ -1,8 +1,8 @@
-import { builder } from "../builder"
-import { typeName, graphinx } from "../utils"
-import { ColorType } from "./color"
-import { EmailType } from "./email"
-import { EmailConnectionType } from "./email-connection"
+import { builder } from "../builder.js"
+import { typeName, graphinx } from "../utils.js"
+import { ColorType } from "./color.js"
+import { EmailType } from "./email.js"
+import { EmailConnectionType } from "./email-connection.js"
 
 export const LabelType = builder.prismaNode("Label", {
   id: { field: "id" },

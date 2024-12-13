@@ -65,35 +65,26 @@ func main() {
 		return
 	}
 
+	err = StartBackchannelListener()
+	if err != nil {
+		ll.ErrorDisplay("while starting backchannel listener", err)
+		return
+	}
+
 	wg := sync.WaitGroup{}
 
 	for _, acct := range accounts {
 		c, err := CreateIMAPClient(acct.ID)
 		if err != nil {
 			ll.ErrorDisplay("while creating imap client", err)
-			return
+			continue
 		}
 
-		err = c.SyncInboxes()
+		err = c.SyncAccount()
 		if err != nil {
-			ll.ErrorDisplay("could not sync inboxes for %s", err, acct.ID)
-			return
+			ll.ErrorDisplay("while syncing account", err)
+			continue
 		}
-
-		inboxes, err := prisma.Mailbox.FindMany(db.Mailbox.AccountID.Equals(acct.ID)).Exec(ctx)
-		if err != nil {
-			ll.ErrorDisplay("could not get mailboxes for %s from db: %w", err, acct.ID)
-			return
-		}
-
-		for _, inbox := range inboxes {
-			err = c.SyncMails(inbox.ID)
-			if err != nil {
-				ll.WarnDisplay("could not sync mails for %s: %w", err, inbox.ID)
-			}
-		}
-
-		ll.Log("Done", "green", "syncing inboxes and mails")
 
 		wg.Add(1)
 		go func(c *LoggedInAccount, wg *sync.WaitGroup) {
@@ -104,7 +95,30 @@ func main() {
 				wg.Done()
 			}
 		}(c, &wg)
+
 	}
 
 	wg.Wait()
+}
+
+func (c *LoggedInAccount) SyncAccount() error {
+	err := c.SyncInboxes()
+	if err != nil {
+		return fmt.Errorf("could not sync inboxes for %s: %w", c.account.ID, err)
+	}
+
+	inboxes, err := prisma.Mailbox.FindMany(db.Mailbox.AccountID.Equals(c.account.ID)).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("could not get mailboxes for %s from db: %w", c.account.ID, err)
+	}
+
+	for _, inbox := range inboxes {
+		err = c.SyncMails(inbox.ID)
+		if err != nil {
+			ll.WarnDisplay("could not sync mails for %s: %w", err, inbox.ID)
+		}
+	}
+
+	ll.Log("Done", "green", "syncing inboxes and mails for %s", c.account.Address)
+	return nil
 }

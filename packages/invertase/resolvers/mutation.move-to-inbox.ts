@@ -1,6 +1,8 @@
-import { builder, prisma } from "../builder"
-import { EmailType, MailboxType } from "../schema"
-import { fieldName } from "../utils"
+import { GraphQLError } from "graphql"
+import { builder, prisma } from "../builder.js"
+import { backchannelCall } from "../lib/backchannel.js"
+import { EmailType, MailboxType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
@@ -17,7 +19,19 @@ builder.mutationField(fieldName(), (t) =>
       }),
     },
     async resolve(query, _, { email, inbox }) {
-      // TODO notify nectar
+      const { accountId } = await prisma.mailbox.findUniqueOrThrow({
+        where: { id: inbox.id },
+        select: { accountId: true },
+      })
+
+      const err = await backchannelCall(accountId, {
+        MoveToInbox: [{ Emails: [email.id], Inbox: inbox.id }],
+      })
+
+      if (err) {
+        throw new GraphQLError(`Could not move email to inbox: ${err}`)
+      }
+
       return prisma.email.update({
         ...query,
         where: { id: email.id },

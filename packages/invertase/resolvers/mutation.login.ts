@@ -1,9 +1,9 @@
 import { verify } from "argon2"
 import { GraphQLError } from "graphql"
-import { builder, prisma } from "../builder"
-import { generateSessionToken, newSession } from "../lib/auth"
-import { NewSessionType } from "../types/new-session"
-import { fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { generateSessionToken, newSession } from "../lib/auth.js"
+import { NewSessionType } from "../types/new-session.js"
+import { fieldName } from "../utils.js"
 
 builder.mutationField(fieldName(), (t) =>
   t.field({

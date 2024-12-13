@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises"
-import { builder } from "./builder"
+import { builder } from "./builder.js"
 import { fileURLToPath } from "url"
 import path from "node:path"
 import { addTypes, printSchemaWithDirectives } from "@graphql-tools/utils"

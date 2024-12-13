@@ -26,7 +26,7 @@ type LoggedInAccount struct {
 func CreateIMAPClient(accountId string) (*LoggedInAccount, error) {
 	client := LoggedInAccount{}
 
-	err := client.ResyncAccount(accountId)
+	err := client.RefetchAccount(accountId)
 	if err != nil {
 		return nil, fmt.Errorf("while getting account: %w", err)
 	}
@@ -100,7 +100,7 @@ func ConnectToIMAP(server *db.ServerModel, auth *db.ServerAuthModel, options *im
 	return *client, err
 }
 
-func (c *LoggedInAccount) ResyncAccount(accountId string) error {
+func (c *LoggedInAccount) RefetchAccount(accountId string) error {
 	acct, err := prisma.Account.FindUnique(db.Account.ID.Equals(accountId)).With(
 		db.Account.ReceiverServer.Fetch(),
 		db.Account.ReceiverAuth.Fetch(),

@@ -1,15 +1,15 @@
-import { builder, prisma } from "../builder"
-import { AccountType } from "../schema"
-import { ensureLoggedIn, fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { AccountType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.queryField(fieldName(), (t) =>
   t.prismaField({
     type: [AccountType],
     nullable: false,
-    async resolve(query, _, {}, { session }) {
+    async resolve(query, _, {}, ctx) {
       return prisma.account.findMany({
         ...query,
-        where: { userId: ensureLoggedIn(session).userId },
+        where: { userId: ctx.ensuredUserId },
         orderBy: { address: "asc" },
       })
     },

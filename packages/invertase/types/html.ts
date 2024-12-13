@@ -1,4 +1,4 @@
-import { builder } from "../builder"
+import { builder } from "../builder.js"
 
 export const HTMLType = builder.scalarType("HTML", {
   parseValue() {

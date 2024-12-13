@@ -1,7 +1,7 @@
-import { builder, prisma } from "../builder"
-import { subscribe } from "../lib/pubsub"
-import { EmailType, MailboxType } from "../schema"
-import { fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { pothosSubscribe } from "../lib/pubsub.js"
+import { EmailType, MailboxType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.queryField(fieldName(), (t) =>
   t.prismaConnection({
@@ -12,7 +12,7 @@ builder.queryField(fieldName(), (t) =>
     },
     smartSubscription: true,
     subscribe(subs, _, { inbox }) {
-      subscribe(subs, "mailbox:updates", inbox.id)
+      pothosSubscribe(subs, "mailbox:updates", inbox.id)
     },
     async resolve(query, _, { inbox }) {
       return prisma.email.findMany({

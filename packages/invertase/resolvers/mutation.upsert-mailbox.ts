@@ -1,7 +1,7 @@
-import { builder, prisma } from "../builder"
-import { MailboxType } from "../schema"
-import { MailboxInputType } from "../types/mailbox-input"
-import { enforceNonNull, fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { MailboxType } from "../schema.js"
+import { MailboxInputType } from "../types/mailbox-input.js"
+import { enforceNonNullMember, fieldName } from "../utils.js"
 
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
@@ -28,10 +28,12 @@ builder.mutationField(fieldName(), (t) =>
       return prisma.mailbox.create({
         ...query,
         data: {
-          account: { connect: { address: enforceNonNull(input.account) } },
-          type: enforceNonNull(input.type),
+          account: {
+            connect: { address: enforceNonNullMember(input, "account") },
+          },
+          type: enforceNonNullMember(input, "type"),
           internalUidValidity: 0,
-          name: enforceNonNull(input.name),
+          name: enforceNonNullMember(input, "name"),
         },
       })
     },

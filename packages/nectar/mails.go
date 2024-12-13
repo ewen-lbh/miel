@@ -17,6 +17,7 @@ import (
 	"github.com/ewen-lbh/parsemail"
 )
 
+// Move moves a given email from the _current mailbox_ to another mailbox.
 func (c *LoggedInAccount) Move(mailseq imap.NumSet, inbox string, wait time.Duration) error {
 	if wait == 0 {
 		_, err, _ := timeout(1*time.Microsecond, func() (*imapclient.MoveData, error) {
@@ -178,6 +179,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 
 	ccAddresses, err := prisma.Address.FindMany(
 		db.Address.Address.In(ccEmailAddrs),
+		db.Address.UserID.Equals(c.account.UserID),
 	).Exec(ctx)
 	if err != nil {
 		ll.WarnDisplay("while getting CC addresses of mail %q (%v) that exist in DB", err, envelope.Subject, ccEmailAddrs)
@@ -196,6 +198,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			a, err := prisma.Address.CreateOne(
 				db.Address.Address.Set(cc.Addr()),
 				db.Address.Name.Set(cc.Name),
+				db.Address.User.Link(db.User.ID.Equals(c.account.UserID)),
 			).Exec(ctx)
 			if err != nil {
 				return fmt.Errorf("while creating db-address for cc %s: %w", cc.Addr(), err)
@@ -223,10 +226,14 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	}
 
 	sender, err := prisma.Address.UpsertOne(
-		db.Address.Address.Equals(envelope.From[0].Addr()),
+		db.Address.AddressUserID(
+			db.Address.Address.Equals(envelope.From[0].Addr()),
+			db.Address.UserID.Equals(c.account.UserID),
+		),
 	).Create(
 		db.Address.Address.Set(envelope.From[0].Addr()),
 		db.Address.Name.Set(envelope.From[0].Name),
+		db.Address.User.Link(db.User.ID.Equals(c.account.UserID)),
 		db.Address.LastEmailSentAt.Set(envelope.Date),
 	).Update(
 		db.Address.Name.Set(envelope.From[0].Name),
@@ -247,10 +254,14 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 	}
 
 	recipient, err := prisma.Address.UpsertOne(
-		db.Address.Address.Equals(envelope.To[0].Addr()),
+		db.Address.AddressUserID(
+			db.Address.Address.Equals(envelope.To[0].Addr()),
+			db.Address.UserID.Equals(c.account.UserID),
+		),
 	).Create(
 		db.Address.Address.Set(envelope.To[0].Addr()),
 		db.Address.Name.Set(envelope.To[0].Name),
+		db.Address.User.Link(db.User.ID.Equals(c.account.UserID)),
 	).Update(
 		db.Address.Name.Set(envelope.To[0].Name),
 	).Exec(ctx)
@@ -390,7 +401,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			)
 		}
 
-		resultingEmail, err := prisma.Email.UpsertOne(uniqueParam).Update(
+		dbEmail, err = prisma.Email.UpsertOne(uniqueParam).Update(
 			append([]db.EmailSetParam{
 				db.Email.ReceivedAt.Set(envelope.Date),
 				db.Email.Sender.Link(db.Address.ID.Equals(sender.ID)),
@@ -432,7 +443,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 
 		if len(attachments) > 0 {
 			for _, attachment := range attachments {
-				storagepath := fmt.Sprintf("attachments/%s/%s", resultingEmail.ID, attachment.Filename)
+				storagepath := fmt.Sprintf("attachments/%s/%s", dbEmail.ID, attachment.Filename)
 				err = os.MkdirAll(filepath.Dir(storagepath), 0755)
 				if err != nil {
 					return fmt.Errorf("while creating directories to save attachment to %q: %w", storagepath, err)
@@ -445,7 +456,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 
 				_, err = prisma.Attachment.UpsertOne(
 					db.Attachment.EmailIDFilename(
-						db.Attachment.EmailID.Equals(resultingEmail.ID),
+						db.Attachment.EmailID.Equals(dbEmail.ID),
 						db.Attachment.Filename.Equals(attachment.Filename),
 					),
 				).Create(
@@ -453,7 +464,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 					db.Attachment.MimeType.Set(attachment.MimeType),
 					db.Attachment.Size.Set(attachment.Size),
 					db.Attachment.TextContent.Set(""),
-					db.Attachment.Email.Link(db.Email.ID.Equals(resultingEmail.ID)),
+					db.Attachment.Email.Link(db.Email.ID.Equals(dbEmail.ID)),
 					db.Attachment.StoragePath.Set(storagepath),
 					db.Attachment.Embedded.Set(attachment.Embedded),
 				).Update(
@@ -480,7 +491,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		}
 	}
 
-	if defaultbox, ok := sender.DefaultInbox(); ok && (dbEmail == nil || !dbEmail.Processed) {
+	if defaultbox, ok := sender.DefaultInbox(); ok && !dbEmail.Processed {
 		c.Move(imap.SeqSetNum(mail.SeqNum), defaultbox.Name, 3*time.Second)
 
 		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(
@@ -490,7 +501,81 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		if err != nil {
 			return fmt.Errorf("could not mark email %q as processed: %w", envelope.Subject, err)
 		}
+
+		// Get user of the dbEmail's inbox
+		account, err := prisma.Account.FindFirst(
+			db.Account.Mainbox.Where(db.Mailbox.Emails.Some(db.Email.ID.Equals(dbEmail.ID))),
+		).Exec(ctx)
+		if err != nil {
+			return fmt.Errorf("could not get account of email %q: %w", envelope.Subject)
+		}
+
+		// Send push notification to user
+		err = sendPushNotification(account.UserID, envelope.Subject, sender.Address, fmt.Sprintf("/mail/%s", dbEmail.ID))
+		if err != nil {
+			return fmt.Errorf("couldn't send notification to user: %w", err)
+		}
+
 	}
 
+	return nil
+}
+
+// MoveEmails moves the given emails by ID from their current mailbox to another mailbox.
+func (c *LoggedInAccount) MoveEmails(emailIds []string, inboxId string) error {
+	ll.Log("Moving", "cyan", "%d emails to %s", len(emailIds), inboxId)
+	// Get all emails, grouped by their current inbox
+	emails, err := prisma.Email.FindMany(
+		db.Email.ID.In(emailIds),
+		// Don't try to move emails that are already in the target inbox
+		db.Email.Inbox.Where(db.Mailbox.ID.Not(inboxId)),
+	).With(
+		db.Email.Inbox.Fetch(),
+	).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("while getting emails %v: %w", emailIds, err)
+	}
+
+	groupedEmails := make(map[string][]db.EmailModel)
+	for _, email := range emails {
+		if _, ok := groupedEmails[email.Inbox().Name]; !ok {
+			groupedEmails[email.Inbox().Name] = make([]db.EmailModel, 0)
+		}
+		groupedEmails[email.Inbox().Name] = append(groupedEmails[email.InboxID], email)
+	}
+
+	// Move emails
+	for inboxName, emails := range groupedEmails {
+		_, err := c.imap.Select(inboxName, nil).Wait()
+		if err != nil {
+			return fmt.Errorf("while selecting mailbox %s: %w", inboxName, err)
+		}
+
+		// Get seqset from email's UIDs
+		uidRanges := make([]imap.UIDRange, 0)
+		for _, email := range emails {
+			uid := imap.UID(email.InternalUID)
+			uidRanges = append(uidRanges, imap.UIDRange{Start: uid, Stop: uid})
+		}
+
+		searchResult, err := c.imap.Search(
+			&imap.SearchCriteria{UID: []imap.UIDSet{uidRanges}},
+			&imap.SearchOptions{ReturnAll: true, ReturnCount: true},
+		).Wait()
+
+		if searchResult.Count == 0 {
+			return fmt.Errorf("no emails to move from %s, expected %d", inboxName, len(emails))
+		}
+
+		if err != nil {
+			return fmt.Errorf("while getting seqset from UIDs: %w", err)
+		}
+
+		err = c.Move(imap.SeqSetNum(searchResult.AllSeqNums()...), inboxName, 1*time.Second)
+		if err != nil {
+			return fmt.Errorf("while moving emails from %s: %w", inboxName, err)
+		}
+
+	}
 	return nil
 }

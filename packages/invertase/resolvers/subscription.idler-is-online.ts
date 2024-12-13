@@ -1,12 +1,12 @@
-import { builder } from "../builder"
-import { subscribe } from "../lib/pubsub"
-import { fieldName } from "../utils"
+import { builder } from "../builder.js"
+import { pothosSubscribe } from "../lib/pubsub.js"
+import { fieldName } from "../utils.js"
 
 builder.subscriptionField(fieldName(), (t) =>
   t.boolean({
     description: "Check if the daemon listening for new mail is running.",
     subscribe(subs) {
-      subscribe(subs, "idler:online", "")
+      pothosSubscribe(subs, "idler:online", "")
     },
   })
 )

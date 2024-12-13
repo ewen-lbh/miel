@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { storageUrl } from "../utils"
-import { URLType } from "./url"
+import { builder } from "../builder.js"
+import { storageUrl } from "../utils.js"
+import { URLType } from "./url.js"
 
 export const AttachmentType = builder.prismaNode("Attachment", {
   id: { field: "id" },

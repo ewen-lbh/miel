@@ -1,8 +1,8 @@
 import { GraphQLError } from "graphql"
 import * as mailer from "nodemailer"
-import { builder, prisma } from "../builder"
-import { AddressType, EmailAddressType, EmailType } from "../schema"
-import { ensureLoggedIn, fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { AddressType, EmailAddressType, EmailType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.mutationField(fieldName(), (t) =>
   t.prismaField({
@@ -25,10 +25,10 @@ builder.mutationField(fieldName(), (t) =>
       subject: t.arg.string({ required: true }),
       body: t.arg.string({ required: true }),
     },
-    async resolve(query, _, args, { session }) {
+    async resolve(query, _, args, ctx) {
       const { senderAuth, senderServer, address } =
         await prisma.account.findUniqueOrThrow({
-          where: { address: args.from, userId: ensureLoggedIn(session).userId },
+          where: { address: args.from, userId: ctx.ensuredUserId },
           include: {
             senderServer: true,
             senderAuth: true,
@@ -86,11 +86,12 @@ builder.mutationField(fieldName(), (t) =>
 
       return prisma.address.upsert({
         ...query,
-        where: { address: args.to },
+        where: { address_userId: { address: args.to, userId: ctx.ensuredUserId } },
         update: {},
         create: {
           name: "",
           address: args.to,
+          userId: ctx.ensuredUserId,
           defaultInboxId:
             (
               await prisma.account

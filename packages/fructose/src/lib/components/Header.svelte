@@ -52,4 +52,8 @@
 		font-size: 3em;
 		flex-shrink: 0;
 	}
+
+	header .rest {
+		margin-left: auto;
+	}
 </style>

@@ -1,14 +1,13 @@
-import { builder } from "../builder"
-import { storageUrl, typeName } from "../utils"
-import { AttachmentType } from "./attachment"
-import { DateTimeType } from "./date-time"
 import path from "node:path"
+import { builder } from "../builder.js"
+import { storageUrl, typeName } from "../utils.js"
+import { AttachmentType } from "./attachment.js"
+import { DateTimeType } from "./date-time.js"
 import {
   EmailAuthenticationResultType,
   resolveAuthenticationResultCheck,
-} from "./email-authentication-result"
-import { EmailConnectionType } from "./email-connection"
-import { HTMLType } from "./html"
+} from "./email-authentication-result.js"
+import { HTMLType } from "./html.js"
 
 export const EmailType = builder.prismaNode("Email", {
   id: { field: "id" },

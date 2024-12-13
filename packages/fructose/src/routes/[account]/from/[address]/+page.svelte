@@ -13,12 +13,12 @@
 </script>
 
 <MaybeError result={$PageEmailsFrom}>
-	{#snippet children({ address })}
+	{#snippet children({ address, account })}
 		<div class="content">
 			{#if !address}
 				<p>Oops! You don't know about {$page.params.address} yet.</p>
 			{:else}
-				<FromHeader {address}>
+				<FromHeader {address} {account}>
 					{#snippet title({ name })}
 						Mails from {name}
 					{/snippet}

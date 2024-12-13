@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { typeName } from "../utils"
-import { EmailType } from "./email"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
+import { EmailType } from "./email.js"
 
 export const EmailConnectionType = builder.connectionObject({
   name: typeName(),

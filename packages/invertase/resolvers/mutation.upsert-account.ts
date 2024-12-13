@@ -1,6 +1,7 @@
-import { builder, prisma } from "../builder"
-import { AccountType, EmailAddressType } from "../schema"
-import { enforceNonNull, ensureLoggedIn, fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { backchannelCallNoResponse } from "../lib/backchannel.js"
+import { AccountType, EmailAddressType } from "../schema.js"
+import { enforceNonNull, fieldName } from "../utils.js"
 
 const ServerInput = builder.inputType("ServerInput", {
   fields: (t) => ({
@@ -39,11 +40,11 @@ builder.mutationField(fieldName(), (t) =>
       query,
       _,
       { address, input: { name, receiver, sender } },
-      { session }
+      ctx
     ) {
-      return prisma.account.upsert({
+      const result = await prisma.account.upsert({
         ...query,
-        where: { address, userId: ensureLoggedIn(session).userId },
+        where: { address, userId: ctx.ensuredUserId },
         update: {
           name: name ?? undefined,
           receiverServer: {
@@ -81,44 +82,59 @@ builder.mutationField(fieldName(), (t) =>
         },
         create: {
           address,
-          user: { connect: { id: ensureLoggedIn(session).userId } },
-          name: enforceNonNull(name),
+          user: { connect: { id: ctx.ensuredUserId } },
+          name: enforceNonNull(name, "the account name"),
           receiverAuth: {
             create: {
-              username: enforceNonNull(receiver.username ?? address),
-              password: enforceNonNull(receiver.password),
+              username: enforceNonNull(
+                receiver.username ?? address,
+                "receiver username"
+              ),
+              password: enforceNonNull(receiver.password, "receiver password"),
             },
           },
           senderAuth: sender
             ? {
                 create: {
-                  username: enforceNonNull(sender.username ?? address),
-                  password: enforceNonNull(sender.password),
+                  username: enforceNonNull(
+                    sender.username ?? address,
+                    "sender username"
+                  ),
+                  password: enforceNonNull(sender.password, "sender password"),
                 },
               }
             : undefined,
           receiverServer: {
             create: {
               type: "IMAP",
-              host: enforceNonNull(receiver.host),
+              host: enforceNonNull(receiver.host, "receiver host"),
               port: receiver.port,
               secure: receiver.tls,
-              username: enforceNonNull(receiver.username ?? address),
+              username: enforceNonNull(
+                receiver.username ?? address,
+                "receiver username"
+              ),
             },
           },
           senderServer: sender
             ? {
                 create: {
                   type: "SMTP",
-                  host: enforceNonNull(sender.host),
+                  host: enforceNonNull(sender.host, "sender host"),
                   port: sender.port,
                   secure: sender.tls,
-                  username: enforceNonNull(sender.username ?? address),
+                  username: enforceNonNull(
+                    sender.username ?? address,
+                    "sender username"
+                  ),
                 },
               }
             : undefined,
         },
       })
+
+      backchannelCallNoResponse(result.id, { ResyncAll: true })
+      return result
     },
   })
 )

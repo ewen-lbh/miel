@@ -7,3 +7,4 @@ packages/nectar/attachments
 *.sqlite3-journal
 packages/fructose/pkg/
 packages/nectar/body.eml
+packages/nectar/google-services.json

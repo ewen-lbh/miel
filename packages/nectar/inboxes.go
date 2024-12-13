@@ -109,8 +109,12 @@ func (c *LoggedInAccount) SyncInboxes() (err error) {
 		}
 	}
 
-	c.ResyncAccount(c.account.ID)
+	c.RefetchAccount(c.account.ID)
 	return
+}
+
+func (c *LoggedInAccount) CreateInbox(name string) error {
+	return c.imap.Create(name, nil).Wait()
 }
 
 func inferIsMainInbox(mailbox *imap.ListData) bool {

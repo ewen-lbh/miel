@@ -1,8 +1,8 @@
-import { builder, prisma } from "../builder"
-import { typeName } from "../utils"
-import { EmailAddressType } from "./email-address"
-import { MailboxType } from "./mailbox"
-import { MailboxTypeType } from "./mailbox-type"
+import { builder, prisma } from "../builder.js"
+import { typeName } from "../utils.js"
+import { EmailAddressType } from "./email-address.js"
+import { MailboxType } from "./mailbox.js"
+import { MailboxTypeType } from "./mailbox-type.js"
 
 export const AccountType = builder.prismaNode("Account", {
   id: { field: "id" },
@@ -56,7 +56,7 @@ export const AccountType = builder.prismaNode("Account", {
       description: "First maibox of type FEED",
       type: MailboxType,
       nullable: true,
-      resolve(query, account) {
+      async resolve(query, account) {
         return prisma.mailbox.findFirst({
           ...query,
           where: {

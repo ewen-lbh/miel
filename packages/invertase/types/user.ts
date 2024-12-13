@@ -1,11 +1,10 @@
-import { builder } from "../builder"
-import { ensureLoggedIn } from "../utils"
-import { SessionType } from "./session"
+import { builder } from "../builder.js"
+import { SessionType } from "./session.js"
 
 export const UserType = builder.prismaNode("User", {
   id: { field: "id" },
-  findUnique({}, { session }) {
-    return { id: ensureLoggedIn(session).userId }
+  findUnique({}, ctx) {
+    return { id: ctx.ensuredUserId }
   },
   fields: (t) => ({
     sessions: t.relatedConnection("sessions", {

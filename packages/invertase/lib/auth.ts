@@ -1,10 +1,10 @@
 import { sha256 } from "@oslojs/crypto/sha2"
 import {
-    encodeBase32LowerCaseNoPadding,
-    encodeHexLowerCase,
+  encodeBase32LowerCaseNoPadding,
+  encodeHexLowerCase,
 } from "@oslojs/encoding"
-import { prisma } from "../builder"
-import type { Prisma } from "../prisma"
+import { prisma } from "../builder.js"
+import type { Prisma } from "../prisma/index.js"
 
 export class UnauthorizedError extends Error {
   constructor(message: string) {
@@ -12,8 +12,6 @@ export class UnauthorizedError extends Error {
     this.name = "UnauthorizedError"
   }
 }
-
-
 
 export function generateSessionToken(): string {
   const bytes = new Uint8Array(20)
@@ -30,7 +28,20 @@ export function newSession(token: string) {
   }
 }
 
-export async function validateSessionToken(token: string) {
+export type SessionTokenValidateResult =
+  | {
+      session: Prisma.SessionGetPayload<{ include: { user: true } }>
+      token: string
+    }
+  | {
+      session: undefined
+      token: undefined
+    }
+
+export async function validateSessionToken(
+  token: string |null|undefined
+): Promise<SessionTokenValidateResult> {
+  if (!token) return { session: undefined, token: undefined }
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))
   const result = await prisma.session.findUnique({
     where: {
@@ -41,12 +52,12 @@ export async function validateSessionToken(token: string) {
     },
   })
   if (result === null) {
-    return { session: undefined }
+    return { session: undefined, token: undefined }
   }
   const { user, ...session } = result
   if (Date.now() >= session.expiresAt.getTime()) {
     await prisma.session.delete({ where: { id: sessionId } })
-    return { session: undefined }
+    return { session: undefined, token: undefined }
   }
   if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
     session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)

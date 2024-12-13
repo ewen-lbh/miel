@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { Session } from "../prisma"
-import { typeName } from "../utils"
+import { builder } from "../builder.js"
+import { Session } from "../prisma/index.js"
+import { typeName } from "../utils.js"
 
 export type NewSession = Session & {
   token: string

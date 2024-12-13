@@ -1,5 +1,5 @@
-import { builder } from "../builder"
-import { typeName } from "../utils"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
 
 export enum ServerTypeEnum {
   IMAP = "IMAP",

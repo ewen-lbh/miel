@@ -1,6 +1,6 @@
-import { builder } from "../builder"
-import { typeName, graphinx } from "../utils"
-import { ServerTypeType } from "./server-type"
+import { builder } from "../builder.js"
+import { typeName } from "../utils.js"
+import { ServerTypeEnum, ServerTypeType } from "./server-type.js"
 
 export const ServerType = builder.prismaNode("Server", {
   id: { field: "id" },
@@ -12,7 +12,10 @@ export const ServerType = builder.prismaNode("Server", {
     username: t.exposeString("username"),
     password: t.exposeString("password", { nullable: true }),
     token: t.exposeString("token", { nullable: true }),
-    type: t.expose("type", { type: ServerTypeType }),
+    type: t.field({
+      type: ServerTypeType,
+      resolve: (s) => s.type as ServerTypeEnum,
+    }),
     senderAccounts: t.relation("senderAccounts"),
     receiverAccounts: t.relation("receiverAccounts"),
   }),

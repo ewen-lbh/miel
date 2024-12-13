@@ -63,12 +63,12 @@
 {/snippet}
 
 <MaybeError result={$PageEmailMetadata}>
-	{#snippet children({ email })}
+	{#snippet children({ email, account })}
 		{#if !email}
 			<p>Email does not exist</p>
 		{:else}
 			<div class="content">
-				<FromHeader linkify address={email.from}>
+				<FromHeader linkify address={email.from} {account}>
 					{#snippet title()}
 						<LoadingText value={email.subject} />
 					{/snippet}

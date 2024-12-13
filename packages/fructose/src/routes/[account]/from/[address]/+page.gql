@@ -1,4 +1,7 @@
-query PageEmailsFrom($address: EmailAddress!) @loading {
+query PageEmailsFrom($account: EmailAddress!, $address: EmailAddress!) @loading {
+	account(address: $account) {
+		...FromHeader_Inboxes
+	}
 	address(email: $address) {
 		...FromHeader
 

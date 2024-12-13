@@ -1,8 +1,8 @@
-import { builder, prisma } from "../builder"
-import { subscribe } from "../lib/pubsub"
-import { EmailAddressType } from "../schema"
-import { AddressType } from "../types/address"
-import { fieldName } from "../utils"
+import { builder, prisma } from "../builder.js"
+import { pothosSubscribe } from "../lib/pubsub.js"
+import { EmailAddressType } from "../schema.js"
+import { AddressType } from "../types/address.js"
+import { fieldName } from "../utils.js"
 
 builder.queryField(fieldName(), (t) =>
   t.prismaConnection({
@@ -19,7 +19,7 @@ builder.queryField(fieldName(), (t) =>
       }),
     },
     subscribe(subs) {
-      subscribe(subs, "screenings:updates", "*")
+      pothosSubscribe(subs, "screenings:updates", "*")
     },
     async totalCount(_, { account }) {
       return await prisma.address.count({
@@ -45,6 +45,7 @@ builder.queryField(fieldName(), (t) =>
           sentEmails: {
             some: account
               ? {
+                  processed: false,
                   receiver: {
                     receiverAccounts: { some: { address: account } },
                   },

@@ -1,7 +1,7 @@
 import * as cheerio from "cheerio"
-import { builder } from "../builder"
-import { EmailType, firstHeaderValue, URLType } from "../schema"
-import { fieldName } from "../utils"
+import { builder } from "../builder.js"
+import { EmailType, firstHeaderValue, URLType } from "../schema.js"
+import { fieldName } from "../utils.js"
 
 builder.prismaObjectField(EmailType, fieldName(), (t) =>
   t.field({
@@ -41,7 +41,7 @@ export function unsubscribeLinkFromBody(htmlBody: string) {
   for (const link of links) {
     const href = link.attribs.href
     if (href.includes("unsubscribe")) {
-      candidates.push(href)
+      candidates.unshift(href)
       continue
     }
     const text = doc.text([link])
@@ -50,11 +50,11 @@ export function unsubscribeLinkFromBody(htmlBody: string) {
       continue
     }
     if (text.toLowerCase().includes("désinscrire")) {
-      candidates.push(href)
+      candidates.unshift(href)
       continue
     }
     if (text.toLowerCase().includes("notification")) {
-      candidates.push(href)
+      candidates.unshift(href)
       continue
     }
 

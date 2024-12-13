@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { beforeNavigate } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { graphql, type MailboxType$options } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import EmailRow from '$lib/components/EmailRow.svelte';
@@ -18,6 +20,14 @@
 	const { data }: { data: PageData } = $props();
 	let { PageScreener } = $derived(data);
 
+	beforeNavigate(() => {
+		// Update screener once we quit the page -- not before since it'd create jumps in the UI
+		void PageScreener.fetch({
+			variables: { account: $page.params.account },
+			policy: 'NetworkOnly'
+		});
+	});
+
 	let removedScreenings = new SvelteSet<string>();
 	let screenings = $derived(
 		$PageScreener.data?.screenings.edges.filter(
@@ -26,8 +36,8 @@
 	);
 
 	const ScreenTo = graphql(`
-		mutation ScreenTo($address: EmailAddress!, $box: ID!) {
-			screenTo(address: $address, box: $box) {
+		mutation ScreenTo($address: EmailAddress!, $box: ID!, $account: EmailAddress!) {
+			screenTo(address: $address, box: $box, account: $account) {
 				...MutationErrors
 				... on Address {
 					id
@@ -49,7 +59,8 @@
 		onclick={async () => {
 			const result = await ScreenTo.mutate({
 				address: loading(address, ''),
-				box: loading(boxId, '')
+				box: loading(boxId, ''),
+				account: $page.params.account
 			});
 			if (toasts.mutation(result, 'screenTo', '', 'Could not screen')) {
 				removedScreenings.add(loading(address, ''));
