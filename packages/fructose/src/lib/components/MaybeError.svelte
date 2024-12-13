@@ -50,10 +50,10 @@
 		{:else if result.errors.length === 1}
 			<p>{result.errors[0].message}</p>
 		{:else}
-			<p>Une erreur est survenue.</p>
+			<p>An error occured</p>
 		{/if}
 		{#if !loggedIn}
-			<ButtonSecondary href={refroute('/login')}>Se connecter</ButtonSecondary>
+			<ButtonSecondary href={refroute('/login')}>Log in</ButtonSecondary>
 		{/if}
 	</Alert>
 {:else if result?.fetching || (result && !result.data)}
@@ -66,16 +66,14 @@
 {:else if !result}
 	<Alert theme="danger">
 		<h2>Hmm…</h2>
-		<p>
-			Aucune donnée n'a été chargée ici. Ça ne devrait pas arriver, les devs ont fait des conneries!
-		</p>
+		<p>No data was loaded here. This should not happen, the devs messed up!</p>
 		<ButtonSecondary on:click={() => window.location.reload()}>Recharger la page</ButtonSecondary>
 		<small>(désOwOlé)</small>
 	</Alert>
 {:else}
 	<Alert theme="danger">
 		<h2>Wtf‽</h2>
-		<p>Une erreur trèèèès bizarre a eu lieu. Voici des infos pour les devs (good luck 🫶)</p>
+		<p>A veeeeery weird error happened. Here's some info for the devs (good luck 🫶)</p>
 		<ButtonSecondary on:click={() => window.location.reload()}>Recharger la page</ButtonSecondary>
 		<pre>{JSON.stringify({ result }, null, 2)}</pre>
 	</Alert>
@@ -89,9 +87,5 @@
 		align-items: center;
 		justify-content: center;
 		text-align: center;
-	}
-
-	.spinner {
-		font-size: 5rem;
 	}
 </style>
