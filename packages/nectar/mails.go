@@ -480,7 +480,7 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		}
 	}
 
-	if defaultbox, ok := sender.DefaultInbox(); ok && !dbEmail.Processed {
+	if defaultbox, ok := sender.DefaultInbox(); ok && (dbEmail == nil || !dbEmail.Processed) {
 		c.Move(imap.SeqSetNum(mail.SeqNum), defaultbox.Name, 3*time.Second)
 
 		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(
