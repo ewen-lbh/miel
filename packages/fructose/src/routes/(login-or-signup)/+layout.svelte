@@ -4,6 +4,7 @@
 	import { cache, graphql, type Login$input, type Signup$input } from '$houdini';
 	import ButtonPrimary from '$lib/components/ButtonPrimary.svelte';
 	import InputTextGhost from '$lib/components/InputTextGhost.svelte';
+	import { isRoute } from '$lib/navigation';
 	import { route } from '$lib/ROUTES';
 	import { toasts } from '$lib/toasts';
 	import { serialize } from 'cookie';
@@ -31,7 +32,7 @@
 		}
 	`);
 
-	let loggingIn = $derived($page.url.pathname === route('/login'));
+	let loggingIn = $derived(isRoute($page, '/login'));
 </script>
 
 <div class="content">

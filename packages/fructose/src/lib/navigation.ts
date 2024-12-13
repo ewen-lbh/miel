@@ -232,3 +232,6 @@ export const topnavConfigs: {
 		back: route('/')
 	}
 };
+
+export const isRoute = (pagestore: Page, ...routeArgs: Parameters<typeof route>) =>
+	pagestore.url.pathname.replace(/\/$/, '') === route(...routeArgs);
