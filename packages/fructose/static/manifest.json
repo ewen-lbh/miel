@@ -1,7 +1,8 @@
 {
+	"$schema": "https://github.com/SchemaStore/schemastore/raw/refs/heads/master/src/schemas/json/web-manifest.json",
 	"theme_color": "#8936FF",
 	"background_color": "#2EC6FE",
-	"orientation": "any",
+	"orientation": "natural",
 	"display": "standalone",
 	"dir": "auto",
 	"lang": "en-US",
