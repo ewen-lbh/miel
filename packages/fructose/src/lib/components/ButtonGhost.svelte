@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { umamiAttributes } from '$lib/analytics';
+	import type { KeybindExpression } from '$lib/keyboard';
 	import { tooltip } from '$lib/tooltip';
 
 	export let track = '';
 	export let trackData: Record<string, string | number> = {};
 
 	export let type: 'button' | 'reset' | 'submit' = 'button';
+	export let keybind: KeybindExpression | undefined = undefined;
 	export let help = '';
 	export let danger = false;
 	export let success = false;
@@ -28,6 +30,7 @@
 	class:inline
 	class:tight
 	class:danger
+	data-keybind={keybind}
 	class:success
 	on:mouseenter={() => {
 		hovering = true;

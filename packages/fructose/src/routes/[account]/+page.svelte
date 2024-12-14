@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import DeclareKeybindsContext from '$lib/components/DeclareKeybindsContext.svelte';
 	import EmailRow from '$lib/components/EmailRow.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
 	import Pill from '$lib/components/Pill.svelte';
@@ -14,6 +15,8 @@
 	const { data }: { data: PageData } = $props();
 	const { PageAccount } = $derived(data);
 </script>
+
+<DeclareKeybindsContext context="email_list" />
 
 <MaybeError result={$PageAccount}>
 	{#snippet children({ account })}

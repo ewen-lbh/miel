@@ -26,7 +26,7 @@ builder.mutationField(fieldName(), (t) =>
           where: {
             address_userId: {
               address: email,
-              userId: ctx.ensuredUserId,
+              userId: ctx.ensuredUserId(),
             },
           },
           select: { id: true },
@@ -39,7 +39,7 @@ builder.mutationField(fieldName(), (t) =>
           where: {
             address_userId: {
               address: email,
-              userId: ctx.ensuredUserId,
+              userId: ctx.ensuredUserId(),
             },
           },
           data: {
@@ -48,7 +48,7 @@ builder.mutationField(fieldName(), (t) =>
               ? {
                   connect: {
                     id: input.defaultInbox.id,
-                    account: { userId: ctx.ensuredUserId },
+                    account: { userId: ctx.ensuredUserId() },
                   },
                 }
               : undefined,
@@ -60,13 +60,13 @@ builder.mutationField(fieldName(), (t) =>
         ...query,
         data: {
           address: email,
-          user: { connect: { id: ctx.ensuredUserId } },
+          user: { connect: { id: ctx.ensuredUserId() } },
           name: enforceNonNullMember(input, "name"),
           defaultInbox: input.defaultInbox
             ? {
                 connect: {
                   id: input.defaultInbox.id,
-                  account: { userId: ctx.ensuredUserId },
+                  account: { userId: ctx.ensuredUserId() },
                 },
               }
             : undefined,

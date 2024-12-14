@@ -1,25 +1,24 @@
 import { goto, pushState } from '$app/navigation';
 import { page } from '$app/stores';
+import { graphql } from '$houdini';
+import { iconinstance } from '$lib/components/IconMailboxType.svelte';
 import type {
 	NavigationContext,
 	NavigationQuickAction
 } from '$lib/components/NavigationTop.svelte';
+import type { ActionData } from '$lib/components/OverflowMenu.svelte';
 import { route } from '$lib/ROUTES';
+import { toasts } from '$lib/toasts';
 import type { Page } from '@sveltejs/kit';
-import IconMove from '~icons/msl/drive-file-move-outline';
 import { get } from 'svelte/store';
 import IconXML from '~icons/msl/code';
 import IconTrashFilled from '~icons/msl/delete';
-import IconMetadata from '~icons/msl/format-list-bulleted';
 import IconTrash from '~icons/msl/delete-outline';
-import IconPen from '~icons/msl/edit-outline';
+import IconMove from '~icons/msl/drive-file-move-outline';
+import IconMetadata from '~icons/msl/format-list-bulleted';
 import IconCog from '~icons/msl/settings-outline';
 import IconScreener from '~icons/msl/thumbs-up-down-outline';
 import type { LayoutParams, LayoutRouteId } from '../routes/$types';
-import { graphql } from '$houdini';
-import type { OverflowMenuAction } from '$lib/components/OverflowMenu.svelte';
-import { iconinstance } from '$lib/components/IconMailboxType.svelte';
-import { toasts } from '$lib/toasts';
 
 export function addReferrer(url: URL | string, referrer?: URL | string): string;
 export function addReferrer(
@@ -146,7 +145,7 @@ const moveMailAction = (params: { account: string; mail: string }) =>
 						}
 					);
 				}
-			})) as OverflowMenuAction<any>[];
+			})) as readonly ActionData<any>[];
 		}
 	}) as NavigationQuickAction;
 
@@ -159,12 +158,13 @@ const mailDetailsActions = (params: { account: string; mail: string }) =>
 			{
 				icon: IconMetadata,
 				label: 'See metadata',
-				href: route('/[account]/[mail]/metadata', params)
+				href: route('/[account]/[mail]/metadata', params),
+				keybind: 'email.see_metadata'
 			},
 			commonActions.delete,
 			commonActions.copyID
 		]
-	}) as const;
+	}) as Omit<NavigationContext, 'actions'> & { actions: ActionData<any>[] };
 
 export const topnavConfigs: {
 	[RouteID in NonNullable<LayoutRouteId>]:
@@ -212,7 +212,8 @@ export const topnavConfigs: {
 		quickAction: {
 			icon: IconScreener,
 			label: 'Screener',
-			href: refroute('/[account]/screener', params.account)
+			href: refroute('/[account]/screener', params.account),
+			keybind: 'email_list.open_screener'
 		},
 		back: route('/')
 	}),
@@ -228,6 +229,21 @@ export const topnavConfigs: {
 	}),
 	'/register': {
 		title: 'Add an account',
+		actions: [],
+		back: route('/')
+	},
+	'/(login-or-signup)/login': {
+		title: 'Log in',
+		actions: [],
+		back: route('/')
+	},
+	'/(login-or-signup)/signup': {
+		title: 'Sign up',
+		actions: [],
+		back: route('/')
+	},
+	'/compose': {
+		title: 'Compose',
 		actions: [],
 		back: route('/')
 	}

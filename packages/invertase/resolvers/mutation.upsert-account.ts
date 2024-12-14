@@ -44,7 +44,7 @@ builder.mutationField(fieldName(), (t) =>
     ) {
       const result = await prisma.account.upsert({
         ...query,
-        where: { address, userId: ctx.ensuredUserId },
+        where: { address, userId: ctx.ensuredUserId() },
         update: {
           name: name ?? undefined,
           receiverServer: {
@@ -82,7 +82,7 @@ builder.mutationField(fieldName(), (t) =>
         },
         create: {
           address,
-          user: { connect: { id: ctx.ensuredUserId } },
+          user: { connect: { id: ctx.ensuredUserId() } },
           name: enforceNonNull(name, "the account name"),
           receiverAuth: {
             create: {

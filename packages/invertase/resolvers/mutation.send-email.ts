@@ -28,7 +28,7 @@ builder.mutationField(fieldName(), (t) =>
     async resolve(query, _, args, ctx) {
       const { senderAuth, senderServer, address } =
         await prisma.account.findUniqueOrThrow({
-          where: { address: args.from, userId: ctx.ensuredUserId },
+          where: { address: args.from, userId: ctx.ensuredUserId() },
           include: {
             senderServer: true,
             senderAuth: true,
@@ -86,12 +86,12 @@ builder.mutationField(fieldName(), (t) =>
 
       return prisma.address.upsert({
         ...query,
-        where: { address_userId: { address: args.to, userId: ctx.ensuredUserId } },
+        where: { address_userId: { address: args.to, userId: ctx.ensuredUserId() } },
         update: {},
         create: {
           name: "",
           address: args.to,
-          userId: ctx.ensuredUserId,
+          userId: ctx.ensuredUserId(),
           defaultInboxId:
             (
               await prisma.account

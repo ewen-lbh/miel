@@ -7,6 +7,8 @@
 	import { loading } from '$lib/loading';
 	import { route } from '$lib/ROUTES';
 	import { theme } from '$lib/theme';
+	import { enumerate, withSurrounding, withSurroundingsWrapped } from '$lib/typing';
+	import { add } from 'date-fns';
 	import IconBugReport from '~icons/msl/bug-report-outline';
 	import IconComposeFilled from '~icons/msl/ink-pen';
 	import IconCompose from '~icons/msl/ink-pen-outline';
@@ -35,6 +37,20 @@
 			light: 'dark'
 		}[$theme.variant] as typeof $theme.variant
 	);
+
+	const accountsCycle = $derived.by(() => {
+		if (!$Data.data?.accounts) return { isPrev: () => false, isNext: () => false };
+		for (const [prev, cur, next] of withSurroundingsWrapped($Data.data.accounts)) {
+			if (cur?.address?.address === $page.params.account) {
+				console.log({ prev, cur, next });
+				return {
+					isPrev: (acct: typeof cur) => acct?.address?.address === prev?.address.address,
+					isNext: (acct: typeof cur) => acct?.address?.address === next?.address.address
+				};
+			}
+		}
+		return { isPrev: () => false, isNext: () => false };
+	});
 </script>
 
 <nav>
@@ -43,6 +59,7 @@
 	</div>
 	<div class="middle">
 		<ButtonNavigation
+			keybind="global.open_accounts"
 			href="/"
 			routeID="/"
 			label="Accounts"
@@ -57,6 +74,11 @@
 					href={route('/[account]', loading(acct.address.address, ''))}
 					label={loading(acct.name, '')}
 					tooltipsOn="left"
+					keybind={accountsCycle.isPrev(acct)
+						? 'global.previous_account'
+						: accountsCycle.isNext(acct)
+							? 'global.next_account'
+							: undefined}
 				>
 					{#snippet icon()}
 						<div class="avatar">
@@ -78,6 +100,7 @@
 			tooltipsOn="left"
 			icon={IconCompose}
 			iconFilled={IconComposeFilled}
+			keybind="global.compose"
 		/>
 	</div>
 

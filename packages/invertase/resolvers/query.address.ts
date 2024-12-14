@@ -16,7 +16,7 @@ builder.queryField(fieldName(), (t) =>
         where: {
           address_userId: {
             address: email,
-            userId: ctx.ensuredUserId,
+            userId: ctx.ensuredUserId(),
           },
         },
       })

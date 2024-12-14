@@ -21,13 +21,13 @@ builder.mutationField(fieldName(), (t) =>
     },
     async resolve(query, _, { address, box, account }, ctx) {
       const { id: accountId } = await prisma.account.findUniqueOrThrow({
-        where: { address: account, userId: ctx.ensuredUserId },
+        where: { address: account, userId: ctx.ensuredUserId() },
         select: { id: true },
       })
 
       const result = await prisma.address.update({
         ...query,
-        where: { address_userId: { address, userId: ctx.ensuredUserId } },
+        where: { address_userId: { address, userId: ctx.ensuredUserId() } },
         data: {
           defaultInbox: { connect: { id: box.id } },
         },

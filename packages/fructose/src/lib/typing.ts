@@ -70,3 +70,41 @@ export const isSnippet = (value: any): value is Snippet =>
 export async function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function* enumerate<T>(iterable: Iterable<T>): Iterable<[number, T]> {
+	let index = 0;
+	for (const item of iterable) {
+		yield [index, item];
+		index++;
+	}
+}
+
+/**
+ * Iterate with surrounding values. The first and last values will have undefined for the previous and next values, respectively.
+ * @param iterable returns an iterable that yields [previous, current, next] tuples
+ */
+export function* withSurrounding<T>(
+	iterable: Iterable<T>
+): Iterable<[T | undefined, T, T | undefined]> {
+	let previous: T | undefined = undefined;
+	let current: T | undefined = undefined;
+	for (const next of iterable) {
+		yield [previous, current!, next];
+		previous = current;
+		current = next;
+	}
+	yield [previous, current!, undefined];
+}
+
+export function* withSurroundingsWrapped<T>(iterable: Iterable<T>): Iterable<[T, T, T]> {
+	let previous: T | undefined = undefined;
+	let current: T | undefined = undefined;
+	let next: T | undefined = undefined;
+	for (const nextNext of iterable) {
+		yield [current!, next!, nextNext];
+		previous = current;
+		current = next;
+		next = nextNext;
+	}
+	yield [current!, next!, next!];
+}

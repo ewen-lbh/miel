@@ -16,6 +16,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import IconMore from '~icons/msl/more-horiz';
 	import type { PageData } from './$houdini';
+	import { keybind, ValidActionInContext } from '$lib/keyboard';
 
 	const { data }: { data: PageData } = $props();
 	let { PageScreener } = $derived(data);
@@ -51,11 +52,13 @@
 	box: MaybeLoading<string>,
 	boxId: MaybeLoading<string>,
 	type: MailboxType$options,
+	action: ValidActionInContext<'screener'>,
 	colorclass: string,
 	address: MaybeLoading<string>
 )}
 	<button
 		class="to-{type} {colorclass}"
+		use:keybind={`screener.${action}`}
 		onclick={async () => {
 			const result = await ScreenTo.mutate({
 				address: loading(address, ''),
@@ -89,6 +92,7 @@
 										account.mainbox.name,
 										account.mainbox.id,
 										'Inbox',
+										'to_inbox',
 										'primary',
 										address.address
 									)}
@@ -98,6 +102,7 @@
 										account.feedbox.name,
 										account.feedbox.id,
 										'Feed',
+										'to_feed',
 										'success',
 										address.address
 									)}
@@ -107,11 +112,12 @@
 										account.trashbox.name,
 										account.trashbox.id,
 										'Trash',
+										'to_trash',
 										'danger',
 										address.address
 									)}
 								{/if}
-								<button class="to-others" style:--bg="var(--bg2)">
+								<button class="to-others" style:--bg="var(--bg2)" use:keybind={'screener.to_other'}>
 									<IconMore />
 									Others…
 								</button>

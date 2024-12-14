@@ -41,6 +41,7 @@
 	import { browser } from '$app/environment';
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { keybind } from '$lib/keyboard';
 
 	export let scrolled = false;
 
@@ -112,7 +113,8 @@
 			{#if 'overflow' in quickAction && quickAction.overflow && 'icon' in quickAction}
 				{#await quickAction.overflow() then ov}
 					<OverflowMenu actions={ov} label={quickAction.label}>
-						<svelte:component this={quickAction.icon}></svelte:component>
+						<svelte:component this={quickAction.icon} data-keybind={quickAction.keybind}
+						></svelte:component>
 						<svelte:fragment slot="open">
 							<svelte:component this={quickAction.filledIcon ?? quickAction.icon}
 							></svelte:component>
@@ -120,14 +122,14 @@
 					</OverflowMenu>
 				{/await}
 			{:else if 'icon' in quickAction}
-				<ButtonGhost on:click={quickAction.do} href={quickAction.href}>
+				<ButtonGhost keybind={quickAction.keybind} on:click={quickAction.do} href={quickAction.href}>
 					<svelte:component this={quickAction.icon}></svelte:component>
 					<svelte:fragment slot="hovering">
 						<svelte:component this={quickAction.filledIcon ?? quickAction.icon}></svelte:component>
 					</svelte:fragment>
 				</ButtonGhost>
 			{:else if 'label' in quickAction}
-				<div class="button-primary">
+				<div class="button-primary" use:keybind={quickAction.keybind}>
 					<ButtonPrimary on:click={quickAction.do} href={quickAction.href}
 						>{quickAction.label}</ButtonPrimary
 					>

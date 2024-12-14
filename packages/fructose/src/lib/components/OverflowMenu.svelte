@@ -15,6 +15,7 @@
 		do?: () => void | Promise<void>;
 		disabled?: boolean;
 		hidden?: boolean;
+		keybind?: KeybindExpression;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		overflow?: OverflowMenuAction<any>[];
 	};
@@ -30,6 +31,7 @@
 	import OverflowMenuItem from '$lib/components/OverflowMenuItem.svelte';
 	import { cubicOut } from 'svelte/easing';
 	import type { TransitionConfig } from 'svelte/transition';
+	import type { KeybindExpression } from '$lib/keyboard';
 
 	// eslint-disable-next-line no-undef
 	export let actions: OverflowMenuAction<IconType>[];

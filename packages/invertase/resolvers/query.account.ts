@@ -9,10 +9,10 @@ builder.queryField(fieldName(), (t) =>
     args: {
       address: t.arg({ type: EmailAddressType, required: true }),
     },
-    async resolve(query, _, { address }) {
+    async resolve(query, _, { address }, ctx) {
       return prisma.account.findUnique({
         ...query,
-        where: { address },
+        where: { address, userId: ctx.ensuredUserId() },
       })
     },
   })

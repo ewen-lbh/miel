@@ -56,10 +56,8 @@ export default new HoudiniClient({
 	url: env.PUBLIC_API_URL,
 	plugins: [logger, subscriptionPlugin],
 	fetchParams({ session }) {
-		console.log('fetchParams ogrejoigjreoigjr    ');
 		const cookies = browser ? parse(document.cookie) : {};
 		const token = session?.token ?? cookies.token;
-		console.log({ cookies, session, token });
 		return {
 			credentials: 'include',
 			headers: {

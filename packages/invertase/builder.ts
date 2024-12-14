@@ -97,12 +97,11 @@ export async function context({ request }: YogaInitialContext) {
   const match = /^\s*[Bb]earer (.+)$/.exec(
     request.headers.get("Authorization") || ""
   )
-  const session = await validateSessionToken(match?.[1])
+  const validateResult = await validateSessionToken(match?.[1])
   return {
-    ...session,
-    get ensuredUserId(): string {
-      console.log({ getEnsuredUserId: this.session })
-      return ensureLoggedIn(this.session).userId
+    ...validateResult,
+    ensuredUserId: () => {
+      return ensureLoggedIn(validateResult.session).userId
     },
   }
 }

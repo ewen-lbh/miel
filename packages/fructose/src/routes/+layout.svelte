@@ -13,6 +13,7 @@
 	import { writable } from 'svelte/store';
 	import type { PageData } from './$houdini';
 	import ToastsArea from './ToastsArea.svelte';
+	import { setupKeybindsListener } from '$lib/keyboard';
 
 	onNavigate(setupViewTransition);
 
@@ -44,6 +45,7 @@
 		if (!navigator) return false;
 
 		$isMobile = inferIsMobile(navigator.userAgent);
+		setupKeybindsListener();
 	});
 </script>
 

@@ -9,7 +9,7 @@ builder.queryField(fieldName(), (t) =>
     async resolve(query, _, {}, ctx) {
       return prisma.account.findMany({
         ...query,
-        where: { userId: ctx.ensuredUserId },
+        where: { userId: ctx.ensuredUserId() },
         orderBy: { address: "asc" },
       })
     },

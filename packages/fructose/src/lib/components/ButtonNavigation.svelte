@@ -7,6 +7,7 @@
 	import { createEventDispatcher, type Component, type Snippet } from 'svelte';
 	import type { LayoutRouteId } from '../../routes/$types';
 	import { isSnippet } from '$lib/typing';
+	import { keybind, type KeybindExpression } from '$lib/keyboard';
 
 	const dispatch = createEventDispatcher<{ click: undefined }>();
 
@@ -20,6 +21,7 @@
 		iconFilled?: Snippet | Component | undefined;
 		tooltipsOn?: 'left' | 'right' | 'top' | 'bottom';
 		children?: Snippet;
+		keybind?: KeybindExpression;
 	}
 
 	let {
@@ -29,7 +31,8 @@
 		icon: Icon = undefined,
 		iconFilled: IconFilled = Icon,
 		tooltipsOn = 'top',
-		children
+		children,
+		...props
 	}: Props = $props();
 
 	const mobile = $derived($isMobile);
@@ -59,6 +62,7 @@
 	class="button-navigation"
 	role={isCurrent(routeID, href, $page) ? 'button' : 'link'}
 	class:current={isCurrent(routeID, href, $page)}
+	use:keybind={props.keybind}
 	use:tooltip={label ? { content: label, placement: tooltipsOn } : undefined}
 	onclick={isCurrent(routeID, href, $page)
 		? () => {

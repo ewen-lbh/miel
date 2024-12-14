@@ -57,7 +57,7 @@ async function infer(
     console.info(`Inferred avatar for ${address}: ${url}`)
     await prisma.address.update({
       where: {
-        address_userId: { address, userId: ctx.ensuredUserId },
+        address_userId: { address, userId: ctx.ensuredUserId() },
       },
       data: { avatarURL: url },
     })
