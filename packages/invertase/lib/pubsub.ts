@@ -1,8 +1,11 @@
 import { createRedisEventTarget } from "@graphql-yoga/redis-event-target"
+import * as dotenv from 'dotenv'
 import { FieldSubscriptionManager } from "@pothos/plugin-smart-subscriptions"
 import { createPubSub } from "graphql-yoga"
 import { Redis } from "ioredis"
 import { PothosTypes } from "../builder.js"
+
+dotenv.config()
 
 const REDIS_URL = new URL(process.env.REDIS_URL || "redis://localhost:6379")
 
