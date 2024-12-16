@@ -72,6 +72,7 @@ func main() {
 	}
 
 	wg := sync.WaitGroup{}
+	wg.Add(1)
 
 	for _, acct := range accounts {
 		c, err := CreateIMAPClient(acct.ID)
