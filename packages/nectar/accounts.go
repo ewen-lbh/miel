@@ -43,16 +43,19 @@ func CreateIMAPClient(accountId string) (*LoggedInAccount, error) {
 func (c *LoggedInAccount) Reconnect(options *imapclient.Options) error {
 	c.Lock()
 	defer c.Unlock()
-	_, err, timedout := timeout(200*time.Millisecond, func() (any, error) { err := c.imap.Close(); return nil, err })
-	if err != nil {
-		ll.WarnDisplay("couldn't close connection", err)
-	}
-	if timedout {
-		return fmt.Errorf("couldn't close connection: timed out")
+	if c.imap != nil {
+		_, err, timedout := timeout(200*time.Millisecond, func() (any, error) { err := c.imap.Close(); return nil, err })
+		if err != nil {
+			ll.WarnDisplay("couldn't close connection", err)
+		}
+		if timedout {
+			return fmt.Errorf("couldn't close connection: timed out")
+		}
 	}
 
 	ctx = context.Background()
 
+	var err error
 	c.imap, err = ConnectToIMAP(c.account.ReceiverServer(), c.account.ReceiverAuth(), options)
 	if err != nil {
 		return fmt.Errorf("while reconnecting: %w", err)
