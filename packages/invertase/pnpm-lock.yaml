@@ -28,19 +28,19 @@ importers:
         version: 4.3.0(graphql@16.9.0)
       '@pothos/plugin-errors':
         specifier: ^4.2.0
-        version: 4.2.0(@pothos/core@4.3.0)(graphql@16.9.0)
+        version: 4.2.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)
       '@pothos/plugin-prisma':
         specifier: ^4.4.0
-        version: 4.4.0(@pothos/core@4.3.0)(@prisma/client@6.0.0)(graphql@16.9.0)(typescript@5.7.2)
+        version: 4.4.0(@pothos/core@4.3.0(graphql@16.9.0))(@prisma/client@6.0.0)(graphql@16.9.0)(typescript@5.7.2)
       '@pothos/plugin-relay':
         specifier: ^4.3.0
-        version: 4.3.0(@pothos/core@4.3.0)(graphql@16.9.0)
+        version: 4.3.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)
       '@pothos/plugin-smart-subscriptions':
         specifier: ^4.1.1
-        version: 4.1.1(@pothos/core@4.3.0)(graphql@16.9.0)
+        version: 4.1.1(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)
       '@pothos/plugin-zod':
         specifier: ^4.1.0
-        version: 4.1.0(@pothos/core@4.3.0)(graphql@16.9.0)(zod@3.23.8)
+        version: 4.1.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)(zod@3.23.8)
       '@types/lodash-es':
         specifier: ^4.17.12
         version: 4.17.12
@@ -80,6 +80,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      meilisearch:
+        specifier: ^0.46.0
+        version: 0.46.0
       nodemailer:
         specifier: ^6.9.16
         version: 6.9.16
@@ -1069,6 +1072,9 @@ packages:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
     engines: {node: '>= 0.6'}
 
+  meilisearch@0.46.0:
+    resolution: {integrity: sha512-bx0tei1B+Ke0Y02pCoqmcwfpkwuDf+/ZkQDVDvb+ZfGDpWaxq9Z7sE5kc3o8zWvP6wJE7e3PoU3Oy6WINqq5bw==}
+
   merge-descriptors@1.0.3:
     resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
 
@@ -1788,12 +1794,12 @@ snapshots:
     dependencies:
       graphql: 16.9.0
 
-  '@pothos/plugin-errors@4.2.0(@pothos/core@4.3.0)(graphql@16.9.0)':
+  '@pothos/plugin-errors@4.2.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)':
     dependencies:
       '@pothos/core': 4.3.0(graphql@16.9.0)
       graphql: 16.9.0
 
-  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.3.0)(@prisma/client@6.0.0)(graphql@16.9.0)(typescript@5.7.2)':
+  '@pothos/plugin-prisma@4.4.0(@pothos/core@4.3.0(graphql@16.9.0))(@prisma/client@6.0.0)(graphql@16.9.0)(typescript@5.7.2)':
     dependencies:
       '@pothos/core': 4.3.0(graphql@16.9.0)
       '@prisma/client': 6.0.0
@@ -1801,17 +1807,17 @@ snapshots:
       graphql: 16.9.0
       typescript: 5.7.2
 
-  '@pothos/plugin-relay@4.3.0(@pothos/core@4.3.0)(graphql@16.9.0)':
+  '@pothos/plugin-relay@4.3.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)':
     dependencies:
       '@pothos/core': 4.3.0(graphql@16.9.0)
       graphql: 16.9.0
 
-  '@pothos/plugin-smart-subscriptions@4.1.1(@pothos/core@4.3.0)(graphql@16.9.0)':
+  '@pothos/plugin-smart-subscriptions@4.1.1(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)':
     dependencies:
       '@pothos/core': 4.3.0(graphql@16.9.0)
       graphql: 16.9.0
 
-  '@pothos/plugin-zod@4.1.0(@pothos/core@4.3.0)(graphql@16.9.0)(zod@3.23.8)':
+  '@pothos/plugin-zod@4.1.0(@pothos/core@4.3.0(graphql@16.9.0))(graphql@16.9.0)(zod@3.23.8)':
     dependencies:
       '@pothos/core': 4.3.0(graphql@16.9.0)
       graphql: 16.9.0
@@ -2112,6 +2118,7 @@ snapshots:
   debug@4.3.7(supports-color@5.5.0):
     dependencies:
       ms: 2.1.3
+    optionalDependencies:
       supports-color: 5.5.0
 
   decode-named-character-reference@1.0.2:
@@ -2639,6 +2646,8 @@ snapshots:
       '@types/mdast': 4.0.4
 
   media-typer@0.3.0: {}
+
+  meilisearch@0.46.0: {}
 
   merge-descriptors@1.0.3: {}
 
