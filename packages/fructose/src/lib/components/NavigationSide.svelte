@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { fragment, graphql, type NavigationSide } from '$houdini';
+	import { graphql } from '$houdini';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import ButtonGhost from '$lib/components/ButtonGhost.svelte';
 	import ButtonNavigation from '$lib/components/ButtonNavigation.svelte';
 	import { loading } from '$lib/loading';
 	import { route } from '$lib/ROUTES';
 	import { theme } from '$lib/theme';
-	import { enumerate, withSurrounding, withSurroundingsWrapped } from '$lib/typing';
-	import { add } from 'date-fns';
+	import { withSurroundingsWrapped } from '$lib/typing';
 	import IconBugReport from '~icons/msl/bug-report-outline';
+	import IconSearch from '~icons/msl/search';
 	import IconComposeFilled from '~icons/msl/ink-pen';
 	import IconCompose from '~icons/msl/ink-pen-outline';
 	import IconAutoTheme from '~icons/msl/night-sight-auto-outline';
@@ -58,6 +58,14 @@
 		<ButtonNavigation href="/" routeID="/">Mi</ButtonNavigation>
 	</div>
 	<div class="middle">
+		<ButtonNavigation
+			keybind="global.open_search"
+			href={route('/search')}
+			routeID="/search"
+			label="Search"
+			tooltipsOn="left"
+			icon={IconSearch}
+		/>
 		<ButtonNavigation
 			keybind="global.open_accounts"
 			href="/"

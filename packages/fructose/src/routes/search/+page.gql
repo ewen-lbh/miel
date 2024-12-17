@@ -1,0 +1,5 @@
+query PageSearch($q: String!) {
+	searchMails(q: $q) {
+		...EmailRow
+	}
+}

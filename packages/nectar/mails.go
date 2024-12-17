@@ -478,6 +478,12 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 				}
 			}
 		}
+
+		err = c.AddMailToSearchIndex(dbEmail)
+		if err != nil {
+			ll.WarnDisplay("could not add email to search index", err)
+		}
+
 	} else {
 
 		_, err = prisma.Email.FindUnique(db.Email.ID.Equals(dbEmail.ID)).Update(

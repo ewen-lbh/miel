@@ -35,6 +35,9 @@ dependencies:
   graphql-ws:
     specifier: ^5.16.0
     version: 5.16.0(graphql@15.9.0)
+  lodash-es:
+    specifier: ^4.17.21
+    version: 4.17.21
   nanoid:
     specifier: ^5.0.9
     version: 5.0.9
@@ -3896,6 +3899,10 @@ packages:
     dependencies:
       p-locate: 5.0.0
     dev: true
+
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: false
 
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
