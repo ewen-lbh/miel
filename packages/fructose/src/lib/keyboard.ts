@@ -166,6 +166,7 @@ const PREDEFINED_KEYMAPS: Record<string, Keymap> = {
 			previous_account: 'ctrl+k',
 			open_accounts: 'shift+a',
 			open_inboxes: 'shift+i',
+			open_search: 'shift+s',
 			open_keyboard_shortcuts: '?'
 		}
 	}
@@ -211,7 +212,8 @@ const ACTIONS = [
 	'see_sender',
 	'peek_spam_report',
 	'next_link',
-	'previous_link'
+	'previous_link',
+	'open_search'
 ] as const;
 
 const CONTEXTS = ['screener', 'email', 'email_list', 'account_list', 'global'] as const;
@@ -250,6 +252,7 @@ const VALID_ACTIONS_IN_CONTEXT = {
 		'next_account',
 		'open_accounts',
 		'open_inboxes',
+		'open_search',
 		'open_keyboard_shortcuts',
 		'compose',
 		'back'

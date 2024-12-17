@@ -124,6 +124,14 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
+"""
+A device owned by a user. Holds device-specific information, notably push notification tokens
+"""
+type Device implements Node {
+  id: ID!
+  notificationsToken: String!
+}
+
 """Represents an email message."""
 type Email implements Node {
   """Attachments included in the email."""
@@ -324,6 +332,7 @@ enum MailboxType {
 }
 
 type Mutation {
+  enableNotifications(token: String): MutationEnableNotificationsResult!
   login(email: String!, password: String!): MutationLoginResult!
   logout(token: String): MutationLogoutResult!
   moveToInbox(email: ID!, inbox: ID!): MutationMoveToInboxResult!
@@ -363,6 +372,8 @@ type Mutation {
     input: MailboxInput!
   ): MutationUpsertMailboxResult!
 }
+
+union MutationEnableNotificationsResult = Device | Error | UnauthorizedError | ZodError
 
 union MutationLoginResult = Error | NewSession | UnauthorizedError | ZodError
 
@@ -423,6 +434,12 @@ type Query {
     first: Int
     last: Int
   ): QueryScreeningsConnection!
+  """Search in emails, including their body"""
+  searchMails(
+    """Limit to mails from a specific account"""
+    account: EmailAddress
+    q: String
+  ): [Email!]!
 }
 
 type QueryAddressesConnection {

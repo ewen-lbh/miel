@@ -61,6 +61,7 @@
         "date-fns": "^4.1.0",
         "dotenv": "^16.4.7",
         "graphql-ws": "^5.16.0",
+        "lodash-es": "^4.17.21",
         "nanoid": "^5.0.9",
         "svelte-store2storage": "^2.0.0",
         "sveltejs-tippy": "^3.0.0",
