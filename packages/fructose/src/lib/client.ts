@@ -48,7 +48,12 @@ const logger: ClientPlugin = () => ({
 
 const subscriptionPlugin = subscription(({ session }) =>
 	createClient({
-		url: env.PUBLIC_API_WEBSOCKET_URL
+		url: env.PUBLIC_API_WEBSOCKET_URL,
+		connectionParams() {
+			return {
+				token: `Bearer ${session?.token}`
+			};
+		}
 	})
 );
 

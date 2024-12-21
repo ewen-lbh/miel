@@ -12,9 +12,11 @@
 	interface Props {
 		email: EmailRow | null;
 		noavatar?: boolean;
+		/** signal that the email was newly received */
+		fresh?: boolean;
 	}
 
-	const { email, noavatar = false }: Props = $props();
+	const { email, noavatar = false, fresh = false }: Props = $props();
 	let Email = $derived(
 		fragment(
 			email,
@@ -68,6 +70,10 @@
 		{/if}
 	{/snippet}
 	{#snippet subtext()}
+		{#if fresh}
+			<strong class="primary">Just in</strong>
+			<span>&nbsp;·&nbsp;</span>
+		{/if}
 		<LoadingText
 			value={mapAllLoading(
 				[receivedAt, spamLevel?.at(0) ?? null, attachmentsCount],

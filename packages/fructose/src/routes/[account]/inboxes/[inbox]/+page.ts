@@ -2,7 +2,7 @@ import { graphql, load_PageInbox, load_PageInboxUnrolled } from '$houdini';
 import { error } from '@sveltejs/kit';
 
 const NeedsUnroll = graphql(`
-	query PageInboxNeedsUnrolling($account: EmailAddress!, $inbox: ID!) {
+	query PageInboxNeedsUnrolling($account: EmailAddress!, $inbox: ID!) @loading {
 		account(address: $account) {
 			inbox(id: $inbox) {
 				...InboxHeader
@@ -23,6 +23,7 @@ graphql(`
 				emails(first: 50) @paginate @loading(count: 5) {
 					edges {
 						node {
+							id
 							...EmailRow
 						}
 					}
@@ -36,6 +37,7 @@ graphql(`
 	query PageInboxUnrolled($account: EmailAddress!, $inbox: ID!) @loading(cascade: true) {
 		account(address: $account) {
 			inbox(id: $inbox) {
+				...InboxHeader
 				id
 				name
 				type

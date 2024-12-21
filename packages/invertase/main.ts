@@ -5,8 +5,8 @@ import path from "node:path"
 import { createYoga } from "graphql-yoga"
 import helmet from "helmet"
 import { WebSocketServer } from "ws"
-import { schema } from "./write-schema.ts"
-import { context } from "./builder.ts"
+import { schema } from "./write-schema.js"
+import { context } from "./builder.js"
 import * as dotenv from "dotenv"
 
 dotenv.config()

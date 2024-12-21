@@ -36,7 +36,7 @@ export const MailboxType = builder.prismaNode("Mailbox", {
           }),
         },
         query: ({ includeUnscreened }) => ({
-          orderBy: { internalUid: "desc" },
+          orderBy: [{ receivedAt: "desc" }, { internalUid: "desc" }],
           ...(includeUnscreened
             ? {}
             : { where: { sender: { defaultInbox: { isNot: null } } } }),

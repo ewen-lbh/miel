@@ -6,9 +6,11 @@ query PageAccount($account: EmailAddress!) @loading(cascade: true) {
 			name
 		}
 		mainbox {
+			id
 			emails(first: 50) @paginate @loading(count: 10) {
 				edges {
 					node {
+						id
 						...EmailRow
 					}
 				}

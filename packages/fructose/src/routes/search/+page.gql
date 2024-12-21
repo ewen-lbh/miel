@@ -1,4 +1,4 @@
-query PageSearch($q: String!) {
+query PageSearch($q: String!) @loading {
 	searchMails(q: $q) {
 		...EmailRow
 	}

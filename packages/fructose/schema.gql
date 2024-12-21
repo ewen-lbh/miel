@@ -418,9 +418,26 @@ type Query {
   address(email: EmailAddress!): Address
   """Get all addresses"""
   addresses(after: String, before: String, first: Int, last: Int): QueryAddressesConnection!
+  """List of all your attachments"""
+  attachments(
+    """Limit to attachments from a specific account"""
+    account: EmailAddress
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): QueryAttachmentsConnection!
   """Find a mail by id"""
   email(id: ID!): Email
-  emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
+  emails(
+    after: String
+    before: String
+    first: Int
+    inbox: ID!
+    """Include emails from unscreened senders"""
+    includeUnscreened: Boolean = false
+    last: Int
+  ): QueryEmailsConnection!
   node(id: ID!): Node
   nodes(ids: [ID!]!): [Node]!
   """
@@ -434,6 +451,12 @@ type Query {
     first: Int
     last: Int
   ): QueryScreeningsConnection!
+  """Search attachments"""
+  searchAttachments(
+    """Limit to attachments from a specific account"""
+    account: EmailAddress
+    q: String
+  ): [Attachment!]!
   """Search in emails, including their body"""
   searchMails(
     """Limit to mails from a specific account"""
@@ -451,6 +474,17 @@ type QueryAddressesConnection {
 type QueryAddressesConnectionEdge {
   cursor: String!
   node: Address!
+}
+
+type QueryAttachmentsConnection {
+  edges: [QueryAttachmentsConnectionEdge!]!
+  nodes: [Attachment!]!
+  pageInfo: PageInfo!
+}
+
+type QueryAttachmentsConnectionEdge {
+  cursor: String!
+  node: Attachment!
 }
 
 type QueryEmailsConnection {
@@ -519,7 +553,15 @@ type Session implements Node {
 }
 
 type Subscription {
-  emails(after: String, before: String, first: Int, inbox: ID!, last: Int): QueryEmailsConnection!
+  emails(
+    after: String
+    before: String
+    first: Int
+    inbox: ID!
+    """Include emails from unscreened senders"""
+    includeUnscreened: Boolean = false
+    last: Int
+  ): QueryEmailsConnection!
   """Check if the daemon listening for new mail is running."""
   idlerIsOnline: Boolean!
   """

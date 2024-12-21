@@ -93,15 +93,22 @@ builder.queryType({})
 builder.mutationType({})
 builder.subscriptionType({})
 
-export async function context({ request }: YogaInitialContext) {
-  const match = /^\s*[Bb]earer (.+)$/.exec(
-    request.headers.get("Authorization") || ""
+export async function context(
+  initialContext: YogaInitialContext | { connectionParams?: { token?: string } }
+) {
+  const token =
+    "request" in initialContext
+      ? initialContext.request.headers.get("Authorization")
+      : initialContext.connectionParams?.token
+
+  const validationResult = await validateSessionToken(
+    /^\s*[Bb]earer (.+)$/.exec(token ?? "")?.[1]
   )
-  const validateResult = await validateSessionToken(match?.[1])
+
   return {
-    ...validateResult,
+    ...validationResult,
     ensuredUserId: () => {
-      return ensureLoggedIn(validateResult.session).userId
+      return ensureLoggedIn(validationResult.session).userId
     },
   }
 }

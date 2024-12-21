@@ -16,7 +16,7 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import IconMore from '~icons/msl/more-horiz';
 	import type { PageData } from './$houdini';
-	import { keybind, ValidActionInContext } from '$lib/keyboard';
+	import { keybind, type ValidActionInContext } from '$lib/keyboard';
 
 	const { data }: { data: PageData } = $props();
 	let { PageScreener } = $derived(data);

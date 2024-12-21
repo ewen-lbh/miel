@@ -15,4 +15,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     path.join(here, "../fructose/schema.gql"),
     printSchemaWithDirectives(schema)
   )
+  process.exit(0)
 }

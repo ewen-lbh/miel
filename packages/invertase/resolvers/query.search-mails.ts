@@ -25,14 +25,26 @@ builder.queryField(fieldName(), (t) =>
           })
           .then((accounts) =>
             accounts.map(({ id: accountId }) =>
-              meili
-                .index(`${accountId}__mails`)
-                .search(q)
-                .catch((err) => {
-                  console.error(err)
-                  return { hits: [] }
-                })
-                .then((results) => results.hits.map((hit) => hit.id))
+              Promise.all([
+                // Search in emails
+                meili
+                  .index(`${accountId}__mails`)
+                  .search(q)
+                  .catch((err) => {
+                    console.error(err)
+                    return { hits: [] }
+                  })
+                  .then((results) => results.hits.map((hit) => hit.id)),
+                // Search in attachments too
+                meili
+                  .index(`${accountId}__attachments`)
+                  .search(q)
+                  .catch((err) => {
+                    console.error(err)
+                    return { hits: [] }
+                  })
+                  .then((results) => results.hits.map((hit) => hit.emailId)),
+              ]).then((results) => results.flat())
             )
           )
       )
@@ -41,7 +53,16 @@ builder.queryField(fieldName(), (t) =>
         ...query,
         where: {
           users: { some: { id: ensuredUserId() } },
-          id: { in: ids.flat() },
+          ...(ids.length > 0
+            ? { id: { in: ids.flat() } }
+            : {
+                attachments: {
+                  some: {
+                    filename: { contains: q },
+                    embedded: false,
+                  },
+                },
+              }),
         },
         take: 50,
       })

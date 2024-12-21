@@ -26,3 +26,16 @@ func (c *LoggedInAccount) AddMailToSearchIndex(mail *db.EmailModel) error {
 
 	return nil
 }
+
+func (c *LoggedInAccount) AddAttachmentToSearchIndex(attachment *db.AttachmentModel) error {
+	index := meili.Index(fmt.Sprintf("%s__attachments", c.account.ID))
+	_, err := index.AddDocuments(map[string]interface{}{
+		"id": attachment.ID, "filename": attachment.Filename, "text": attachment.TextContent, "mailId": attachment.EmailID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("while adding attachment %s to search index: %w", attachment.ID, err)
+	}
+
+	return nil
+}

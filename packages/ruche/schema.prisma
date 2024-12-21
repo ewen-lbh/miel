@@ -26,6 +26,12 @@ model User {
   sessions     Session[]
   Account      Account[]
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// Emails this user can see 
   emails Email[] @relation("EmailUsers")
 
@@ -43,6 +49,12 @@ model Session {
   userId    String
   expiresAt DateTime
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   user User @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
@@ -50,6 +62,12 @@ model Session {
 model Account {
   /// Unique identifier for the account.
   id String @id @default(cuid())
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// User associated with the account.
   user   User   @relation(fields: [userId], references: [id])
@@ -105,6 +123,12 @@ model Mailbox {
   /// Unique identifier for the mailbox.
   id String @id @default(cuid())
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// UIDVALIDITY of the mailbox. Only available to @miel/nectar
   internalUidValidity Int
 
@@ -143,6 +167,12 @@ model Mailbox {
 model Email {
   /// Unique identifier for the email.
   id String @id @default(cuid())
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// UID of the email in the mailbox. Only available to @miel/nectar
   internalUid Int
@@ -222,6 +252,12 @@ model Attachment {
   /// Unique identifier for the attachment.
   id String @id @default(cuid())
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// The filename of the attachment.
   filename String
 
@@ -233,6 +269,9 @@ model Attachment {
 
   /// Extracted text content of the attachment.
   textContent String
+
+  /// Path to the thumbnail of the attachment.
+  thumbnailPath String @default("")
 
   /// The attachment is an embedded file.
   embedded Boolean @default(false)
@@ -255,6 +294,12 @@ model Clip {
   /// The text content of the clip.
   text String
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// The email that contains this clip.
   email   Email  @relation(fields: [emailId], references: [id])
   emailId String
@@ -264,6 +309,12 @@ model Clip {
 model Address {
   /// Unique identifier for the address.
   id String @id @default(cuid())
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// Optional URL of the avatar associated with the address.
   avatarURL String?
@@ -311,6 +362,12 @@ model Signature {
   /// Unique identifier for the signature.
   id String @id @default(cuid())
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// The name of the signature.
   name String
 
@@ -329,6 +386,12 @@ model Signature {
 model Label {
   /// Unique identifier for the label.
   id String @id @default(cuid())
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// Key for the label (not displayed).
   key String
@@ -352,6 +415,12 @@ model ServerAuth {
   /// Unique identifier for the server auth.
   id String @id @default(cuid())
 
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
+
   /// The username used to authenticate with the server.
   username String
 
@@ -372,6 +441,12 @@ model ServerAuth {
 model Server {
   /// Unique identifier for the server.
   id String @id @default(cuid())
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// Hostname of the server.
   host String
@@ -410,6 +485,12 @@ model Device {
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
+
+  /// Creation date
+  createdAt DateTime @default(now())
+
+  /// Last update date
+  updatedAt DateTime @default(now()) @updatedAt
 
   notificationsToken String
 }

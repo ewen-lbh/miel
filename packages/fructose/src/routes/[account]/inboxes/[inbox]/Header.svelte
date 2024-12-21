@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { fragment, graphql, type InboxHeader, type MailboxType$options } from '$houdini';
 	import ButtonInk from '$lib/components/ButtonInk.svelte';
 	import Header from '$lib/components/Header.svelte';
@@ -11,7 +11,7 @@
 	import LoadingText from '$lib/LoadingText.svelte';
 	import { toasts } from '$lib/toasts';
 
-	const { inbox }: { inbox: InboxHeader } = $props();
+	const { inbox }: { inbox: InboxHeader | null } = $props();
 	const Inbox = $derived(
 		fragment(
 			inbox,
@@ -48,7 +48,7 @@
 				clickable
 				onclick={async () => {
 					const result = await UpdateMailboxType.mutate({
-						inbox: $page.params.inbox,
+						inbox: page.params.inbox,
 						type: type
 					});
 					if (toasts.mutation(result, 'upsertMailbox', '', 'Could not update mailbox type')) {
@@ -67,7 +67,7 @@
 
 <Header title={$Inbox?.name}>
 	{#snippet avatar()}
-		<div class="icon-circle {onceLoaded($Inbox.type, colorclass, '') || 'muted'}">
+		<div class="icon-circle {onceLoaded($Inbox?.type, colorclass, '') || 'muted'}">
 			<IconMailboxType type={$Inbox?.type} />
 		</div>
 	{/snippet}

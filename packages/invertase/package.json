@@ -46,7 +46,7 @@
     "tsx": "^4.19.2"
   },
   "scripts": {
-    "dev": "tsx main.ts",
+    "dev": "pnpm schema && tsx main.ts",
     "schema": "tsx barrel-to-schema.ts && tsx write-schema.ts",
     "watch:schema": "nodemon -q -w types -w resolvers -e ts,tsx -x 'pnpm run schema'"
   }

@@ -4,6 +4,7 @@
 	import EmailRow from '$lib/components/EmailRow.svelte';
 	import InputSearchQuery from '$lib/components/InputSearchQuery.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
+	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import Submenu from '$lib/components/Submenu.svelte';
 	import type { PageData } from './$houdini';
 
@@ -11,21 +12,28 @@
 	let { PageSearch } = $derived(data);
 </script>
 
+<header>
+	<InputSearchQuery
+		q={$page.url.searchParams.get('q') ?? ''}
+		on:debouncedInput={async ({ detail }) => {
+			replaceState(`?q=${detail}`, {});
+			await PageSearch.fetch({ variables: { q: detail ?? '' } });
+		}}
+	/>
+</header>
+
 <MaybeError result={$PageSearch}>
-	{#snippet children({ searchMails })}
-		<header>
-			<InputSearchQuery
-				q={$page.url.searchParams.get('q') ?? ''}
-				on:debouncedInput={async ({ detail }) => {
-					replaceState(`?q=${detail}`, {});
-					await PageSearch.fetch({ variables: { q: detail ?? '' } });
-				}}
-			/>
-		</header>
+	{#snippet children({ searchMails }, fetching)}
 		<Submenu>
-			{#each searchMails as result}
-				<EmailRow email={result} />
-			{/each}
+			{#if fetching}
+				<SubmenuItem>Loading…</SubmenuItem>
+			{:else}
+				{#each searchMails as result}
+					<EmailRow email={result} />
+				{:else}
+					<SubmenuItem>No results</SubmenuItem>
+				{/each}
+			{/if}
 		</Submenu>
 	{/snippet}
 </MaybeError>

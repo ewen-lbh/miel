@@ -19,7 +19,8 @@
 	interface Props {
 		result: QueryResult<Result, Input> | null;
 		errored?: boolean;
-		children?: Snippet<[NonNullable<QueryResult<Result, Input>['data']>]>;
+		/** children(data, fetching) */
+		children?: Snippet<[NonNullable<QueryResult<Result, Input>['data']>, Boolean]>;
 		onSuccess?: (data: Result) => void;
 	}
 
@@ -37,7 +38,7 @@
 </script>
 
 {#if result && result.data}
-	{@render children?.(bang(bang(result).data))}
+	{@render children?.(bang(bang(result).data), bang(result).fetching)}
 {:else if result?.errors}
 	<Alert theme="danger">
 		<h2>Oops!</h2>

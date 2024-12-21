@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { graphql } from '$houdini';
 	import DeclareKeybindsContext from '$lib/components/DeclareKeybindsContext.svelte';
 	import EmailRow from '$lib/components/EmailRow.svelte';
 	import MaybeError from '$lib/components/MaybeError.svelte';
@@ -14,6 +15,22 @@
 	import type { PageData } from './$houdini';
 	const { data }: { data: PageData } = $props();
 	const { PageAccount } = $derived(data);
+
+	const Updates = graphql(`
+		subscription AccountUpdates($inbox: ID!) {
+			emails(inbox: $inbox, first: 5) {
+				nodes {
+					id
+					...EmailRow
+				}
+			}
+		}
+	`);
+	$effect(() => {
+		const mainbox = $PageAccount.data?.account?.mainbox;
+		if (!mainbox) return;
+		Updates.listen({ inbox: mainbox.id });
+	});
 </script>
 
 <DeclareKeybindsContext context="email_list" />
@@ -23,6 +40,10 @@
 		{#if !account}
 			<p>Account does not exist</p>
 		{:else}
+			{@const newEmails =
+				$Updates.data?.emails.nodes.filter(
+					({ id }) => !account.mainbox?.emails.edges.some((e) => e.node.id === id)
+				) ?? []}
 			<div class="content">
 				<header>
 					{#each account.inboxes as inbox}
@@ -44,6 +65,9 @@
 				</header>
 				<main use:infinitescroll={async () => PageAccount.loadNextPage()}>
 					<Submenu>
+						{#each newEmails as email}
+							<EmailRow fresh {email} />
+						{/each}
 						{#each account.mainbox?.emails.edges ?? [] as { node: email }}
 							<EmailRow {email} />
 						{:else}

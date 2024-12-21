@@ -4,9 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -132,7 +130,7 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 
 	defer mails.Close()
 
-	ll.StartProgressBar(seqsetSize(seqset), "Saving", "cyan")
+	// ll.StartProgressBar(seqsetSize(seqset), "Saving", "cyan")
 	i := 0
 	for {
 		i++
@@ -150,17 +148,22 @@ func (c *LoggedInAccount) SyncMails(inboxId string) error {
 			continue
 		}
 
-		err = c.SyncMail(box, mail)
+		_, err, timedout := timeout(10*time.Second, func() (int, error) {
+			err := c.SyncMail(box, mail)
+			return 0, err
+		})
 		if err != nil {
 			ll.WarnDisplay("while syncing mail %q", err, mail.Envelope.Subject)
 		}
+		if timedout {
+			ll.Warn("timed out while syncing mail %q", mail.Envelope.Subject)
+		}
 
-		ll.IncrementProgressBar()
+		// ll.IncrementProgressBar()
 	}
-	ll.StopProgressBar()
 
-	ll.Log("Published", "green", fmt.Sprintf("mailbox:updates:%s", box.ID))
 	redisClient.Publish(ctx, fmt.Sprintf("mailbox:updates:%s", box.ID), nil)
+	ll.Log("Published", "green", fmt.Sprintf("mailbox:updates:%s", box.ID))
 	return nil
 
 }
@@ -293,16 +296,9 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 		return fmt.Errorf("while checking if email exists: %w", err)
 	}
 
+	var parsedEmail *parsemail.Email
 	mailReferences := make([]string, 0)
 	mailHeaders := ""
-	type Attachment struct {
-		Filename string
-		Content  []byte
-		MimeType string
-		Size     int
-		Embedded bool
-	}
-	attachments := make([]Attachment, 0)
 
 	if len(mail.BodySection) > 1 {
 		return fmt.Errorf("mail has more than one body section: %v", mail.BinarySection)
@@ -319,36 +315,8 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 				return true
 			})
 			os.WriteFile("body.eml", body, 0644)
-		}
-
-		for _, file := range parsed.EmbeddedFiles {
-			data, err := io.ReadAll(file.Data)
-			if err != nil {
-				return fmt.Errorf("while reading bytes from embedded file %q: %w", file.CID, err)
-			}
-
-			attachments = append(attachments, Attachment{
-				MimeType: file.ContentType,
-				Filename: file.CID,
-				Size:     len(data),
-				Content:  data,
-				Embedded: true,
-			})
-		}
-
-		for _, attachment := range parsed.Attachments {
-			data, err := io.ReadAll(attachment.Data)
-			if err != nil {
-				ll.WarnDisplay("while reading attachment %q of %q: %w", err, attachment.Filename, envelope.Subject)
-				continue
-			}
-
-			attachments = append(attachments, Attachment{
-				MimeType: attachment.ContentType,
-				Filename: attachment.Filename,
-				Size:     len(data),
-				Content:  data,
-			})
+		} else {
+			parsedEmail = &parsed
 		}
 
 		bodyText = parsed.TextBody
@@ -441,46 +409,16 @@ func (c *LoggedInAccount) SyncMail(box *db.MailboxModel, mail *imapclient.FetchM
 			return fmt.Errorf("could not save new email %q: %w", envelope.Subject, err)
 		}
 
-		if len(attachments) > 0 {
-			for _, attachment := range attachments {
-				storagepath := fmt.Sprintf("attachments/%s/%s", dbEmail.ID, attachment.Filename)
-				err = os.MkdirAll(filepath.Dir(storagepath), 0755)
-				if err != nil {
-					return fmt.Errorf("while creating directories to save attachment to %q: %w", storagepath, err)
-				}
-
-				err = os.WriteFile(storagepath, attachment.Content, 0644)
-				if err != nil {
-					return fmt.Errorf("while writing attachment to %q: %w", storagepath, err)
-				}
-
-				_, err = prisma.Attachment.UpsertOne(
-					db.Attachment.EmailIDFilename(
-						db.Attachment.EmailID.Equals(dbEmail.ID),
-						db.Attachment.Filename.Equals(attachment.Filename),
-					),
-				).Create(
-					db.Attachment.Filename.Set(attachment.Filename),
-					db.Attachment.MimeType.Set(attachment.MimeType),
-					db.Attachment.Size.Set(attachment.Size),
-					db.Attachment.TextContent.Set(""),
-					db.Attachment.Email.Link(db.Email.ID.Equals(dbEmail.ID)),
-					db.Attachment.StoragePath.Set(storagepath),
-					db.Attachment.Embedded.Set(attachment.Embedded),
-				).Update(
-					db.Attachment.MimeType.Set(attachment.MimeType),
-					db.Attachment.Size.Set(attachment.Size),
-					db.Attachment.TextContent.Set(""),
-				).Exec(ctx)
-
-				if err != nil {
-					return fmt.Errorf("could not save attachment %q: %w", attachment.Filename, err)
-				}
+		if parsedEmail != nil {
+			err = c.SaveAttachments(*parsedEmail, dbEmail)
+			if err != nil {
+				return fmt.Errorf("while saving attachments: %w", err)
 			}
 		}
 
 		err = c.AddMailToSearchIndex(dbEmail)
 		if err != nil {
+			// return fmt.Errorf("could not add email to search index: %w", err)
 			ll.WarnDisplay("could not add email to search index", err)
 		}
 
