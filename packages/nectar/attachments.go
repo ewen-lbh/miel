@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	ll "github.com/ewen-lbh/label-logger-go"
@@ -54,7 +55,6 @@ func (c *LoggedInAccount) SaveAttachments(parsedEmail parsemail.Email, dbEmail *
 	}
 
 	for _, attachment := range attachments {
-
 		storagepath := fmt.Sprintf("attachments/%s/%s", dbEmail.ID, attachment.Filename)
 		err := os.MkdirAll(filepath.Dir(storagepath), 0755)
 		if err != nil {
@@ -66,6 +66,16 @@ func (c *LoggedInAccount) SaveAttachments(parsedEmail parsemail.Email, dbEmail *
 			return fmt.Errorf("while writing attachment to %q: %w", storagepath, err)
 		}
 
+
+		var extractedText *string
+		out, err := exec.Command("markitdown", storagepath).Output()
+		if err != nil {
+			return fmt.Errorf("could not extract text content from %q: %w", storagepath, err)
+		} else {
+			asstr := string(out)
+			extractedText = &asstr
+		}
+
 		dbAttachment, err := prisma.Attachment.UpsertOne(
 			db.Attachment.EmailIDFilename(
 				db.Attachment.EmailID.Equals(dbEmail.ID),
@@ -75,14 +85,14 @@ func (c *LoggedInAccount) SaveAttachments(parsedEmail parsemail.Email, dbEmail *
 			db.Attachment.Filename.Set(attachment.Filename),
 			db.Attachment.MimeType.Set(attachment.MimeType),
 			db.Attachment.Size.Set(attachment.Size),
-			db.Attachment.TextContent.Set(""),
+			db.Attachment.TextContent.SetIfPresent(extractedText),
 			db.Attachment.Email.Link(db.Email.ID.Equals(dbEmail.ID)),
 			db.Attachment.StoragePath.Set(storagepath),
 			db.Attachment.Embedded.Set(attachment.Embedded),
 		).Update(
 			db.Attachment.MimeType.Set(attachment.MimeType),
 			db.Attachment.Size.Set(attachment.Size),
-			db.Attachment.TextContent.Set(""),
+			db.Attachment.TextContent.SetIfPresent(extractedText),
 		).Exec(ctx)
 
 		if err != nil {

@@ -53,9 +53,15 @@ ENV PATH="/app/.venv/bin:$PATH"
 # Install markitdown using uv
 RUN uv pip install markitdown
 
-# Optional: Create a non-root user
-RUN useradd -m devuser
-USER devuser
+# Install Go deps
+COPY go.mod go.sum /app/
+RUN go mod download
+
+# Compile Go code
+COPY . /app
+
+# Build the Go code
+RUN go build -o /app/nectar *.go
 
 # Default command (can be overridden)
-CMD ["/bin/bash"]
+CMD ["/app/nectar"]
