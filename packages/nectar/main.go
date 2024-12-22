@@ -24,9 +24,12 @@ const (
 )
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		panic(fmt.Errorf("while loading vars from .env: %w", err))
+	// check if .env exists
+	if _, err := os.Stat(".env"); err == nil {
+		err := godotenv.Load()
+		if err != nil {
+			panic(fmt.Errorf("while loading vars from .env: %w", err))
+		}
 	}
 
 	prisma = db.NewClient()

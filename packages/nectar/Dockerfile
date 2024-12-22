@@ -28,7 +28,9 @@ RUN apt-get update && apt-get install -y \
     unzip \
     # Python and pip
     python3 \
-    python3-pip
+    python3-pip \
+    # OpenSSL
+    libssl-dev 
 
 # Install uv using pip
 RUN pip install uv
@@ -56,6 +58,8 @@ RUN uv pip install markitdown
 # Install Go deps
 COPY go.mod go.sum /app/
 RUN go mod download
+
+RUN go run github.com/steebchen/prisma-client-go prefetch
 
 # Compile Go code
 COPY . /app
