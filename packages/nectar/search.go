@@ -16,6 +16,8 @@ func init() {
 
 func (c *LoggedInAccount) AddMailToSearchIndex(mail *db.EmailModel) error {
 	index := meili.Index(fmt.Sprintf("%s__mails", c.account.ID))
+	searchableAttributes := []string{"subject", "bodyhtml", "bodytext"}
+	index.UpdateSearchableAttributes(&searchableAttributes)
 	_, err := index.AddDocuments(map[string]interface{}{
 		"id": mail.ID, "bodyhtml": mail.HTMLBody, "bodytext": mail.TextBody, "subject": mail.Subject,
 	})
@@ -29,6 +31,8 @@ func (c *LoggedInAccount) AddMailToSearchIndex(mail *db.EmailModel) error {
 
 func (c *LoggedInAccount) AddAttachmentToSearchIndex(attachment *db.AttachmentModel) error {
 	index := meili.Index(fmt.Sprintf("%s__attachments", c.account.ID))
+	searchableAttributes := []string{"filename", "text"}
+	index.UpdateSearchableAttributes(&searchableAttributes)
 	_, err := index.AddDocuments(map[string]interface{}{
 		"id": attachment.ID, "filename": attachment.Filename, "text": attachment.TextContent, "mailId": attachment.EmailID,
 	})
