@@ -32,7 +32,7 @@ func init() {
 		}
 	}
 
-	prisma = db.NewClient()
+	prisma = db.NewClient(db.WithDatasourceURL(os.Getenv("DATABASE_URL")))
 	if err := prisma.Connect(); err != nil {
 		panic(fmt.Sprintf("could not connect to database: %v", err))
 	}

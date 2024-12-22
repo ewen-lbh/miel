@@ -28,32 +28,21 @@ services:
     env_file: .env
     environment:
       - MEILI_MASTER_KEY=$MEILISEARCH_MASTER_KEY
-  invertase:
-    build: packages/invertase
-    env_file: .env
-    environment:
-      - DATABASE_URL=file:///app/db.sqlite3
-      - MEILISEARCH_URL=http://meilisearch:7700
-      - REDIS_URL=redis://redis:6379
-    volumes:
-      - ./db.sqlite3:/app/db.sqlite3
-    depends_on:
-      - redis
-      - meilisearch
-      - nectar
-    develop:
-      watch:
-        - action: rebuild
-          path: ./packages/invertase
-  fructose:
-    build: packages/fructose
-    env_file: .env
-    depends_on:
-      - invertase
-    develop:
-      watch:
-        - action: rebuild
-          path: ./packages/fructose/package.json
-        - action: sync
-          path: ./packages/fructose
-          target: /app
+  # invertase:
+  #   build: packages/invertase
+  #   env_file: .env
+  #   environment:
+  #     - DATABASE_URL=file:///app/db.sqlite3
+  #     - MEILISEARCH_URL=http://meilisearch:7700
+  #     - REDIS_URL=redis://redis:6379
+  #   volumes:
+  #     - ./db.sqlite3:/app/db.sqlite3
+  #   depends_on:
+  #     - redis
+  #     - meilisearch
+  #     - nectar
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: ./packages/invertase
+ 
