@@ -4,6 +4,20 @@ services:
     ports:
       - 6379:6379
       - 8001:8001
+  nectar:
+    build: packages/nectar
+    env_file: .env
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./packages/nectar/attachments:/app/attachments
+    develop:
+      watch:
+        - action: rebuild
+          path: ./packages/nectar
+    environment:
+      - DATABASE_URL=file:///app/db.sqlite3
+      - MEILISEARCH_URL=http://meilisearch:7700
+      - REDIS_URL=redis://redis:6379
   meilisearch:
     image: getmeili/meilisearch:v1.11
     ports:
