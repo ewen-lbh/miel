@@ -10,7 +10,7 @@ export default defineConfig({
 		icons({
 			compiler: 'svelte',
 			defaultClass: 'icon',
-			scale: 1.25
+			scale: 1.25,
 		}),
 		houdini({
 			autoCodeGen: 'smart'
@@ -18,7 +18,18 @@ export default defineConfig({
 		sveltekit(),
 		kitRoutes<KIT_ROUTES>({
 			format_short: true,
-			format: 'route(path)'
+			format: 'route(path)',
+			PAGES: {
+				'/search': {
+					explicit_search_params: {
+						q: {
+							type: 'string',
+							required: true,
+							default: '""'
+						}
+					}
+				}
+			}
 		})
 	],
 	resolve: {

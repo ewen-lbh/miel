@@ -37,8 +37,13 @@ const PAGES = {
     return `/${account}/screener`
   },
   "/compose": `/compose`,
+  "/connect/google": `/connect/google`,
   "/register": `/register`,
-  "/search": `/search`
+  "/search": (q: (string), params?: {  }) => {
+    params = params ?? {}
+    params.q = params.q ?? ""; 
+    return `/search${appendSp({ q })}`
+  }
 }
 
 /**
@@ -148,7 +153,7 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 *
 * Full example:
 * ```ts
-* import type { KIT_ROUTES } from '$lib/ROUTES'
+* import type { KIT_ROUTES } from './ROUTES'
 * import { kitRoutes } from 'vite-plugin-kit-routes'
 *
 * kitRoutes<KIT_ROUTES>({
@@ -159,9 +164,9 @@ export function route<T extends keyof AllTypes>(key: T, ...params: any[]): strin
 * ```
 */
 export type KIT_ROUTES = {
-  PAGES: { '/': never, '/login': never, '/signup': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail', '/[account]/[mail]/metadata': 'account' | 'mail', '/[account]/addressbook': 'account', '/[account]/from/[address]': 'account' | 'address', '/[account]/inboxes': 'account', '/[account]/inboxes/[inbox]': 'account' | 'inbox', '/[account]/screener': 'account', '/compose': never, '/register': never, '/search': never }
+  PAGES: { '/': never, '/login': never, '/signup': never, '/[account]': 'account', '/[account]/[mail]': 'account' | 'mail', '/[account]/[mail]/metadata': 'account' | 'mail', '/[account]/addressbook': 'account', '/[account]/from/[address]': 'account' | 'address', '/[account]/inboxes': 'account', '/[account]/inboxes/[inbox]': 'account' | 'inbox', '/[account]/screener': 'account', '/compose': never, '/connect/google': never, '/register': never, '/search': never }
   SERVERS: Record<string, never>
   ACTIONS: Record<string, never>
   LINKS: Record<string, never>
-  Params: { account: never, mail: never, address: never, inbox: never }
+  Params: { account: never, mail: never, address: never, inbox: never, q: never }
 }
