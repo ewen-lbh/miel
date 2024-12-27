@@ -424,7 +424,7 @@ model ServerAuth {
   /// The username used to authenticate with the server.
   username String
 
-  /// Password for authentication (optional for OAuth2).
+  /// Password for authentication or refresh token when using OAuth2.
   password String?
 
   /// OAuth2 token for authentication (optional for password-based auth).
@@ -460,7 +460,7 @@ model Server {
   /// The username used to authenticate with the server.
   username String
 
-  /// Password for authentication (optional for OAuth2).
+  /// Password for authentication or refresh token when using OAuth2.
   password String?
 
   /// OAuth2 token for authentication (optional for password-based auth).

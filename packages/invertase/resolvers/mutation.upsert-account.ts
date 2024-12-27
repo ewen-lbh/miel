@@ -5,11 +5,15 @@ import { enforceNonNull, fieldName } from "../utils.js"
 
 const ServerInput = builder.inputType("ServerInput", {
   fields: (t) => ({
-    username: t.string({ required: false }),
     host: t.string({ required: false }),
     port: t.int({ defaultValue: 993, required: true }),
     tls: t.boolean({ defaultValue: true, required: true }),
+    username: t.string({ required: false }),
     password: t.string({ required: false }),
+    oauth: t.boolean({
+      required: false,
+      description: "Use OAuth authentication instead of username/password. ",
+    }),
   }),
 })
 
@@ -90,7 +94,9 @@ builder.mutationField(fieldName(), (t) =>
                 receiver.username ?? address,
                 "receiver username"
               ),
-              password: enforceNonNull(receiver.password, "receiver password"),
+              password: !receiver.oauth
+                ? enforceNonNull(receiver.password, "receiver password")
+                : "",
             },
           },
           senderAuth: sender
@@ -100,13 +106,18 @@ builder.mutationField(fieldName(), (t) =>
                     sender.username ?? address,
                     "sender username"
                   ),
-                  password: enforceNonNull(sender.password, "sender password"),
+                  password: !sender.oauth
+                    ? enforceNonNull(sender.password, "sender password")
+                    : "",
                 },
               }
             : undefined,
           receiverServer: {
             create: {
-              type: "IMAP",
+              type:
+                receiver.oauth && receiver.host?.endsWith("gmail.com")
+                  ? "Google"
+                  : "IMAP",
               host: enforceNonNull(receiver.host, "receiver host"),
               port: receiver.port,
               secure: receiver.tls,
@@ -119,7 +130,10 @@ builder.mutationField(fieldName(), (t) =>
           senderServer: sender
             ? {
                 create: {
-                  type: "SMTP",
+                  type:
+                    sender.oauth && sender.host?.endsWith("gmail.com")
+                      ? "Google"
+                      : "SMTP",
                   host: enforceNonNull(sender.host, "sender host"),
                   port: sender.port,
                   secure: sender.tls,

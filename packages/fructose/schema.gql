@@ -332,6 +332,18 @@ enum MailboxType {
 }
 
 type Mutation {
+  """
+  Initiate or finish a OAuth2 authorization flow to get a token for the server.
+  """
+  connectServerAccout(
+    """The URL to redirect to after authorization"""
+    callback: URL!
+    """
+    The authorization code from the OAuth2 provider. Set it to finish the connection. Leave it empty to initiate an authorization flow. If left empty, the mutation returns the URL to redirect to.
+    """
+    code: String
+    host: OauthHost
+  ): MutationConnectServerAccoutResult!
   enableNotifications(token: String): MutationEnableNotificationsResult!
   login(email: String!, password: String!): MutationLoginResult!
   logout(token: String): MutationLogoutResult!
@@ -373,6 +385,8 @@ type Mutation {
   ): MutationUpsertMailboxResult!
 }
 
+union MutationConnectServerAccoutResult = Account | Error | RedirectionError | UnauthorizedError | ZodError
+
 union MutationEnableNotificationsResult = Device | Error | UnauthorizedError | ZodError
 
 union MutationLoginResult = Error | NewSession | UnauthorizedError | ZodError
@@ -402,6 +416,11 @@ type NewSession {
 
 interface Node {
   id: ID!
+}
+
+"""The OAuth host to use"""
+enum OauthHost {
+  Google
 }
 
 type PageInfo {
@@ -510,6 +529,12 @@ type QueryScreeningsConnectionEdge {
   node: Address!
 }
 
+"""The user must be redirected to a URL."""
+type RedirectionError implements ErrorInterface {
+  message: String!
+  url: URL!
+}
+
 """Represents an email server used for sending or receiving emails."""
 type Server implements Node {
   """Hostname of the server."""
@@ -534,6 +559,8 @@ type Server implements Node {
 
 input ServerInput {
   host: String
+  """Use OAuth authentication instead of username/password. """
+  oauth: Boolean
   password: String
   port: Int! = 993
   tls: Boolean! = true

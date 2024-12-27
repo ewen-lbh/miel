@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { graphql, type CreateAccount$input } from '$houdini';
 	import ButtonPrimary from '$lib/components/ButtonPrimary.svelte';
 	import InputTextGhost from '$lib/components/InputTextGhost.svelte';
@@ -7,6 +8,7 @@
 	import SubmenuItem from '$lib/components/SubmenuItem.svelte';
 	import { route } from '$lib/ROUTES';
 	import { toasts } from '$lib/toasts';
+	import IconGmail from '~icons/logos/google-gmail';
 	import IconServer from '~icons/msl/database-outline';
 	import IconReceive from '~icons/msl/download';
 	import IconPassword from '~icons/msl/lock-outline';
@@ -61,6 +63,17 @@
 		senderPort: 587
 	});
 
+	const ConnectGmailAccount = graphql(`
+		mutation ConnectGoogleAccount($callback: URL!) {
+			connectServerAccout(callback: $callback, host: Google) {
+				...MutationErrors
+				... on RedirectionError {
+					url
+				}
+			}
+		}
+	`);
+
 	$effect(() => {
 		if (account.senderHost === '' && account.receiverHost !== '') {
 			account.senderHost = account.receiverHost;
@@ -70,6 +83,22 @@
 
 <div class="content">
 	<Submenu>
+		<SubmenuItem
+			icon={IconGmail}
+			clickable
+			onclick={async () => {
+				const connection = await ConnectGmailAccount.mutate({
+					callback: new URL(route('/connect/google'), $page.url.origin)
+				});
+				if (connection.data?.connectServerAccout.__typename === 'RedirectionError') {
+					window.location.href = connection.data?.connectServerAccout.url.toString();
+				}
+
+				toasts.mutation(connection, 'connectServerAccout', '', 'Could not connect account');
+			}}
+		>
+			Add a Gmail account
+		</SubmenuItem>
 		<SubmenuItem label icon={IconServer} subtext="Your mail server">
 			<InputTextGhost
 				required

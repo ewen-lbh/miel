@@ -6,6 +6,15 @@ import {
 import { prisma } from "../builder.js"
 import type { Prisma } from "../prisma/index.js"
 
+export class RedirectionError extends Error {
+  url: URL
+
+  constructor(url: URL) {
+    super(`Go to ${url}`)
+    this.url = url
+  }
+}
+
 export class UnauthorizedError extends Error {
   constructor(message: string) {
     super(message)
@@ -39,7 +48,7 @@ export type SessionTokenValidateResult =
     }
 
 export async function validateSessionToken(
-  token: string |null|undefined
+  token: string | null | undefined
 ): Promise<SessionTokenValidateResult> {
   if (!token) return { session: undefined, token: undefined }
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)))

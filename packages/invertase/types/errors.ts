@@ -1,13 +1,16 @@
 import { ZodError, type ZodFormattedError } from "zod"
 import { builder } from "../builder.js"
-import { UnauthorizedError } from "../lib/auth.js"
+import { RedirectionError, UnauthorizedError } from "../lib/auth.js"
+import { URLType } from "./url.js"
 
-const ErrorInterface = builder.interfaceRef<Error>("ErrorInterface").implement({
-  description: "Basic interface for all error types to implement.",
-  fields: (t) => ({
-    message: t.exposeString("message"),
-  }),
-})
+export const ErrorInterface = builder
+  .interfaceRef<Error>("ErrorInterface")
+  .implement({
+    description: "Basic interface for all error types to implement.",
+    fields: (t) => ({
+      message: t.exposeString("message"),
+    }),
+  })
 
 builder.objectType(Error, {
   name: "Error",
@@ -68,4 +71,18 @@ builder.objectType(UnauthorizedError, {
   name: "UnauthorizedError",
   description: "An error representing an unauthorized request.",
   interfaces: [ErrorInterface],
+})
+
+builder.objectType(RedirectionError, {
+  name: "RedirectionError",
+  description: "The user must be redirected to a URL.",
+  interfaces: [ErrorInterface],
+  fields: (t) => ({
+    url: t.field({
+      type: URLType,
+      resolve(err) {
+        return err.url.toString()
+      },
+    }),
+  }),
 })
